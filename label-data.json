@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T11:02:21.022Z",
+  "exportedAt": "2026-06-21T11:03:31.331Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -24,6 +24,16 @@
     {
       "name": "新莊",
       "location": "新莊",
+      "col": 1
+    },
+    {
+      "name": "鑫",
+      "location": "宜蘭",
+      "col": 1
+    },
+    {
+      "name": "153",
+      "location": "力行",
       "col": 1
     }
   ],
