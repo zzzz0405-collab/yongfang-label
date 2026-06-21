@@ -2618,6 +2618,9 @@
         }
 
         function shouldApplyRemoteData(data) {
+            if (!canSaveToGitHub()) {
+                return true;
+            }
             const remoteTime = getRemoteDataTimestamp(data);
             const localTime = getLocalDataTimestamp();
             try {
@@ -3108,29 +3111,36 @@
 
         async function loadDataFromGitHub(options = {}) {
             const force = options.force === true;
+            const readOnly = !canSaveToGitHub();
             let data = null;
-            if (canSaveToGitHub()) {
+
+            if (readOnly) {
+                data = await fetchGitHubDataFromPages();
+                if (!data) data = await fetchGitHubDataPublic();
+            } else {
                 try {
                     data = await fetchGitHubDataApi();
                 } catch (err) {
-                    console.warn('GitHub API 載入失敗，改試公開 URL', err);
+                    console.warn('GitHub API 載入失敗，改試 GitHub Pages', err);
                 }
-            }
-            if (!data) {
-                data = await fetchGitHubDataFromPages();
-            }
-            if (!data) {
-                data = await fetchGitHubDataPublic();
+                if (!data) data = await fetchGitHubDataFromPages();
+                if (!data) data = await fetchGitHubDataPublic();
             }
 
             let applied = false;
             if (data) {
+                sessionStorage.removeItem('lastGitHubSyncError');
                 if (force || shouldApplyRemoteData(data)) {
                     applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
                     applied = true;
+                    if (readOnly) {
+                        sessionStorage.setItem('lastGitHubReadOnlyLoadAt', data.exportedAt || new Date().toISOString());
+                    }
                 } else {
                     persistGitHubDataIfConfigured();
                 }
+            } else if (readOnly) {
+                sessionStorage.setItem('lastGitHubSyncError', '無法讀取 label-data.json（請確認 GitHub Pages 已部署且檔案存在）');
             }
 
             if (canSaveToGitHub()) {
@@ -3228,7 +3238,11 @@
             if (cfg.token) {
                 saveState = '<strong style="color:#28a745;">可讀寫</strong>（本機 Token，改完約 1 秒自動存）';
             } else {
-                saveState = '<strong style="color:#fd7e14;">僅讀取</strong>（無 Token 可從 GitHub Pages 載入資料，但無法寫入；要改資料請填 Token）';
+                const readAt = sessionStorage.getItem('lastGitHubReadOnlyLoadAt');
+                const readNote = readAt
+                    ? ` · 已載入 GitHub 資料（${formatSyncTime(readAt)}）`
+                    : '';
+                saveState = `<strong style="color:#17a2b8;">唯讀</strong>（無 Token，刷新時自動從 GitHub Pages 載入；要改資料請填 Token）${readNote}`;
             }
             let syncNote = '';
             if (githubSyncState === 'saving') {
@@ -3302,7 +3316,7 @@
 
         async function loadFromGitHubNow() {
             try {
-                saveGitHubConfig();
+                if (canSaveToGitHub()) saveGitHubConfig();
                 const ok = await loadDataFromGitHub({ force: true });
                 normalizeCustomerColumns();
                 renderUI();
@@ -3310,7 +3324,13 @@
                 renderDraftPanel();
                 updateSyncStatusDisplay();
                 updateGitHubStatusDisplay();
-                alert(ok ? '已從 GitHub 載入資料' : 'GitHub 上尚無資料檔，請先按「立即同步」');
+                if (ok) {
+                    alert(`已從 GitHub 載入資料（客戶 ${customers.length} 筆）`);
+                } else if (!canSaveToGitHub()) {
+                    alert('無法讀取 GitHub 資料。\n\n請確認：\n1. 已上傳最新 index.html 到 GitHub\n2. label-data.json 存在且 GitHub Pages 已部署\n3. 再按 Ctrl+Shift+R 強制刷新');
+                } else {
+                    alert('GitHub 上尚無資料檔，請先按「立即同步」');
+                }
             } catch (err) {
                 alert('載入失敗：' + err.message);
             }
