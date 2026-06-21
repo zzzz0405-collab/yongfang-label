@@ -188,7 +188,7 @@
             color: #007bff;
         }
         .customer-list-container {
-            --customer-cell-height: 56px;
+            --customer-cell-height: 72px;
             --customer-grid-gap: 2px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -208,33 +208,58 @@
             min-width: 0;
         }
         .customer-item {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: minmax(26px, auto) 1fr;
+            grid-template-rows: auto auto 1fr;
             align-items: stretch;
-            justify-content: flex-start;
-            text-align: left;
+            text-align: center;
             background: #ffffff;
-            padding: 3px 4px;
+            padding: 2px;
             border: 1px solid #e0e0e0;
             border-radius: 2px;
             min-height: var(--customer-cell-height);
             box-sizing: border-box;
-            gap: 2px;
+            gap: 0;
         }
-        .customer-top {
+        .customer-name {
+            grid-row: 1 / span 3;
+            grid-column: 1;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            width: 100%;
-            gap: 4px;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 18px;
+            font-weight: bold;
+            color: #222;
+            letter-spacing: 1px;
+            border-right: 1px solid #ececec;
+            padding: 2px 1px;
             cursor: pointer;
             user-select: none;
-            line-height: 1.15;
-            min-width: 0;
+            line-height: 1;
         }
-        .customer-top:hover { background: #eef6ff; border-radius: 2px; }
-        .customer-name { font-size: 21px; font-weight: bold; color: #222; white-space: nowrap; flex-shrink: 0; }
-        .customer-loc { font-size: 14px; color: #666; font-weight: normal; white-space: nowrap; text-align: right; flex-shrink: 0; margin-left: auto; }
+        .customer-name:hover { background: #eef6ff; border-radius: 2px 0 0 2px; }
+        .customer-loc {
+            grid-row: 1;
+            grid-column: 2;
+            font-size: 13px;
+            color: #444;
+            font-weight: bold;
+            line-height: 1.2;
+            padding: 1px 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .customer-qty-head {
+            grid-row: 2;
+            grid-column: 2;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.1;
+            padding: 0 2px;
+        }
         .customer-qty-plus {
             flex: none; width: 22px; height: 22px; min-width: 22px; min-height: 22px; padding: 0;
             border: 1px solid #28a745; border-radius: 3px; background: #d4edda;
@@ -252,11 +277,20 @@
         }
         .customer-qty-minus:hover { background: #f1b0b7; }
         .customer-qty-minus:disabled { opacity: 0.4; cursor: not-allowed; }
-        .customer-qty-row { display: flex; align-items: center; justify-content: flex-end; gap: 1px; margin-top: 0; flex-shrink: 0; align-self: flex-end; }
-        .customer-qty-input { width: 42px; padding: 2px; font-size: 16px; text-align: center; border: 1px solid #888; border-radius: 3px; background: #fff; }
+        .customer-qty-row {
+            grid-row: 3;
+            grid-column: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1px;
+            padding: 0 2px 2px;
+            min-width: 0;
+        }
+        .customer-qty-input { width: 36px; padding: 1px; font-size: 15px; text-align: center; border: 1px solid #888; border-radius: 3px; background: #fff; }
         .customer-qty-input.has-qty { background: #cfe2ff; border-color: #0d6efd; }
         .customer-qty-input:focus { outline: 2px solid #0d6efd; outline-offset: 0; }
-        .customer-qty-label { font-size: 12px; color: #555; }
+        .customer-qty-label { display: none; }
 
         /* 品項選擇區塊 */
         .product-panel { display: flex; gap: 8px; align-items: flex-start; }
@@ -1482,10 +1516,9 @@
             const qtyNum = parseInt(savedQty) || 0;
             return `
                 <div class="customer-item">
-                    <div class="customer-top" onclick="incrementCustomerQty(this)" title="點一下加 1 件">
-                        <span class="customer-name">${cust.name}</span>
-                        <span class="customer-loc">${cust.location}</span>
-                    </div>
+                    <div class="customer-name" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${cust.name}</div>
+                    <div class="customer-loc">${cust.location}</div>
+                    <div class="customer-qty-head">件數</div>
                     <div class="customer-qty-row">
                         <button type="button" class="customer-qty-minus" onclick="event.stopPropagation(); decrementCustomerQty(this)" title="減 1 件">－</button>
                         <input type="number" data-cust="${cust.name}" data-loc="${cust.location}" data-col="${cust.col}" data-row="${rowIndex}" class="customer-qty-input${qtyNum > 0 ? ' has-qty' : ''}" value="${savedQty}" min="0" oninput="syncPreview()" onchange="syncPreview()" onclick="this.select()" onkeydown="handleCustomerQtyKeydown(event)">
