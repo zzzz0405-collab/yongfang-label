@@ -188,7 +188,7 @@
             color: #007bff;
         }
         .customer-list-container {
-            --customer-cell-height: 72px;
+            --customer-cell-height: 64px;
             --customer-grid-gap: 2px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -220,17 +220,18 @@
             overflow: hidden;
         }
         .customer-name {
-            flex: 0 0 30px;
-            width: 30px;
+            flex: 0 0 50%;
+            width: 50%;
+            max-width: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             writing-mode: vertical-rl;
             text-orientation: upright;
-            font-size: 17px;
+            font-size: clamp(20px, 2.4vw, 28px);
             font-weight: bold;
             color: #222;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             border-right: 1px solid #bdbdbd;
             padding: 2px 0;
             cursor: pointer;
@@ -240,16 +241,18 @@
         }
         .customer-name:hover { background: #eef6ff; }
         .customer-side {
-            flex: 1;
+            flex: 0 0 50%;
+            width: 50%;
+            max-width: 50%;
             min-width: 0;
             display: grid;
-            grid-template-rows: repeat(3, 1fr);
+            grid-template-rows: 1fr 1fr;
         }
         .customer-loc {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 14px;
             color: #333;
             font-weight: bold;
             line-height: 1.1;
@@ -257,16 +260,6 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding: 0 2px;
-        }
-        .customer-qty-head {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            color: #555;
-            line-height: 1;
-            border-bottom: 1px solid #e0e0e0;
             padding: 0 2px;
         }
         .customer-qty-plus {
@@ -278,7 +271,7 @@
         }
         .customer-qty-plus:hover { background: #c3e6cb; }
         .customer-qty-minus {
-            flex: none; width: 14px; height: 14px; min-width: 14px; min-height: 14px; padding: 0;
+            flex: none; width: 18px; height: 18px; min-width: 18px; min-height: 18px; padding: 0;
             border: 1px solid #dc3545; border-radius: 2px; background: #f8d7da;
             color: #721c24; font-size: 12px; font-weight: bold; line-height: 1;
             cursor: pointer; font-family: inherit; box-sizing: border-box;
@@ -294,7 +287,7 @@
             padding: 0 2px;
             min-width: 0;
         }
-        .customer-qty-input { width: 34px; padding: 0; font-size: 14px; text-align: center; border: 1px solid #888; border-radius: 2px; background: #fff; height: 20px; }
+        .customer-qty-input { width: 38px; padding: 0; font-size: 15px; text-align: center; border: 1px solid #888; border-radius: 2px; background: #fff; height: 22px; }
         .customer-qty-input.has-qty { background: #cfe2ff; border-color: #0d6efd; }
         .customer-qty-input:focus { outline: 2px solid #0d6efd; outline-offset: 0; }
         .customer-qty-label { display: none; }
@@ -376,9 +369,9 @@
         }
         .customer-qty-plus:hover { background: #c3e6cb; }
         .customer-qty-minus {
-            width: 14px; height: 14px; min-width: 14px; min-height: 14px;
+            width: 18px; height: 18px; min-width: 18px; min-height: 18px;
             border: 1px solid #dc3545; border-radius: 2px;
-            background: #f8d7da; color: #721c24; font-size: 12px;
+            background: #f8d7da; color: #721c24; font-size: 13px;
         }
         .customer-qty-minus:hover { background: #f1b0b7; }
         .btn-print { background-color: #28a745; color: white; font-size: 18px;}
@@ -1655,7 +1648,6 @@
                     <div class="customer-name" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${cust.name}</div>
                     <div class="customer-side">
                         <div class="customer-loc">${cust.location}</div>
-                        <div class="customer-qty-head">件數</div>
                         <div class="customer-qty-row">
                             <button type="button" class="customer-qty-minus" onclick="event.stopPropagation(); decrementCustomerQty(this)" title="減 1 件">－</button>
                             <input type="number" data-cust="${cust.name}" data-loc="${cust.location}" data-col="${cust.col}" data-row="${rowIndex}" class="customer-qty-input${qtyNum > 0 ? ' has-qty' : ''}" value="${savedQty}" min="0" oninput="syncPreview()" onchange="syncPreview()" onclick="this.select()" onkeydown="handleCustomerQtyKeydown(event)">
