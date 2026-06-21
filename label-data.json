@@ -1,17 +1,10 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T09:23:19.125Z",
+  "exportedAt": "2026-06-21T09:23:34.229Z",
   "myProducts": [
-    "空心菜",
-    "菠菜",
-    "青蔥",
-    "高麗菜",
-    "大陸妹",
-    "空心",
-    "青江",
     "空白"
   ],
-  "selectedProduct": "青江",
+  "selectedProduct": "空白",
   "myCustomersList": [
     {
       "name": "家慶",
