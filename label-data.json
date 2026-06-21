@@ -1,12 +1,13 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T09:24:13.752Z",
+  "exportedAt": "2026-06-21T09:24:18.448Z",
   "myProducts": [
     "青蔥",
     "小白",
+    "A菜",
     "空白"
   ],
-  "selectedProduct": "小白",
+  "selectedProduct": "A菜",
   "myCustomersList": [
     {
       "name": "家慶",
