@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T09:29:23.168Z",
+  "exportedAt": "2026-06-21T09:30:24.729Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -15,113 +15,7 @@
     "空白"
   ],
   "selectedProduct": "大陸妹",
-  "myCustomersList": [
-    {
-      "name": "永芳",
-      "location": "西螺",
-      "col": 3
-    },
-    {
-      "name": "進發",
-      "location": "基隆",
-      "col": 4
-    },
-    {
-      "name": "A",
-      "location": "台北",
-      "col": 5
-    },
-    {
-      "name": "399",
-      "location": "台北",
-      "col": 1
-    },
-    {
-      "name": "577",
-      "location": "台北",
-      "col": 2
-    },
-    {
-      "name": "623",
-      "location": "台北",
-      "col": 3
-    },
-    {
-      "name": "630",
-      "location": "台北",
-      "col": 4
-    },
-    {
-      "name": "648",
-      "location": "台北",
-      "col": 5
-    },
-    {
-      "name": "木山",
-      "location": "台北",
-      "col": 1
-    },
-    {
-      "name": "宏昌",
-      "location": "台北",
-      "col": 2
-    },
-    {
-      "name": "大象",
-      "location": "板橋",
-      "col": 3
-    },
-    {
-      "name": "原",
-      "location": "板橋",
-      "col": 4
-    },
-    {
-      "name": "得意",
-      "location": "板橋",
-      "col": 5
-    },
-    {
-      "name": "建隆",
-      "location": "基隆",
-      "col": 1
-    },
-    {
-      "name": "雙隆",
-      "location": "基隆",
-      "col": 2
-    },
-    {
-      "name": "新莊",
-      "location": "新莊",
-      "col": 3
-    },
-    {
-      "name": "永成",
-      "location": "基隆",
-      "col": 4
-    },
-    {
-      "name": "裕成",
-      "location": "基隆",
-      "col": 5
-    },
-    {
-      "name": "鴻順",
-      "location": "基隆",
-      "col": 1
-    },
-    {
-      "name": "42",
-      "location": "力行",
-      "col": 2
-    },
-    {
-      "name": "153",
-      "location": "力行",
-      "col": 3
-    }
-  ],
+  "myCustomersList": [],
   "labelPrintCount": 4,
   "printHistory": [
     {
