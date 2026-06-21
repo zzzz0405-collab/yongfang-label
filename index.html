@@ -20,6 +20,7 @@
         .control-panel {
             background: #ffffff;
             padding: 20px;
+            padding-bottom: 48px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             flex: 1;
@@ -187,7 +188,7 @@
             color: #007bff;
         }
         .customer-list-container {
-            --customer-cell-height: 42px;
+            --customer-cell-height: 56px;
             --customer-grid-gap: 2px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -208,25 +209,32 @@
         }
         .customer-item {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
             text-align: left;
             background: #ffffff;
-            padding: 1px 4px;
+            padding: 3px 4px;
             border: 1px solid #e0e0e0;
             border-radius: 2px;
             min-height: var(--customer-cell-height);
             box-sizing: border-box;
-            gap: 3px;
+            gap: 2px;
         }
-        .customer-info {
-            display: flex; align-items: center; gap: 3px; flex: 1; min-width: 0; overflow: hidden; line-height: 1.15;
-            cursor: pointer; user-select: none;
+        .customer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            gap: 4px;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.15;
+            min-width: 0;
         }
-        .customer-info:hover { background: #eef6ff; border-radius: 2px; }
+        .customer-top:hover { background: #eef6ff; border-radius: 2px; }
         .customer-name { font-size: 21px; font-weight: bold; color: #222; white-space: nowrap; flex-shrink: 0; }
-        .customer-loc { font-size: 14px; color: #666; font-weight: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .customer-loc { font-size: 14px; color: #666; font-weight: normal; white-space: nowrap; text-align: right; flex-shrink: 0; margin-left: auto; }
         .customer-qty-plus {
             flex: none; width: 22px; height: 22px; min-width: 22px; min-height: 22px; padding: 0;
             border: 1px solid #28a745; border-radius: 3px; background: #d4edda;
@@ -244,7 +252,7 @@
         }
         .customer-qty-minus:hover { background: #f1b0b7; }
         .customer-qty-minus:disabled { opacity: 0.4; cursor: not-allowed; }
-        .customer-qty-row { display: flex; align-items: center; justify-content: flex-end; gap: 1px; margin-top: 0; flex-shrink: 0; }
+        .customer-qty-row { display: flex; align-items: center; justify-content: flex-end; gap: 1px; margin-top: 0; flex-shrink: 0; align-self: flex-end; }
         .customer-qty-input { width: 42px; padding: 2px; font-size: 16px; text-align: center; border: 1px solid #888; border-radius: 3px; background: #fff; }
         .customer-qty-input.has-qty { background: #cfe2ff; border-color: #0d6efd; }
         .customer-qty-input:focus { outline: 2px solid #0d6efd; outline-offset: 0; }
@@ -574,22 +582,7 @@
         </div>
 
         <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-            <label style="margin-bottom: 8px;">3. 本機 / Google Drive（HTML 檔）：</label>
-            <div style="background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; padding:10px; margin-bottom:10px; font-size:13px; color:#555; line-height:1.6; font-weight:normal;">
-                雙擊開啟 HTML 時使用。第一次按「連結此 HTML 檔」後，修改會自動寫回同一個檔案。
-            </div>
-            <div id="sync-status" style="font-size:12px; color:#888; margin-bottom:8px; font-weight:normal;"></div>
-            <div class="btn-group" style="margin-top: 0;">
-                <button type="button" class="btn-mini" style="background-color: #6f42c1;" onclick="linkHtmlDataFile()">🔗 連結此 HTML 檔</button>
-                <button type="button" class="btn-mini" style="background-color: #4285f4;" onclick="saveHtmlDataFile()">💾 儲存到 HTML</button>
-                <button type="button" class="btn-mini" style="background-color: #34a853;" onclick="document.getElementById('import-file').click()">⬆️ 從舊版 JSON 匯入</button>
-            </div>
-            <button type="button" class="btn-mini" style="background-color: #17a2b8; width:100%; margin-top:8px;" onclick="restoreMissingDataFromPrintHistory()">🔄 從列印紀錄還原客戶/品項</button>
-            <input type="file" id="import-file" accept=".json,application/json" style="display:none;" onchange="importLegacyDataFile(this)">
-        </div>
-
-        <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-            <label style="margin-bottom: 8px;">4. GitHub 雲端同步（架在 GitHub Pages）：</label>
+            <label style="margin-bottom: 8px;">3. GitHub 雲端同步：</label>
             <div style="background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px; padding:10px; margin-bottom:10px; font-size:13px; color:#555; line-height:1.6; font-weight:normal;">
                 資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完自動 commit。<br>
                 需申請 GitHub <strong>Personal Access Token</strong>（權限：repo），Token 只存在瀏覽器，不會上傳。
@@ -615,7 +608,7 @@
 
     <aside class="draft-panel">
         <h3>📝 出貨草稿</h3>
-        <p class="draft-hint">勾選要列印的品項，下拉可更改品項，點 ▶ 可展開客戶明細。列印後僅移除已列印品項。草稿會自動儲存（GitHub 或 HTML 連結後可同步）。</p>
+        <p class="draft-hint">勾選要列印的品項，下拉可更改品項，點 ▶ 可展開客戶明細。列印後僅移除已列印品項。草稿會自動儲存到 GitHub。</p>
         <div class="draft-summary" id="draft-summary">共 0 品項，合計 0 張標籤</div>
         <div class="draft-select-actions" id="draft-select-actions" style="display:none;">
             <button type="button" onclick="selectAllDraftProducts(true)">全選</button>
@@ -729,7 +722,7 @@
             </div>
 
             <div class="history-footer">
-                <span style="font-size:13px; color:#666;">列印紀錄保存在此 HTML 檔（請先按「連結此 HTML 檔」才能自動存檔）</span>
+                <span style="font-size:13px; color:#666;">列印紀錄保存在 GitHub（設定 Token 後自動同步）</span>
                 <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="clearPrintHistory()">🗑️ 清除全部紀錄</button>
             </div>
         </div>
@@ -1489,7 +1482,7 @@
             const qtyNum = parseInt(savedQty) || 0;
             return `
                 <div class="customer-item">
-                    <div class="customer-info" onclick="incrementCustomerQty(this)" title="點一下加 1 件">
+                    <div class="customer-top" onclick="incrementCustomerQty(this)" title="點一下加 1 件">
                         <span class="customer-name">${cust.name}</span>
                         <span class="customer-loc">${cust.location}</span>
                     </div>
@@ -2495,20 +2488,6 @@
         }
 
         function updateSyncStatusDisplay() {
-            const el = document.getElementById('sync-status');
-            if (!el) return;
-            const exported = localStorage.getItem('lastSyncExportedAt');
-            const imported = localStorage.getItem('lastSyncImportedAt');
-            const fileExported = localStorage.getItem('lastSyncFileExportedAt');
-            let text = htmlFileHandle
-                ? `HTML 資料檔：<strong style="color:#28a745;">${htmlFileName || DEFAULT_HTML_FILE}</strong>（已連結，客戶/品項/草稿/紀錄自動同步）`
-                : `HTML 資料檔：<strong style="color:#dc3545;">未連結</strong>（開啟 HTML 會讀內嵌資料；要自動存檔請按「連結此 HTML 檔」）`;
-            text += `<br>本機上次儲存：${formatSyncTime(exported)}　|　本機上次匯入：${formatSyncTime(imported)}`;
-            if (fileExported) {
-                text += `<br>HTML 內資料時間：${formatSyncTime(fileExported)}`;
-            }
-            text += `<br>出貨草稿：${printDraft.length} 筆${htmlFileHandle ? '（修改後自動寫入 HTML）' : '（請連結 HTML 才能寫回檔案）'}`;
-            el.innerHTML = text;
             updateGitHubStatusDisplay();
         }
 
@@ -2686,7 +2665,7 @@
             const saveState = cfg.token
                 ? '<strong style="color:#28a745;">可讀寫</strong>（修改後約 1 秒自動存到 GitHub）'
                 : '<strong style="color:#fd7e14;">僅可讀</strong>（公開 repo 可載入；要寫入請填 Token）';
-            el.innerHTML = `GitHub：${cfg.owner}/${cfg.repo} · ${cfg.dataPath} · ${saveState}<br>上次同步：${formatSyncTime(last)}`;
+            el.innerHTML = `GitHub：${cfg.owner}/${cfg.repo} · ${cfg.dataPath} · ${saveState}<br>上次同步：${formatSyncTime(last)} · 出貨草稿：${printDraft.length} 筆`;
         }
 
         function saveGitHubConfig() {
