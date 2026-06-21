@@ -821,7 +821,6 @@
                 <label>3. GitHub 雲端同步</label>
                 <div class="github-sync-actions">
                     <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="openGitHubSettingsModal()">⚙️ 設定</button>
-                    <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 儲存到 GitHub</button>
                 </div>
             </div>
             <div id="github-sync-status" style="font-size:12px;color:#888;font-weight:normal;"></div>
@@ -854,22 +853,22 @@
                 <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="closeGitHubSettingsModal()">✖ 關閉</button>
             </div>
             <div class="github-settings-note">
-                資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完會自動 commit。<br>
-                需申請 GitHub <strong>Personal Access Token</strong>（權限：repo），Token 只存在瀏覽器，不會上傳。
+                資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完約 1 秒<strong>自動存</strong>。<br>
+                Token 寫在程式 <code style="background:#eee;padding:1px 4px;">EMBEDDED_GITHUB.token</code>，有密碼即可各台編輯。GitHub 上傳時若警告，選 <strong>I'll fix it later</strong> 即可提交。
             </div>
             <div class="github-settings-grid">
-                <input type="text" id="github-owner" placeholder="GitHub 帳號">
-                <input type="text" id="github-repo" placeholder="repo 名稱（如 yongfang-label）">
+                <input type="text" id="github-owner" placeholder="GitHub 帳號（留空則自動帶入）">
+                <input type="text" id="github-repo" placeholder="repo 名稱（留空則自動帶入）">
                 <input type="text" id="github-branch" placeholder="分支（預設 main）">
                 <input type="text" id="github-data-path" placeholder="資料檔（預設 label-data.json）">
             </div>
-            <input type="password" id="github-token" placeholder="Personal Access Token（用於寫入 GitHub）" style="margin-bottom:12px;">
             <div class="btn-group" style="margin-top:0;">
                 <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
                 <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="testGitHubConnection()">🔌 測試連線</button>
             </div>
             <div class="btn-group" style="margin-top:8px;">
                 <button type="button" class="btn-mini" style="background-color:#2da44e;" onclick="loadFromGitHubNow()">⬇️ 從 GitHub 載入</button>
+                <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
             </div>
         </div>
     </div>
@@ -972,7 +971,7 @@
             </div>
 
             <div class="history-footer">
-                <span style="font-size:13px; color:#666;">列印紀錄保存在 GitHub（設定 Token 後自動同步）</span>
+                <span style="font-size:13px; color:#666;">列印紀錄保存在 GitHub（有密碼即可編輯同步）</span>
                 <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="clearPrintHistory()">🗑️ 清除全部紀錄</button>
             </div>
         </div>
@@ -2005,6 +2004,7 @@
             localStorage.setItem('selectedProduct', prod);
             renderProductBoxes();
             syncPreview();
+            persistEmbeddedDataIfLinked();
         }
 
         function renderProductBoxes() {
@@ -2784,6 +2784,14 @@
         }
 
         // --- GitHub 雲端同步 ---
+        // 方案 A：Token 寫在下方（上傳時 GitHub 會警告，可選 I'll fix it later 強制提交）
+        const EMBEDDED_GITHUB = {
+            owner: '',
+            repo: '',
+            branch: 'main',
+            dataPath: 'label-data.json',
+            token: ''
+        };
         const GITHUB_KEYS = {
             owner: 'githubSyncOwner',
             repo: 'githubSyncRepo',
@@ -2796,6 +2804,17 @@
         let githubDataSha = null;
         let githubSaveTimer = null;
         let githubSaveChain = Promise.resolve();
+        let githubSyncState = 'idle';
+
+        function setGitHubSyncState(state, errMsg) {
+            githubSyncState = state;
+            if (state === 'error') {
+                sessionStorage.setItem('lastGitHubSyncError', errMsg || '同步失敗');
+            } else {
+                sessionStorage.removeItem('lastGitHubSyncError');
+            }
+            updateGitHubStatusDisplay();
+        }
 
         function getGitHubShaStorageKey() {
             const cfg = getGitHubConfig();
@@ -2841,6 +2860,16 @@
             return msg.includes('does not match') || msg.includes('sha') || msg.includes('409');
         }
 
+        function getEmbeddedGitHubToken() {
+            const token = String(EMBEDDED_GITHUB.token || '').trim();
+            if (!token) return '';
+            return token;
+        }
+
+        function hasEmbeddedGitHubToken() {
+            return !!getEmbeddedGitHubToken();
+        }
+
         function detectGitHubPagesRepo() {
             if (!location.hostname.endsWith('github.io')) return null;
             const parts = location.pathname.split('/').filter(Boolean);
@@ -2855,15 +2884,15 @@
 
         function getGitHubConfig() {
             const detected = detectGitHubPagesRepo();
-            const owner = (localStorage.getItem(GITHUB_KEYS.owner) || detected?.owner || '').trim();
-            const repo = (localStorage.getItem(GITHUB_KEYS.repo) || detected?.repo || '').trim();
+            const owner = (localStorage.getItem(GITHUB_KEYS.owner) || EMBEDDED_GITHUB.owner || detected?.owner || '').trim();
+            const repo = (localStorage.getItem(GITHUB_KEYS.repo) || EMBEDDED_GITHUB.repo || detected?.repo || '').trim();
             if (!owner || !repo) return null;
             return {
                 owner,
                 repo,
-                branch: (localStorage.getItem(GITHUB_KEYS.branch) || detected?.branch || DEFAULT_GITHUB_BRANCH).trim(),
-                dataPath: (localStorage.getItem(GITHUB_KEYS.dataPath) || detected?.dataPath || DEFAULT_GITHUB_DATA_PATH).trim(),
-                token: (localStorage.getItem(GITHUB_KEYS.token) || '').trim()
+                branch: (localStorage.getItem(GITHUB_KEYS.branch) || EMBEDDED_GITHUB.branch || detected?.branch || DEFAULT_GITHUB_BRANCH).trim(),
+                dataPath: (localStorage.getItem(GITHUB_KEYS.dataPath) || EMBEDDED_GITHUB.dataPath || detected?.dataPath || DEFAULT_GITHUB_DATA_PATH).trim(),
+                token: (getEmbeddedGitHubToken() || localStorage.getItem(GITHUB_KEYS.token) || '').trim()
             };
         }
 
@@ -2992,13 +3021,15 @@
             if (!canSaveToGitHub()) return;
             clearTimeout(githubSaveTimer);
             githubSaveTimer = setTimeout(() => {
+                setGitHubSyncState('saving');
                 githubSaveChain = githubSaveChain
                     .then(() => saveAllDataToGitHub())
+                    .then(() => setGitHubSyncState('saved'))
                     .catch(err => {
                         console.error('GitHub 同步失敗', err);
-                        updateGitHubStatusDisplay();
+                        setGitHubSyncState('error', err.message);
                     });
-            }, 1200);
+            }, 800);
         }
 
         function fillGitHubConfigForm() {
@@ -3007,13 +3038,11 @@
             const repoEl = document.getElementById('github-repo');
             const branchEl = document.getElementById('github-branch');
             const pathEl = document.getElementById('github-data-path');
-            const tokenEl = document.getElementById('github-token');
             if (!ownerEl) return;
-            ownerEl.value = localStorage.getItem(GITHUB_KEYS.owner) || detected?.owner || '';
-            repoEl.value = localStorage.getItem(GITHUB_KEYS.repo) || detected?.repo || '';
-            branchEl.value = localStorage.getItem(GITHUB_KEYS.branch) || DEFAULT_GITHUB_BRANCH;
-            pathEl.value = localStorage.getItem(GITHUB_KEYS.dataPath) || DEFAULT_GITHUB_DATA_PATH;
-            tokenEl.value = localStorage.getItem(GITHUB_KEYS.token) || '';
+            ownerEl.value = localStorage.getItem(GITHUB_KEYS.owner) || EMBEDDED_GITHUB.owner || detected?.owner || '';
+            repoEl.value = localStorage.getItem(GITHUB_KEYS.repo) || EMBEDDED_GITHUB.repo || detected?.repo || '';
+            branchEl.value = localStorage.getItem(GITHUB_KEYS.branch) || EMBEDDED_GITHUB.branch || DEFAULT_GITHUB_BRANCH;
+            pathEl.value = localStorage.getItem(GITHUB_KEYS.dataPath) || EMBEDDED_GITHUB.dataPath || DEFAULT_GITHUB_DATA_PATH;
         }
 
         function updateGitHubStatusDisplay() {
@@ -3021,14 +3050,26 @@
             if (!el) return;
             const cfg = getGitHubConfig();
             if (!cfg) {
-                el.innerHTML = 'GitHub：<strong style="color:#dc3545;">未設定</strong>（填寫帳號、repo、Token 後按儲存設定）';
+                el.innerHTML = 'GitHub：<strong style="color:#dc3545;">未設定</strong>（請確認 GitHub Pages 網址，或在 EMBEDDED_GITHUB 填 token）';
                 return;
             }
             const last = localStorage.getItem('lastGitHubSyncAt');
-            const saveState = cfg.token
-                ? '<strong style="color:#28a745;">可讀寫</strong>（修改後約 1 秒自動存到 GitHub）'
-                : '<strong style="color:#fd7e14;">僅可讀</strong>（公開 repo 可載入；要寫入請填 Token）';
-            el.innerHTML = `GitHub：${cfg.owner}/${cfg.repo} · ${cfg.dataPath} · ${saveState}<br>上次同步：${formatSyncTime(last)} · 出貨草稿：${printDraft.length} 筆`;
+            const syncErr = sessionStorage.getItem('lastGitHubSyncError');
+            let saveState;
+            if (cfg.token) {
+                saveState = hasEmbeddedGitHubToken()
+                    ? '<strong style="color:#28a745;">可讀寫</strong>（內嵌 Token，改完自動存）'
+                    : '<strong style="color:#28a745;">可讀寫</strong>（改完約 1 秒自動存）';
+            } else {
+                saveState = '<strong style="color:#dc3545;">無法寫入</strong>（請在 EMBEDDED_GITHUB.token 填入 Token 後上傳）';
+            }
+            let syncNote = '';
+            if (githubSyncState === 'saving') {
+                syncNote = '<br><span style="color:#0969da;">正在自動同步到 GitHub…</span>';
+            } else if (syncErr) {
+                syncNote = `<br><span style="color:#dc3545;">自動同步失敗：${escapeHtml(syncErr)}（可到 ⚙️ 設定按「立即同步」重試）</span>`;
+            }
+            el.innerHTML = `GitHub：${cfg.owner}/${cfg.repo} · ${cfg.dataPath} · ${saveState}<br>上次同步：${formatSyncTime(last)} · 出貨草稿：${printDraft.length} 筆${syncNote}`;
         }
 
         function openGitHubSettingsModal() {
@@ -3045,18 +3086,19 @@
             const repo = document.getElementById('github-repo').value.trim();
             const branch = document.getElementById('github-branch').value.trim() || DEFAULT_GITHUB_BRANCH;
             const dataPath = document.getElementById('github-data-path').value.trim() || DEFAULT_GITHUB_DATA_PATH;
-            const token = document.getElementById('github-token').value.trim();
-            if (!owner || !repo) {
+            const detected = detectGitHubPagesRepo();
+            const finalOwner = owner || EMBEDDED_GITHUB.owner || detected?.owner || '';
+            const finalRepo = repo || EMBEDDED_GITHUB.repo || detected?.repo || '';
+            if (!finalOwner || !finalRepo) {
                 alert('請填寫 GitHub 帳號與 repo 名稱');
                 return;
             }
-            localStorage.setItem(GITHUB_KEYS.owner, owner);
-            localStorage.setItem(GITHUB_KEYS.repo, repo);
+            localStorage.setItem(GITHUB_KEYS.owner, finalOwner);
+            localStorage.setItem(GITHUB_KEYS.repo, finalRepo);
             localStorage.setItem(GITHUB_KEYS.branch, branch);
             localStorage.setItem(GITHUB_KEYS.dataPath, dataPath);
-            if (token) localStorage.setItem(GITHUB_KEYS.token, token);
             updateGitHubStatusDisplay();
-            alert('GitHub 設定已儲存。\nToken 只存在這台瀏覽器，不會寫進 GitHub 上的檔案。');
+            alert('設定已儲存。');
         }
 
         async function testGitHubConnection() {
@@ -3064,7 +3106,7 @@
                 saveGitHubConfig();
                 const cfg = getGitHubConfig();
                 if (!cfg?.token) {
-                    alert('請填寫 Token 後再測試');
+                    alert('請在 index.html 的 EMBEDDED_GITHUB.token 填入 Token 後再上傳');
                     return;
                 }
                 await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}`);
@@ -3094,11 +3136,12 @@
             try {
                 saveGitHubConfig();
                 if (!canSaveToGitHub()) {
-                    alert('請先填寫 GitHub Token（需 repo 寫入權限）');
+                    alert('請在 EMBEDDED_GITHUB.token 填入 Token 後再上傳 index.html');
                     return;
                 }
                 await saveAllDataToGitHub();
-                alert(`已儲存到 GitHub：${getGitHubConfig().dataPath}`);
+                setGitHubSyncState('saved');
+                alert(`已同步到 GitHub：${getGitHubConfig().dataPath}`);
             } catch (err) {
                 const msg = isGitHubShaConflictError(err)
                     ? '儲存失敗：GitHub 上的資料已被更新，請再按一次「儲存到 GitHub」。'
