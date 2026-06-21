@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-20T04:13:26.094Z",
+  "exportedAt": "2026-06-21T08:52:17.073Z",
   "myProducts": [
     "空心菜",
     "菠菜",
@@ -129,8 +129,16 @@
       "col": 3
     }
   ],
-  "labelPrintCount": 0,
+  "labelPrintCount": 1,
   "printHistory": [
+    {
+      "id": "2026-06-21T08:52:03.629Z-全聯-58e6i0",
+      "timestamp": "2026-06-21T08:52:03.629Z",
+      "customer": "全聯",
+      "location": "台中",
+      "product": "青江",
+      "qty": 1
+    },
     {
       "id": "2026-06-20T03:28:16.575Z-進發-m65us3",
       "timestamp": "2026-06-20T03:28:16.575Z",
