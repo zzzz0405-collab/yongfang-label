@@ -370,6 +370,69 @@
             color: #0d6efd;
         }
 
+        .print-action-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            align-items: stretch;
+        }
+        .print-action-row .print-detail-panel {
+            flex: 1 1 50%;
+            min-width: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .print-action-row .print-detail-list {
+            flex: 1;
+            max-height: none;
+            min-height: 220px;
+        }
+        .print-action-col {
+            flex: 1 1 50%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .print-action-col .btn-print,
+        .print-action-col .btn-add-draft,
+        .print-action-col .btn-reset {
+            width: 100%;
+            flex: none;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .print-action-col .btn-add-draft {
+            background-color: #fd7e14;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .print-action-col .btn-add-draft:hover { background-color: #e96b00; }
+        .print-action-col .counter-display {
+            margin: 0;
+            font-size: 14px;
+            padding: 8px 10px;
+        }
+        .print-action-col .mini-btn-row {
+            display: flex;
+            gap: 6px;
+        }
+        .print-action-col .mini-btn-row .btn-mini {
+            flex: 1;
+            margin: 0;
+        }
+        .print-action-col .btn-history {
+            width: 100%;
+            padding: 10px;
+            margin: 0;
+        }
+
         /* 品項選擇區塊 */
         .product-panel { display: flex; gap: 8px; align-items: flex-start; }
         .product-list-container {
@@ -784,36 +847,30 @@
             <div class="customer-list-container" id="customer-list">
                 <!-- 自動產生輸入區 -->
             </div>
-            <div class="print-detail-panel" id="print-detail-panel">
-                <div class="print-detail-head">
-                    <span>標籤明細</span>
-                    <span id="print-detail-total">共 0 張</span>
+            <div class="print-action-row">
+                <div class="print-detail-panel" id="print-detail-panel">
+                    <div class="print-detail-head">
+                        <span>標籤明細</span>
+                        <span id="print-detail-total">共 0 張</span>
+                    </div>
+                    <div class="print-detail-list" id="print-detail-list">
+                        <div class="print-detail-empty">尚無待列印標籤（請輸入件數）</div>
+                    </div>
                 </div>
-                <div class="print-detail-list" id="print-detail-list">
-                    <div class="print-detail-empty">尚無待列印標籤（請輸入件數）</div>
+                <div class="print-action-col">
+                    <button type="button" class="btn-print" onclick="generateAndPrint()">🖨️ 確認列印</button>
+                    <button type="button" class="btn-add-draft" onclick="addCurrentToDraft()">➕ 加入草稿</button>
+                    <div class="counter-display">
+                        目前總計：<span id="count-num">0</span> 張
+                    </div>
+                    <div class="mini-btn-row">
+                        <button type="button" class="btn-mini" style="background-color: #6f42c1;" onclick="openManageModal()">⚙️ 客戶管理</button>
+                        <button type="button" class="btn-mini" style="background-color: #17a2b8;" onclick="addCustomer()">＋ 新增</button>
+                    </div>
+                    <button type="button" class="btn-reset" onclick="resetCounter()">總次數歸零</button>
+                    <button type="button" class="btn-mini btn-history" style="background-color: #fd7e14;" onclick="openHistoryModal()">📋 查看紀錄</button>
                 </div>
             </div>
-            <div class="btn-group" style="margin-top: 8px;">
-                <button class="btn-print" onclick="generateAndPrint()">🖨️ 確認列印</button>
-                <button type="button" class="btn-add-draft" onclick="addCurrentToDraft()" style="flex:1;">➕ 加入草稿（右側）</button>
-            </div>
-        </div>
-
-        <div class="counter-display">
-            目前系統總累計印了：<span id="count-num">0</span> 張標籤
-        </div>
-
-        <div class="mini-btn-group">
-            <button type="button" class="btn-mini" style="background-color: #6f42c1;" onclick="openManageModal()">⚙️ 管理客戶名單</button>
-            <button type="button" class="btn-mini" style="background-color: #17a2b8;" onclick="addCustomer()">＋ 新增</button>
-        </div>
-
-        <div style="margin-top: 12px;">
-            <button type="button" class="btn-reset" onclick="resetCounter()" style="width:100%;">總次數歸零</button>
-        </div>
-
-        <div style="margin-top: 15px; text-align: center;">
-            <button type="button" class="btn-mini" style="background-color: #fd7e14; width: 100%; padding: 10px;" onclick="openHistoryModal()">📋 查看列印紀錄</button>
         </div>
 
         <div class="github-sync-bar">
