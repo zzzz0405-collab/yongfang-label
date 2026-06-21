@@ -916,6 +916,7 @@
             <div class="github-settings-note">
                 資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完約 1 秒<strong>自動存</strong>。<br>
                 <strong>首次設定：</strong>GitHub → Settings → Developer settings → Tokens (classic) → 新建 Token（勾 <strong>repo</strong>）→ 貼到下方 → 按旁邊 <strong>💾 儲存設定</strong> → 🔌 測試連線。<br>
+                <strong>💾 儲存設定</strong>只存 GitHub 連線；客戶、品項改完會<strong>自動同步</strong>（約 1 秒，需 Token）。<br>
                 Token 只存在<strong>這台瀏覽器</strong>，請勿寫進程式碼或上傳到 GitHub。若出現 <strong>Bad credentials</strong>，請撤銷舊 Token 後重新申請。
             </div>
             <div class="github-settings-grid">
@@ -1593,6 +1594,7 @@
         }
 
         function persistEmbeddedData() {
+            markLocalDataChanged();
             if (htmlFileHandle) {
                 saveAllDataToHtmlFile().catch(err => {
                     console.error('HTML 儲存失敗', err);
@@ -2033,6 +2035,7 @@
         }
 
         function persistEmbeddedDataIfLinked() {
+            markLocalDataChanged();
             if (htmlFileHandle) {
                 saveAllDataToHtmlFile().catch(err => console.error('HTML 同步失敗', err));
             }
@@ -2488,9 +2491,6 @@
                 const countEl = document.getElementById('count-num');
                 if (countEl) countEl.innerText = printCount;
             }
-            if (data.exportedAt) {
-                localStorage.setItem('lastSyncFileExportedAt', data.exportedAt);
-            }
         }
 
         function getCustomersFromPrintHistory() {
@@ -2589,6 +2589,50 @@
             return true;
         }
 
+        const LOCAL_DATA_CHANGE_KEY = 'lastLocalDataChangeAt';
+
+        function markLocalDataChanged() {
+            localStorage.setItem(LOCAL_DATA_CHANGE_KEY, new Date().toISOString());
+        }
+
+        function markLocalDataSynced(exportedAt) {
+            const ts = exportedAt || new Date().toISOString();
+            localStorage.setItem('lastSyncFileExportedAt', ts);
+            localStorage.setItem(LOCAL_DATA_CHANGE_KEY, ts);
+        }
+
+        function getLocalDataTimestamp() {
+            const localChange = Date.parse(localStorage.getItem(LOCAL_DATA_CHANGE_KEY) || '') || 0;
+            const lastSync = Date.parse(localStorage.getItem('lastSyncFileExportedAt') || '') || 0;
+            return Math.max(localChange, lastSync);
+        }
+
+        function getRemoteDataTimestamp(data) {
+            return Date.parse(data && data.exportedAt || '') || 0;
+        }
+
+        function shouldApplyRemoteData(data) {
+            const remoteTime = getRemoteDataTimestamp(data);
+            const localTime = getLocalDataTimestamp();
+            try {
+                const localCustomers = JSON.parse(localStorage.getItem('myCustomersList') || '[]');
+                const remoteCustomers = Array.isArray(data.myCustomersList) ? data.myCustomersList : [];
+                if (Array.isArray(localCustomers) && localCustomers.length > remoteCustomers.length) {
+                    return false;
+                }
+                if (Array.isArray(localCustomers) && localCustomers.length > 0) {
+                    const remoteNames = new Set(remoteCustomers.map(c => c && c.name).filter(Boolean));
+                    const hasLocalOnlyCustomer = localCustomers.some(c => c && c.name && !remoteNames.has(c.name));
+                    if (hasLocalOnlyCustomer) return false;
+                }
+            } catch (err) {
+                console.warn('比對本機客戶資料失敗', err);
+            }
+            if (localTime === 0) return true;
+            if (remoteTime === 0) return false;
+            return remoteTime >= localTime;
+        }
+
         function getDataImportSummary(data) {
             const customerCount = Array.isArray(data.myCustomersList) ? data.myCustomersList.length : 0;
             const productCount = Array.isArray(data.myProducts) ? data.myProducts.length : 0;
@@ -2633,6 +2677,11 @@
             localStorage.setItem('myProducts', JSON.stringify(productList));
             localStorage.setItem('myCustomersList', JSON.stringify(customers));
             localStorage.setItem('labelPrintCount', printCount);
+            if (data.exportedAt) {
+                markLocalDataSynced(data.exportedAt);
+            } else {
+                markLocalDataChanged();
+            }
             normalizeCustomerColumns();
             return true;
         }
@@ -2682,7 +2731,7 @@
             const data = buildExportData(exportedAt);
             updateEmbeddedDataInDom(data);
             localStorage.setItem('lastSyncExportedAt', exportedAt);
-            localStorage.setItem('lastSyncFileExportedAt', exportedAt);
+            markLocalDataSynced(exportedAt);
             if (!htmlFileHandle) {
                 updateSyncStatusDisplay();
                 return { ok: false, reason: 'no-handle' };
@@ -2720,7 +2769,7 @@
             migrateLegacyPrintHistory();
             const memoryHistory = printHistory.slice();
             const embeddedDom = readEmbeddedDataFromDom();
-            if (embeddedDom) {
+            if (embeddedDom && shouldApplyRemoteData(embeddedDom)) {
                 applyEmbeddedFileData(embeddedDom, { preferLocalIfJsonMissing: false });
             }
             const restored = await restoreHtmlFileHandle();
@@ -2821,7 +2870,7 @@
             const data = buildExportData(exportedAt);
             updateEmbeddedDataInDom(data);
             localStorage.setItem('lastSyncExportedAt', exportedAt);
-            localStorage.setItem('lastSyncFileExportedAt', exportedAt);
+            markLocalDataSynced(exportedAt);
             const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
             const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -2995,41 +3044,50 @@
             return res.json();
         }
 
-        async function loadDataFromGitHubPublic() {
+        async function fetchGitHubDataPublic() {
             const cfg = getGitHubConfig();
-            if (!cfg) return false;
+            if (!cfg) return null;
             const url = `https://raw.githubusercontent.com/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/${encodeURIComponent(cfg.branch)}/${cfg.dataPath.split('/').map(encodeURIComponent).join('/')}?t=${Date.now()}`;
             const res = await fetch(url);
-            if (!res.ok) return false;
+            if (!res.ok) return null;
             const data = await res.json();
-            if (!data || !Array.isArray(data.myProducts) || !Array.isArray(data.myCustomersList)) return false;
-            applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
-            return true;
+            if (!data || !Array.isArray(data.myProducts) || !Array.isArray(data.myCustomersList)) return null;
+            return data;
         }
 
-        async function loadDataFromGitHubApi() {
+        async function fetchGitHubDataApi() {
             const cfg = getGitHubConfig();
-            if (!cfg || !cfg.token) return false;
+            if (!cfg || !cfg.token) return null;
             const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
             const meta = await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}?ref=${encodeURIComponent(cfg.branch)}`);
             storeGitHubDataSha(meta.sha);
-            const data = JSON.parse(base64ToUtf8(meta.content));
-            applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
-            return true;
+            return JSON.parse(base64ToUtf8(meta.content));
         }
 
-        async function loadDataFromGitHub() {
-            let ok = false;
+        async function loadDataFromGitHub(options = {}) {
+            const force = options.force === true;
+            let data = null;
             if (canSaveToGitHub()) {
                 try {
-                    ok = await loadDataFromGitHubApi();
+                    data = await fetchGitHubDataApi();
                 } catch (err) {
                     console.warn('GitHub API 載入失敗，改試公開 URL', err);
                 }
             }
-            if (!ok) {
-                ok = await loadDataFromGitHubPublic();
+            if (!data) {
+                data = await fetchGitHubDataPublic();
             }
+
+            let applied = false;
+            if (data) {
+                if (force || shouldApplyRemoteData(data)) {
+                    applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
+                    applied = true;
+                } else {
+                    persistGitHubDataIfConfigured();
+                }
+            }
+
             if (canSaveToGitHub()) {
                 try {
                     await refreshGitHubDataSha();
@@ -3039,7 +3097,7 @@
             } else {
                 storeGitHubDataSha(loadStoredGitHubDataSha());
             }
-            return ok;
+            return applied;
         }
 
         async function saveAllDataToGitHub(options = {}) {
@@ -3064,8 +3122,8 @@
                 });
                 storeGitHubDataSha(result.content.sha);
                 localStorage.setItem('lastSyncExportedAt', exportedAt);
-                localStorage.setItem('lastSyncFileExportedAt', exportedAt);
                 localStorage.setItem('lastGitHubSyncAt', exportedAt);
+                markLocalDataSynced(exportedAt);
                 updateSyncStatusDisplay();
                 updateGitHubStatusDisplay();
                 return { ok: true };
@@ -3197,14 +3255,14 @@
         async function loadFromGitHubNow() {
             try {
                 saveGitHubConfig();
-                const ok = await loadDataFromGitHub();
+                const ok = await loadDataFromGitHub({ force: true });
                 normalizeCustomerColumns();
                 renderUI();
                 syncPreview();
                 renderDraftPanel();
                 updateSyncStatusDisplay();
                 updateGitHubStatusDisplay();
-                alert(ok ? '已從 GitHub 載入資料' : 'GitHub 上尚無資料檔，請先按「儲存到 GitHub」');
+                alert(ok ? '已從 GitHub 載入資料' : 'GitHub 上尚無資料檔，請先按「立即同步」');
             } catch (err) {
                 alert('載入失敗：' + err.message);
             }
@@ -3293,7 +3351,7 @@
                     const importedAt = new Date().toISOString();
                     localStorage.setItem('lastSyncImportedAt', importedAt);
                     if (data.exportedAt) {
-                        localStorage.setItem('lastSyncFileExportedAt', data.exportedAt);
+                        markLocalDataSynced(data.exportedAt);
                     }
 
                     if (htmlFileHandle) {
