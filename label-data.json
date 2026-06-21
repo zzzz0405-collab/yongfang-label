@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T11:19:53.314Z",
+  "exportedAt": "2026-06-21T11:21:01.701Z",
   "myProducts": [
     "空心菜",
     "菠菜",
@@ -10,11 +10,6 @@
   ],
   "selectedProduct": "空心菜",
   "myCustomersList": [
-    {
-      "name": "永芳",
-      "location": "西螺",
-      "col": 3
-    },
     {
       "name": "新莊",
       "location": "新莊",
@@ -117,6 +112,16 @@
     },
     {
       "name": "永成",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "20",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "12",
       "location": "基隆",
       "col": 2
     }
