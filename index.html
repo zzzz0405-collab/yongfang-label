@@ -3058,6 +3058,34 @@
             return res.json();
         }
 
+        async function fetchGitHubDataFromPages() {
+            const cfg = getGitHubConfig();
+            if (!cfg) return null;
+            const urls = [];
+            if (location.hostname.endsWith('github.io')) {
+                const sameOrigin = new URL(cfg.dataPath, location.href);
+                sameOrigin.searchParams.set('t', Date.now());
+                urls.push(sameOrigin.toString());
+            }
+            const pagesBase = `https://${encodeURIComponent(cfg.owner)}.github.io/${encodeURIComponent(cfg.repo)}/`;
+            const pagesUrl = new URL(cfg.dataPath.split('/').map(encodeURIComponent).join('/'), pagesBase);
+            pagesUrl.searchParams.set('t', Date.now());
+            urls.push(pagesUrl.toString());
+
+            for (const url of urls) {
+                try {
+                    const res = await fetch(url, { cache: 'no-store' });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    if (!data || !Array.isArray(data.myProducts) || !Array.isArray(data.myCustomersList)) continue;
+                    return data;
+                } catch (err) {
+                    console.warn('GitHub Pages 載入失敗', url, err);
+                }
+            }
+            return null;
+        }
+
         async function fetchGitHubDataPublic() {
             const cfg = getGitHubConfig();
             if (!cfg) return null;
@@ -3087,6 +3115,9 @@
                 } catch (err) {
                     console.warn('GitHub API 載入失敗，改試公開 URL', err);
                 }
+            }
+            if (!data) {
+                data = await fetchGitHubDataFromPages();
             }
             if (!data) {
                 data = await fetchGitHubDataPublic();
@@ -3197,7 +3228,7 @@
             if (cfg.token) {
                 saveState = '<strong style="color:#28a745;">可讀寫</strong>（本機 Token，改完約 1 秒自動存）';
             } else {
-                saveState = '<strong style="color:#fd7e14;">僅讀取</strong>（請按 ⚙️ 設定貼 Token → 儲存設定）';
+                saveState = '<strong style="color:#fd7e14;">僅讀取</strong>（無 Token 可從 GitHub Pages 載入資料，但無法寫入；要改資料請填 Token）';
             }
             let syncNote = '';
             if (githubSyncState === 'saving') {
