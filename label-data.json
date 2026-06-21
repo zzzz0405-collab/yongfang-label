@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T10:35:11.742Z",
+  "exportedAt": "2026-06-21T10:49:11.279Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -16,11 +16,6 @@
   ],
   "selectedProduct": "空心",
   "myCustomersList": [
-    {
-      "name": "家慶",
-      "location": "基隆",
-      "col": 1
-    },
     {
       "name": "全聯",
       "location": "台中",
