@@ -2688,6 +2688,7 @@
                 sessionStorage.setItem('offeredPrintHistoryRestore', '1');
             }
             if (getGitHubConfig()) {
+                storeGitHubDataSha(loadStoredGitHubDataSha());
                 try {
                     await loadDataFromGitHub();
                 } catch (err) {
@@ -2794,6 +2795,51 @@
         const DEFAULT_GITHUB_BRANCH = 'main';
         let githubDataSha = null;
         let githubSaveTimer = null;
+        let githubSaveChain = Promise.resolve();
+
+        function getGitHubShaStorageKey() {
+            const cfg = getGitHubConfig();
+            if (!cfg) return null;
+            return `githubDataSha:${cfg.owner}/${cfg.repo}:${cfg.branch}:${cfg.dataPath}`;
+        }
+
+        function loadStoredGitHubDataSha() {
+            const key = getGitHubShaStorageKey();
+            if (!key) return null;
+            const sha = localStorage.getItem(key);
+            return sha || null;
+        }
+
+        function storeGitHubDataSha(sha) {
+            githubDataSha = sha || null;
+            const key = getGitHubShaStorageKey();
+            if (!key) return;
+            if (sha) localStorage.setItem(key, sha);
+            else localStorage.removeItem(key);
+        }
+
+        async function refreshGitHubDataSha() {
+            const cfg = getGitHubConfig();
+            if (!cfg?.token) return githubDataSha;
+            const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
+            try {
+                const meta = await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}?ref=${encodeURIComponent(cfg.branch)}`);
+                storeGitHubDataSha(meta.sha);
+                return meta.sha;
+            } catch (err) {
+                const msg = String(err.message || '');
+                if (msg.includes('404') || msg.toLowerCase().includes('not found')) {
+                    storeGitHubDataSha(null);
+                    return null;
+                }
+                throw err;
+            }
+        }
+
+        function isGitHubShaConflictError(err) {
+            const msg = String(err && err.message ? err.message : err).toLowerCase();
+            return msg.includes('does not match') || msg.includes('sha') || msg.includes('409');
+        }
 
         function detectGitHubPagesRepo() {
             if (!location.hostname.endsWith('github.io')) return null;
@@ -2876,26 +2922,42 @@
             if (!cfg || !cfg.token) return false;
             const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
             const meta = await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}?ref=${encodeURIComponent(cfg.branch)}`);
-            githubDataSha = meta.sha;
+            storeGitHubDataSha(meta.sha);
             const data = JSON.parse(base64ToUtf8(meta.content));
             applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
             return true;
         }
 
         async function loadDataFromGitHub() {
+            let ok = false;
             if (canSaveToGitHub()) {
                 try {
-                    return await loadDataFromGitHubApi();
+                    ok = await loadDataFromGitHubApi();
                 } catch (err) {
                     console.warn('GitHub API 載入失敗，改試公開 URL', err);
                 }
             }
-            return loadDataFromGitHubPublic();
+            if (!ok) {
+                ok = await loadDataFromGitHubPublic();
+            }
+            if (canSaveToGitHub()) {
+                try {
+                    await refreshGitHubDataSha();
+                } catch (err) {
+                    console.warn('GitHub SHA 更新失敗', err);
+                }
+            } else {
+                storeGitHubDataSha(loadStoredGitHubDataSha());
+            }
+            return ok;
         }
 
-        async function saveAllDataToGitHub() {
+        async function saveAllDataToGitHub(options = {}) {
             if (!canSaveToGitHub()) throw new Error('請先設定 GitHub Token');
             const cfg = getGitHubConfig();
+            if (!options.skipShaRefresh) {
+                await refreshGitHubDataSha();
+            }
             const exportedAt = new Date().toISOString();
             const data = buildExportData(exportedAt);
             const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
@@ -2905,27 +2967,37 @@
                 branch: cfg.branch
             };
             if (githubDataSha) body.sha = githubDataSha;
-            const result = await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}`, {
-                method: 'PUT',
-                body: JSON.stringify(body)
-            });
-            githubDataSha = result.content.sha;
-            localStorage.setItem('lastSyncExportedAt', exportedAt);
-            localStorage.setItem('lastSyncFileExportedAt', exportedAt);
-            localStorage.setItem('lastGitHubSyncAt', exportedAt);
-            updateSyncStatusDisplay();
-            updateGitHubStatusDisplay();
-            return { ok: true };
+            try {
+                const result = await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(body)
+                });
+                storeGitHubDataSha(result.content.sha);
+                localStorage.setItem('lastSyncExportedAt', exportedAt);
+                localStorage.setItem('lastSyncFileExportedAt', exportedAt);
+                localStorage.setItem('lastGitHubSyncAt', exportedAt);
+                updateSyncStatusDisplay();
+                updateGitHubStatusDisplay();
+                return { ok: true };
+            } catch (err) {
+                if (!options.retried && isGitHubShaConflictError(err)) {
+                    await refreshGitHubDataSha();
+                    return saveAllDataToGitHub({ retried: true });
+                }
+                throw err;
+            }
         }
 
         function persistGitHubDataIfConfigured() {
             if (!canSaveToGitHub()) return;
             clearTimeout(githubSaveTimer);
             githubSaveTimer = setTimeout(() => {
-                saveAllDataToGitHub().catch(err => {
-                    console.error('GitHub 同步失敗', err);
-                    updateGitHubStatusDisplay();
-                });
+                githubSaveChain = githubSaveChain
+                    .then(() => saveAllDataToGitHub())
+                    .catch(err => {
+                        console.error('GitHub 同步失敗', err);
+                        updateGitHubStatusDisplay();
+                    });
             }, 1200);
         }
 
@@ -3028,7 +3100,10 @@
                 await saveAllDataToGitHub();
                 alert(`已儲存到 GitHub：${getGitHubConfig().dataPath}`);
             } catch (err) {
-                alert('儲存失敗：' + err.message);
+                const msg = isGitHubShaConflictError(err)
+                    ? '儲存失敗：GitHub 上的資料已被更新，請再按一次「儲存到 GitHub」。'
+                    : ('儲存失敗：' + err.message);
+                alert(msg);
             }
         }
 
