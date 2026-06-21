@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T09:24:52.640Z",
+  "exportedAt": "2026-06-21T09:25:08.323Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -359,62 +359,5 @@
       "qty": 1
     }
   ],
-  "printDraft": [
-    {
-      "id": "1782032508045-esqg9z",
-      "product": "青江",
-      "customer": "雙隆",
-      "location": "基隆",
-      "qty": 1
-    },
-    {
-      "id": "1782032508045-30u4i2",
-      "product": "青江",
-      "customer": "永芳",
-      "location": "西螺",
-      "qty": 1
-    },
-    {
-      "id": "1782032508045-cve76z",
-      "product": "青江",
-      "customer": "623",
-      "location": "台北",
-      "qty": 1
-    },
-    {
-      "id": "1782032508045-0h9bz1",
-      "product": "青江",
-      "customer": "新莊",
-      "location": "新莊",
-      "qty": 2
-    },
-    {
-      "id": "1782032508045-h7jph5",
-      "product": "青江",
-      "customer": "進發",
-      "location": "基隆",
-      "qty": 1
-    },
-    {
-      "id": "1782032508045-lskke8",
-      "product": "青江",
-      "customer": "A",
-      "location": "台北",
-      "qty": 1
-    },
-    {
-      "id": "1782032508045-owd3z5",
-      "product": "青江",
-      "customer": "648",
-      "location": "台北",
-      "qty": 1
-    },
-    {
-      "id": "1782032508045-i0f45i",
-      "product": "青江",
-      "customer": "得意",
-      "location": "板橋",
-      "qty": 1
-    }
-  ]
+  "printDraft": []
 }
