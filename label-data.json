@@ -1,20 +1,14 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T11:03:31.331Z",
+  "exportedAt": "2026-06-21T11:07:34.491Z",
   "myProducts": [
+    "空心菜",
+    "菠菜",
     "青蔥",
-    "小白",
-    "A菜",
-    "青江",
-    "格蘭",
-    "小刈",
-    "空心",
-    "大土",
-    "油菜",
-    "大陸妹",
+    "高麗菜",
     "空白"
   ],
-  "selectedProduct": "空心",
+  "selectedProduct": "空心菜",
   "myCustomersList": [
     {
       "name": "永芳",
@@ -35,234 +29,24 @@
       "name": "153",
       "location": "力行",
       "col": 1
+    },
+    {
+      "name": "42",
+      "location": "力行",
+      "col": 1
+    },
+    {
+      "name": "傳真",
+      "location": "板橋",
+      "col": 1
+    },
+    {
+      "name": "得意",
+      "location": "板橋",
+      "col": 1
     }
   ],
   "labelPrintCount": 4,
-  "printHistory": [
-    {
-      "id": "2026-06-21T09:18:30.209Z-42-rd2i8q",
-      "timestamp": "2026-06-21T09:18:30.209Z",
-      "customer": "42",
-      "location": "力行",
-      "product": "青江",
-      "qty": 3
-    },
-    {
-      "id": "2026-06-21T08:52:03.629Z-全聯-58e6i0",
-      "timestamp": "2026-06-21T08:52:03.629Z",
-      "customer": "全聯",
-      "location": "台中",
-      "product": "青江",
-      "qty": 1
-    },
-    {
-      "id": "2026-06-20T03:28:16.575Z-進發-m65us3",
-      "timestamp": "2026-06-20T03:28:16.575Z",
-      "customer": "進發",
-      "location": "基隆",
-      "product": "大陸妹",
-      "qty": 5
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-A-kyavus",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "A",
-      "location": "台北",
-      "product": "空心",
-      "qty": 3
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-399-i5sbj9",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "399",
-      "location": "台北",
-      "product": "空心",
-      "qty": 3
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-577-kjedy8",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "577",
-      "location": "台北",
-      "product": "空心",
-      "qty": 1
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-623-f1lyos",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "623",
-      "location": "台北",
-      "product": "空心",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-630-3xh6e6",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "630",
-      "location": "台北",
-      "product": "空心",
-      "qty": 6
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-648-nhmwk2",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "648",
-      "location": "台北",
-      "product": "空心",
-      "qty": 3
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-木山-icd6oh",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "木山",
-      "location": "台北",
-      "product": "空心",
-      "qty": 4
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-宏昌-j7i34h",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "宏昌",
-      "location": "台北",
-      "product": "空心",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-大象-0gcyc5",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "大象",
-      "location": "板橋",
-      "product": "空心",
-      "qty": 4
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-原-x8nkgb",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "原",
-      "location": "板橋",
-      "product": "空心",
-      "qty": 5
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-得意-11ww4d",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "得意",
-      "location": "板橋",
-      "product": "空心",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-建隆-p1f2ij",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "建隆",
-      "location": "基隆",
-      "product": "空心",
-      "qty": 1
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-家慶-67bx8t",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "家慶",
-      "location": "基隆",
-      "product": "空心",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-雙隆-54ytgx",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "雙隆",
-      "location": "基隆",
-      "product": "空心",
-      "qty": 1
-    },
-    {
-      "id": "2026-06-20T03:23:00.997Z-新莊-rch7y9",
-      "timestamp": "2026-06-20T03:23:00.997Z",
-      "customer": "新莊",
-      "location": "新莊",
-      "product": "空心",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-577-4fhdld",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "577",
-      "location": "台北",
-      "product": "青蔥",
-      "qty": 5
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-大象-3zuypz",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "大象",
-      "location": "板橋",
-      "product": "青蔥",
-      "qty": 3
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-原-dy99t0",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "原",
-      "location": "板橋",
-      "product": "青蔥",
-      "qty": 3
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-得意-u6z4l4",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "得意",
-      "location": "板橋",
-      "product": "青蔥",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-永成-82axtm",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "永成",
-      "location": "基隆",
-      "product": "青蔥",
-      "qty": 1
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-家慶-ratnnl",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "家慶",
-      "location": "基隆",
-      "product": "青蔥",
-      "qty": 1
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-裕成-oezul4",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "裕成",
-      "location": "基隆",
-      "product": "青蔥",
-      "qty": 1
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-鴻順-4b1ow1",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "鴻順",
-      "location": "基隆",
-      "product": "青蔥",
-      "qty": 3
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-42-99f3gc",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "42",
-      "location": "力行",
-      "product": "青蔥",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-20T03:13:30.624Z-153-eh1jyr",
-      "timestamp": "2026-06-20T03:13:30.624Z",
-      "customer": "153",
-      "location": "力行",
-      "product": "青蔥",
-      "qty": 1
-    }
-  ],
+  "printHistory": [],
   "printDraft": []
 }
