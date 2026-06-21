@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T15:31:51.447Z",
+  "exportedAt": "2026-06-21T15:41:47.613Z",
   "myProducts": [
     "空白"
   ],
@@ -187,8 +187,16 @@
       "col": 1
     }
   ],
-  "labelPrintCount": 9,
+  "labelPrintCount": 10,
   "printHistory": [
+    {
+      "id": "2026-06-21T15:41:01.944Z-新莊-2v97jj",
+      "timestamp": "2026-06-21T15:41:01.944Z",
+      "customer": "新莊",
+      "location": "新莊",
+      "product": "空白",
+      "qty": 1
+    },
     {
       "id": "2026-06-21T15:31:40.196Z-12-9um0u0",
       "timestamp": "2026-06-21T15:31:40.196Z",
