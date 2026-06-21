@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T10:49:11.279Z",
+  "exportedAt": "2026-06-21T10:49:41.895Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -16,11 +16,6 @@
   ],
   "selectedProduct": "空心",
   "myCustomersList": [
-    {
-      "name": "全聯",
-      "location": "台中",
-      "col": 2
-    },
     {
       "name": "永芳",
       "location": "西螺",
