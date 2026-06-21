@@ -9,6 +9,7 @@
             background-color: #f4f6f9;
             margin: 0;
             padding: 20px;
+            overflow-x: hidden;
         }
         .page-layout {
             display: flex;
@@ -157,6 +158,9 @@
             font-size: 18px;
             color: #007bff;
             margin: 0 2px;
+        }
+        .customer-grid-scroll {
+            min-width: 0;
         }
         .customer-grid-header {
             display: grid;
@@ -701,15 +705,20 @@
             font-size: 14px;
         }
 
-        #preview-area { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
+        #preview-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        #preview-area .label-container {
+            flex-shrink: 0;
+        }
         #print-area {
-            position: fixed;
-            left: -100000px;
-            top: 0;
-            width: 100mm;
-            overflow: visible;
-            pointer-events: none;
-            z-index: -1;
+            display: none;
         }
         
         /* 標籤設計（共用版面） */
@@ -767,52 +776,42 @@
             html, body {
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 100mm;
-                height: auto;
+                width: 100mm !important;
+                height: auto !important;
+                background: #ffffff !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            body * {
-                visibility: hidden;
-            }
-            .app-login-gate,
+            #app-login-gate,
             .page-layout,
             #preview-area,
             .control-panel,
             .modal,
-            .draft-panel {
+            .draft-panel,
+            script {
                 display: none !important;
-            }
-            #print-area,
-            #print-area * {
-                visibility: visible;
             }
             #print-area {
                 display: block !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
+                position: static !important;
+                width: 100mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 100mm !important;
-                height: auto !important;
                 overflow: visible !important;
-                pointer-events: auto !important;
-                z-index: 999999 !important;
             }
             .label-container {
+                display: flex !important;
+                flex-direction: row !important;
                 width: 100mm !important;
                 height: 60mm !important;
-                max-width: none;
-                max-height: none;
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
+                background: #ffffff !important;
                 page-break-after: always;
                 page-break-inside: avoid;
-                box-sizing: border-box;
-                overflow: hidden;
-                background: #ffffff !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 --cust-font: 128px;
@@ -822,25 +821,171 @@
             }
             .label-container:last-child { page-break-after: avoid; }
             .half-label {
+                display: flex !important;
+                flex-direction: row !important;
                 width: 50% !important;
                 height: 100% !important;
+                box-sizing: border-box !important;
+                padding: 0.5mm 1mm 0.5mm 0 !important;
+                overflow: hidden !important;
             }
             .customer-col {
+                width: 68% !important;
+                height: 100% !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                writing-mode: vertical-rl !important;
+                text-orientation: upright !important;
+                font-size: var(--cust-font) !important;
+                font-weight: 900 !important;
                 letter-spacing: 2px;
+                line-height: 1 !important;
                 color: #000000 !important;
                 -webkit-text-fill-color: #000000;
+                overflow: hidden !important;
+                word-break: keep-all !important;
             }
             .customer-col.cust-len-2 { --cust-font: 128px; letter-spacing: 2px; }
             .customer-col.cust-len-3 { --cust-font: 84px; letter-spacing: 1px; }
             .customer-col.cust-len-4 { --cust-font: 64px; letter-spacing: 1px; }
             .customer-col.cust-len-long { --cust-font: 48px; letter-spacing: 0; }
-            .loc-name, .prod-box, .loc-date {
+            .info-col {
+                width: 32% !important;
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                border: var(--info-border) solid #000000 !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            .loc-box {
+                flex: 1 1 50% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                border-bottom: var(--info-border) solid #000000 !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+            .loc-name {
+                writing-mode: vertical-rl !important;
+                text-orientation: upright !important;
+                font-size: var(--info-font) !important;
+                font-weight: 900 !important;
                 letter-spacing: 2px;
                 color: #000000 !important;
                 -webkit-text-fill-color: #000000;
+                line-height: 1 !important;
             }
-            .info-col {
-                border-color: #000000 !important;
+            .loc-date {
+                font-size: var(--date-font) !important;
+                font-weight: 700 !important;
+                color: #000000 !important;
+                -webkit-text-fill-color: #000000;
+                line-height: 1.1 !important;
+                margin-top: 1mm !important;
+                white-space: nowrap !important;
+            }
+            .prod-box {
+                flex: 1 1 50% !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                writing-mode: vertical-rl !important;
+                text-orientation: upright !important;
+                font-size: var(--info-font) !important;
+                font-weight: 900 !important;
+                letter-spacing: 2px;
+                color: #000000 !important;
+                -webkit-text-fill-color: #000000;
+                overflow: hidden !important;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body { padding: 10px; }
+            .page-layout {
+                flex-direction: column;
+                gap: 12px;
+                max-width: none;
+                margin-bottom: 16px;
+            }
+            .control-panel {
+                padding: 14px;
+                padding-bottom: 24px;
+            }
+            .draft-panel {
+                width: 100%;
+                max-width: none;
+                position: static;
+                max-height: none;
+            }
+            .product-list-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .product-item {
+                font-size: 18px;
+                min-height: 44px;
+                padding: 10px 4px;
+            }
+            .customer-grid-total-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .customer-grid-current-product {
+                font-size: 24px;
+                text-align: center;
+            }
+            .customer-grid-total-text {
+                text-align: center;
+            }
+            .customer-grid-header,
+            .customer-list-container {
+                grid-template-columns: repeat(5, minmax(92px, 1fr));
+            }
+            .customer-grid-scroll {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .customer-grid-header,
+            .customer-list-container {
+                min-width: 520px;
+            }
+            .customer-list-container {
+                max-height: calc(16px + var(--customer-cell-height) * 12 + var(--customer-grid-gap) * 11);
+            }
+            .print-action-row {
+                flex-direction: column;
+            }
+            .print-action-row .print-detail-list {
+                min-height: 120px;
+                max-height: 160px;
+            }
+            .github-sync-bar-head {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .github-sync-actions {
+                width: 100%;
+            }
+            .github-sync-actions .btn-mini {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .product-list-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .customer-name {
+                font-size: 16px;
+            }
+            .customer-grid-header,
+            .customer-list-container {
+                grid-template-columns: repeat(5, minmax(84px, 1fr));
             }
         }
     </style>
@@ -884,6 +1029,7 @@
                 <span class="customer-grid-current-product" id="current-product-display">—</span>
                 <span class="customer-grid-total-text">1-5 列總件數：<strong id="column-total-all">0</strong> 件</span>
             </div>
+            <div class="customer-grid-scroll">
             <div class="customer-grid-header">
                 <div class="column-header-cell">
                     <span class="column-header-title">第 1 列</span>
@@ -908,6 +1054,7 @@
             </div>
             <div class="customer-list-container" id="customer-list">
                 <!-- 自動產生輸入區 -->
+            </div>
             </div>
             <div class="print-action-row">
                 <div class="print-detail-panel" id="print-detail-panel">
@@ -1863,10 +2010,20 @@
                 finished = true;
                 document.body.classList.remove('printing');
                 window.removeEventListener('afterprint', finish);
+                resetPrintAreaScreenStyle(printArea);
                 restorePreviewArea();
                 if (typeof onAfterPrint === 'function') onAfterPrint();
             };
             const ios = isIOSDevice();
+            if (ios) {
+                printArea.style.display = 'block';
+                printArea.style.position = 'fixed';
+                printArea.style.left = '0';
+                printArea.style.top = '0';
+                printArea.style.width = '100mm';
+                printArea.style.zIndex = '999999';
+                printArea.style.background = '#ffffff';
+            }
             if (!ios) {
                 window.addEventListener('afterprint', finish);
             }
@@ -1879,6 +2036,17 @@
                 });
             });
             setTimeout(finish, ios ? 15000 : 120000);
+        }
+
+        function resetPrintAreaScreenStyle(printArea) {
+            if (!printArea) return;
+            printArea.style.display = '';
+            printArea.style.position = '';
+            printArea.style.left = '';
+            printArea.style.top = '';
+            printArea.style.width = '';
+            printArea.style.zIndex = '';
+            printArea.style.background = '';
         }
 
         // 儲存客戶資料到電腦
