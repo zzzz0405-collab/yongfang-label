@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T09:24:37.034Z",
+  "exportedAt": "2026-06-21T09:24:49.360Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -9,9 +9,12 @@
     "格蘭",
     "小刈",
     "空心",
+    "大土",
+    "油菜",
+    "大陸妹",
     "空白"
   ],
-  "selectedProduct": "空心",
+  "selectedProduct": "大陸妹",
   "myCustomersList": [
     {
       "name": "家慶",
