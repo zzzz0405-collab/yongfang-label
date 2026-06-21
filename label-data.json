@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T11:15:01.224Z",
+  "exportedAt": "2026-06-21T11:16:08.630Z",
   "myProducts": [
     "空心菜",
     "菠菜",
@@ -44,6 +44,26 @@
       "name": "得意",
       "location": "板橋",
       "col": 1
+    },
+    {
+      "name": "原",
+      "location": "板橋",
+      "col": 1
+    },
+    {
+      "name": "大象",
+      "location": "板橋",
+      "col": 1
+    },
+    {
+      "name": "雙隆",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "鴻順",
+      "location": "基隆",
+      "col": 2
     }
   ],
   "labelPrintCount": 4,
