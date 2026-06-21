@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T11:25:37.453Z",
+  "exportedAt": "2026-06-21T15:31:27.741Z",
   "myProducts": [
     "空白"
   ],
@@ -187,7 +187,16 @@
       "col": 1
     }
   ],
-  "labelPrintCount": 4,
-  "printHistory": [],
+  "labelPrintCount": 6,
+  "printHistory": [
+    {
+      "id": "2026-06-21T15:30:49.733Z-12-u4x1vi",
+      "timestamp": "2026-06-21T15:30:49.733Z",
+      "customer": "12",
+      "location": "基隆",
+      "product": "空白",
+      "qty": 2
+    }
+  ],
   "printDraft": []
 }
