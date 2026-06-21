@@ -878,6 +878,7 @@
                 <label>3. GitHub 雲端同步</label>
                 <div class="github-sync-actions">
                     <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="openGitHubSettingsModal()">⚙️ 設定</button>
+                    <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
                 </div>
             </div>
             <div id="github-sync-status" style="font-size:12px;color:#888;font-weight:normal;"></div>
@@ -907,11 +908,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>⚙️ GitHub 雲端同步設定</h3>
-                <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="closeGitHubSettingsModal()">✖ 關閉</button>
+                <div class="modal-header-actions" style="display:flex;gap:8px;align-items:center;">
+                    <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
+                    <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="closeGitHubSettingsModal()">✖ 關閉</button>
+                </div>
             </div>
             <div class="github-settings-note">
                 資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完約 1 秒<strong>自動存</strong>。<br>
-                <strong>首次設定：</strong>GitHub → Settings → Developer settings → Tokens (classic) → 新建 Token（勾 <strong>repo</strong>）→ 貼到下方 → 💾 儲存設定 → 🔌 測試連線。<br>
+                <strong>首次設定：</strong>GitHub → Settings → Developer settings → Tokens (classic) → 新建 Token（勾 <strong>repo</strong>）→ 貼到下方 → 按旁邊 <strong>💾 儲存設定</strong> → 🔌 測試連線。<br>
                 Token 只存在<strong>這台瀏覽器</strong>，請勿寫進程式碼或上傳到 GitHub。若出現 <strong>Bad credentials</strong>，請撤銷舊 Token 後重新申請。
             </div>
             <div class="github-settings-grid">
@@ -922,7 +926,6 @@
             </div>
             <input type="password" id="github-token" placeholder="Personal Access Token（ghp_ 開頭，classic、勾 repo）" style="margin-bottom:12px;">
             <div class="btn-group" style="margin-top:0;">
-                <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
                 <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="testGitHubConnection()">🔌 測試連線</button>
             </div>
             <div class="btn-group" style="margin-top:8px;">
