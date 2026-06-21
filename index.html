@@ -878,7 +878,7 @@
                 <label>3. GitHub 雲端同步</label>
                 <div class="github-sync-actions">
                     <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="openGitHubSettingsModal()">⚙️ 設定</button>
-                    <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
+                    <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
                 </div>
             </div>
             <div id="github-sync-status" style="font-size:12px;color:#888;font-weight:normal;"></div>
@@ -909,14 +909,15 @@
             <div class="modal-header">
                 <h3>⚙️ GitHub 雲端同步設定</h3>
                 <div class="modal-header-actions" style="display:flex;gap:8px;align-items:center;">
+                    <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
                     <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
                     <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="closeGitHubSettingsModal()">✖ 關閉</button>
                 </div>
             </div>
             <div class="github-settings-note">
                 資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完約 1 秒<strong>自動存</strong>。<br>
-                <strong>首次設定：</strong>GitHub → Settings → Developer settings → Tokens (classic) → 新建 Token（勾 <strong>repo</strong>）→ 貼到下方 → 按旁邊 <strong>💾 儲存設定</strong> → 🔌 測試連線。<br>
-                <strong>💾 儲存設定</strong>只存 GitHub 連線；客戶、品項改完會<strong>自動同步</strong>（約 1 秒，需 Token）。<br>
+                <strong>首次設定：</strong>GitHub → Settings → Developer settings → Tokens (classic) → 新建 Token（勾 <strong>repo</strong>）→ 貼到下方 → <strong>💾 儲存設定</strong> → 🔌 測試連線。<br>
+                客戶、品項改完約 1 秒<strong>自動同步</strong>；也可按旁邊 <strong>⬆️ 立即同步</strong>（需 Token）。<br>
                 Token 只存在<strong>這台瀏覽器</strong>，請勿寫進程式碼或上傳到 GitHub。若出現 <strong>Bad credentials</strong>，請撤銷舊 Token 後重新申請。
             </div>
             <div class="github-settings-grid">
@@ -931,7 +932,6 @@
             </div>
             <div class="btn-group" style="margin-top:8px;">
                 <button type="button" class="btn-mini" style="background-color:#2da44e;" onclick="loadFromGitHubNow()">⬇️ 從 GitHub 載入</button>
-                <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
             </div>
         </div>
     </div>
