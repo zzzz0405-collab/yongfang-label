@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T09:28:27.557Z",
+  "exportedAt": "2026-06-21T09:29:23.168Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -16,16 +16,6 @@
   ],
   "selectedProduct": "大陸妹",
   "myCustomersList": [
-    {
-      "name": "家慶",
-      "location": "基隆",
-      "col": 1
-    },
-    {
-      "name": "全聯",
-      "location": "台中",
-      "col": 2
-    },
     {
       "name": "永芳",
       "location": "西螺",
