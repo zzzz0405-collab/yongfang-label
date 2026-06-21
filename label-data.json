@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T11:16:08.630Z",
+  "exportedAt": "2026-06-21T11:18:49.007Z",
   "myProducts": [
     "空心菜",
     "菠菜",
@@ -62,6 +62,31 @@
     },
     {
       "name": "鴻順",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "福山",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "裕成",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "5號",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "進發",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "貴",
       "location": "基隆",
       "col": 2
     }
