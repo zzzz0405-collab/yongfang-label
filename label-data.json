@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T10:49:41.895Z",
+  "exportedAt": "2026-06-21T10:51:14.163Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -20,6 +20,11 @@
       "name": "永芳",
       "location": "西螺",
       "col": 3
+    },
+    {
+      "name": "新莊",
+      "location": "新莊",
+      "col": 1
     }
   ],
   "labelPrintCount": 4,
