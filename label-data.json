@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T09:30:24.729Z",
+  "exportedAt": "2026-06-21T09:41:27.929Z",
   "myProducts": [
     "青蔥",
     "小白",
@@ -15,7 +15,23 @@
     "空白"
   ],
   "selectedProduct": "大陸妹",
-  "myCustomersList": [],
+  "myCustomersList": [
+    {
+      "name": "家慶",
+      "location": "基隆",
+      "col": 1
+    },
+    {
+      "name": "全聯",
+      "location": "台中",
+      "col": 2
+    },
+    {
+      "name": "永芳",
+      "location": "西螺",
+      "col": 3
+    }
+  ],
   "labelPrintCount": 4,
   "printHistory": [
     {
