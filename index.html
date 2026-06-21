@@ -2610,6 +2610,13 @@
             return Date.parse(data && data.exportedAt || '') || 0;
         }
 
+        function isLocalCustomerSubsetOfRemote(localCustomers, remoteCustomers) {
+            if (!Array.isArray(localCustomers) || !Array.isArray(remoteCustomers)) return false;
+            if (localCustomers.length === 0) return remoteCustomers.length > 0;
+            const remoteNames = new Set(remoteCustomers.map(c => c && c.name).filter(Boolean));
+            return localCustomers.every(c => c && c.name && remoteNames.has(c.name));
+        }
+
         function shouldApplyRemoteData(data) {
             const remoteTime = getRemoteDataTimestamp(data);
             const localTime = getLocalDataTimestamp();
@@ -2623,6 +2630,11 @@
                     const remoteNames = new Set(remoteCustomers.map(c => c && c.name).filter(Boolean));
                     const hasLocalOnlyCustomer = localCustomers.some(c => c && c.name && !remoteNames.has(c.name));
                     if (hasLocalOnlyCustomer) return false;
+                }
+                // GitHub 客戶較完整、本機只是子集 → 以 GitHub 為準（避免舊本機殘留 2～3 筆蓋掉完整名單）
+                if (remoteCustomers.length > localCustomers.length
+                    && isLocalCustomerSubsetOfRemote(localCustomers, remoteCustomers)) {
+                    return true;
                 }
             } catch (err) {
                 console.warn('比對本機客戶資料失敗', err);
@@ -2966,7 +2978,10 @@
 
         function isGitHubShaConflictError(err) {
             const msg = String(err && err.message ? err.message : err).toLowerCase();
-            return msg.includes('does not match') || msg.includes('sha') || msg.includes('409');
+            return msg.includes('does not match')
+                || msg.includes('409')
+                || msg.includes('conflict')
+                || msg.includes('is different');
         }
 
         function getEmbeddedGitHubToken() {
@@ -3102,37 +3117,40 @@
         async function saveAllDataToGitHub(options = {}) {
             if (!canSaveToGitHub()) throw new Error('請先設定 GitHub Token');
             const cfg = getGitHubConfig();
-            if (!options.skipShaRefresh) {
-                await refreshGitHubDataSha();
-            }
-            const exportedAt = new Date().toISOString();
-            const data = buildExportData(exportedAt);
+            const maxAttempts = options.maxAttempts || 5;
             const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
-            const body = {
-                message: `更新標籤資料 ${formatSyncTime(exportedAt)}`,
-                content: utf8ToBase64(JSON.stringify(data, null, 2)),
-                branch: cfg.branch
-            };
-            if (githubDataSha) body.sha = githubDataSha;
-            try {
-                const result = await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(body)
-                });
-                storeGitHubDataSha(result.content.sha);
-                localStorage.setItem('lastSyncExportedAt', exportedAt);
-                localStorage.setItem('lastGitHubSyncAt', exportedAt);
-                markLocalDataSynced(exportedAt);
-                updateSyncStatusDisplay();
-                updateGitHubStatusDisplay();
-                return { ok: true };
-            } catch (err) {
-                if (!options.retried && isGitHubShaConflictError(err)) {
-                    await refreshGitHubDataSha();
-                    return saveAllDataToGitHub({ retried: true });
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                await refreshGitHubDataSha();
+                const exportedAt = new Date().toISOString();
+                const data = buildExportData(exportedAt);
+                const body = {
+                    message: `更新標籤資料 ${formatSyncTime(exportedAt)}`,
+                    content: utf8ToBase64(JSON.stringify(data, null, 2)),
+                    branch: cfg.branch
+                };
+                if (githubDataSha) body.sha = githubDataSha;
+                try {
+                    const result = await githubApiFetch(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(body)
+                    });
+                    storeGitHubDataSha(result.content.sha);
+                    localStorage.setItem('lastSyncExportedAt', exportedAt);
+                    localStorage.setItem('lastGitHubSyncAt', exportedAt);
+                    markLocalDataSynced(exportedAt);
+                    updateSyncStatusDisplay();
+                    updateGitHubStatusDisplay();
+                    return { ok: true };
+                } catch (err) {
+                    if (isGitHubShaConflictError(err) && attempt < maxAttempts) {
+                        await new Promise(resolve => setTimeout(resolve, 250 * attempt));
+                        continue;
+                    }
+                    throw err;
                 }
-                throw err;
             }
+            throw new Error('GitHub 同步失敗：多次重試後仍無法寫入');
         }
 
         function persistGitHubDataIfConfigured() {
@@ -3274,14 +3292,16 @@
                     alert('請在 ⚙️ 設定貼上 GitHub Token 後按儲存設定');
                     return;
                 }
-                await saveAllDataToGitHub();
+                setGitHubSyncState('saving');
+                const syncTask = githubSaveChain.then(() => saveAllDataToGitHub());
+                githubSaveChain = syncTask.catch(err => {
+                    setGitHubSyncState('error', err.message);
+                });
+                await syncTask;
                 setGitHubSyncState('saved');
                 alert(`已同步到 GitHub：${getGitHubConfig().dataPath}`);
             } catch (err) {
-                const msg = isGitHubShaConflictError(err)
-                    ? '儲存失敗：GitHub 上的資料已被更新，請再按一次「儲存到 GitHub」。'
-                    : ('儲存失敗：' + err.message);
-                alert(msg);
+                alert('儲存失敗：' + err.message);
             }
         }
 
