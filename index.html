@@ -160,7 +160,7 @@
         }
         .customer-grid-header {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: var(--customer-grid-gap, 8px);
             margin-bottom: 6px;
         }
@@ -187,6 +187,34 @@
             font-size: 15px;
             color: #007bff;
         }
+        .customer-product-layout {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+        .product-sidebar {
+            flex: 0 0 118px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+        .product-sidebar-label {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #666;
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 5px 4px;
+        }
+        .customer-grid-area {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
         .customer-list-container {
             --customer-cell-height: 64px;
             --customer-grid-gap: 2px;
@@ -194,9 +222,11 @@
             border-radius: 4px;
             padding: 8px;
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: var(--customer-grid-gap);
             align-items: start;
+            flex: 1;
+            min-height: 0;
             max-height: calc(16px + var(--customer-cell-height) * 15 + var(--customer-grid-gap) * 14);
             overflow-y: auto;
             background: #fafafa;
@@ -433,22 +463,30 @@
             margin: 0;
         }
 
-        /* 品項選擇區塊 */
-        .product-panel { display: flex; gap: 8px; align-items: flex-start; }
+        /* 品項選擇區塊（左側直向） */
+        .product-panel { display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
         .product-list-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px; flex: 1;
-            padding: 8px; background: #fafafa; border: 1px solid #ccc; border-radius: 4px;
-            min-height: 56px; box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-height: 120px;
+            max-height: calc(16px + 44px * 12);
+            overflow-y: auto;
+            padding: 6px;
+            background: #fafafa;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
         .product-item {
             width: 100%; box-sizing: border-box;
-            padding: 14px 4px; min-height: 52px;
+            padding: 10px 6px; min-height: 40px;
             border: 2px solid #e0e0e0; border-radius: 4px;
-            background: #ffffff; cursor: pointer; font-size: 25px; font-weight: bold;
+            background: #ffffff; cursor: pointer; font-size: 18px; font-weight: bold;
             color: #222; line-height: 1.2; font-family: inherit; text-align: center;
             display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
         .product-item:hover { border-color: #adb5bd; background: #f8f9fa; }
         .product-item.selected {
@@ -457,14 +495,19 @@
         .product-item.blank-product {
             border-style: dashed;
             color: #888;
-            font-size: 22px;
+            font-size: 16px;
         }
         .product-item.blank-product.selected {
             border-color: #28a745;
             background: #d4edda;
             color: #155724;
         }
-        .product-btn-row { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .product-btn-row { display: flex; flex-direction: row; gap: 6px; flex-shrink: 0; }
+        .product-btn-row .btn-add,
+        .product-btn-row .btn-remove { flex: 1; }
+        .product-sidebar-tools { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .product-sidebar-tools .btn-mini,
+        .product-sidebar-tools .btn-clear-qty { width: 100%; margin: 0; box-sizing: border-box; }
         .product-btn-row .btn-add, .product-btn-row .btn-remove { padding: 6px 14px; }
         
         .btn-clear-qty {
@@ -800,52 +843,45 @@
         <h2 style="margin-top:0; text-align:center;">永芳標籤列印系統</h2>
         
         <div class="form-group">
-            <label>1. 選擇蔬菜品項：<span style="font-size:13px; color:#888; font-weight:normal;">（點選框框，一行 5 個）</span></label>
-            <div class="product-panel">
-                <div class="product-list-container" id="product-list"></div>
-                <div class="product-btn-row">
-                    <button type="button" class="btn-add" onclick="addProduct()" title="新增品項">＋</button>
-                    <button type="button" class="btn-remove" onclick="deleteProduct()" title="刪除目前品項">－</button>
-                </div>
-            </div>
-            <div style="margin-top: 8px;">
-                <button type="button" class="btn-mini" style="background-color: #6f42c1;" onclick="openProductModal()">⚙️ 管理品項順序</button>
-            </div>
-            <div style="margin-top: 10px;">
-                <button type="button" class="btn-clear-qty" onclick="clearAllQtys()">🔄 件數歸零</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>2. 輸入各客戶出貨件數：<span style="font-size:13px; color:#888; font-weight:normal;">（5 列並排，可在管理名單中指定列）</span></label>
+            <label>1. 選擇品項、輸入各客戶出貨件數：<span style="font-size:13px; color:#888; font-weight:normal;">（左側品項、右側 3 列客戶）</span></label>
             <div class="customer-grid-total-bar">
                 <span class="customer-grid-current-product" id="current-product-display">—</span>
-                <span class="customer-grid-total-text">1-5 列總件數：<strong id="column-total-all">0</strong> 件</span>
+                <span class="customer-grid-total-text">1-3 列總件數：<strong id="column-total-all">0</strong> 件</span>
             </div>
-            <div class="customer-grid-header">
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 1 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-1">0</strong> 件</span>
+            <div class="customer-product-layout">
+                <aside class="product-sidebar">
+                    <div class="product-sidebar-label">品項</div>
+                    <div class="product-panel">
+                        <div class="product-list-container" id="product-list"></div>
+                        <div class="product-btn-row">
+                            <button type="button" class="btn-add" onclick="addProduct()" title="新增品項">＋</button>
+                            <button type="button" class="btn-remove" onclick="deleteProduct()" title="刪除目前品項">－</button>
+                        </div>
+                    </div>
+                    <div class="product-sidebar-tools">
+                        <button type="button" class="btn-mini" style="background-color: #6f42c1;" onclick="openProductModal()">⚙️ 管理品項</button>
+                        <button type="button" class="btn-clear-qty" onclick="clearAllQtys()">🔄 件數歸零</button>
+                    </div>
+                </aside>
+                <div class="customer-grid-area">
+                    <div class="customer-grid-header">
+                        <div class="column-header-cell">
+                            <span class="column-header-title">第 1 列</span>
+                            <span class="column-header-total">合計 <strong id="column-total-1">0</strong> 件</span>
+                        </div>
+                        <div class="column-header-cell">
+                            <span class="column-header-title">第 2 列</span>
+                            <span class="column-header-total">合計 <strong id="column-total-2">0</strong> 件</span>
+                        </div>
+                        <div class="column-header-cell">
+                            <span class="column-header-title">第 3 列</span>
+                            <span class="column-header-total">合計 <strong id="column-total-3">0</strong> 件</span>
+                        </div>
+                    </div>
+                    <div class="customer-list-container" id="customer-list">
+                        <!-- 自動產生輸入區 -->
+                    </div>
                 </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 2 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-2">0</strong> 件</span>
-                </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 3 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-3">0</strong> 件</span>
-                </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 4 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-4">0</strong> 件</span>
-                </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 5 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-5">0</strong> 件</span>
-                </div>
-            </div>
-            <div class="customer-list-container" id="customer-list">
-                <!-- 自動產生輸入區 -->
             </div>
             <div class="print-action-row">
                 <div class="print-detail-panel" id="print-detail-panel">
@@ -875,7 +911,7 @@
 
         <div class="github-sync-bar">
             <div class="github-sync-bar-head">
-                <label>3. GitHub 雲端同步</label>
+                <label>2. GitHub 雲端同步</label>
                 <div class="github-sync-actions">
                     <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="openGitHubSettingsModal()">⚙️ 設定</button>
                     <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
@@ -1080,7 +1116,7 @@
 </script>
 
     <script>
-        const CUSTOMER_COLUMN_COUNT = 5;
+        const CUSTOMER_COLUMN_COUNT = 3;
         const BLANK_PRODUCT = '空白';
         const EMBEDDED_DATA_ID = 'label-system-data';
 
