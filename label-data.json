@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T11:21:01.701Z",
+  "exportedAt": "2026-06-21T11:22:03.387Z",
   "myProducts": [
     "空心菜",
     "菠菜",
@@ -124,6 +124,51 @@
       "name": "12",
       "location": "基隆",
       "col": 2
+    },
+    {
+      "name": "宏昌",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "木山",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "649",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "648",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "630",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "623",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "577",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "509",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "399",
+      "location": "台北",
+      "col": 3
     }
   ],
   "labelPrintCount": 4,
