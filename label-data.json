@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-22T05:02:42.465Z",
+  "exportedAt": "2026-06-22T05:10:22.578Z",
   "myProducts": [
     "空心菜",
     "菠菜",
@@ -191,7 +191,72 @@
       "col": 1
     }
   ],
-  "labelPrintCount": 13,
-  "printHistory": [],
+  "labelPrintCount": 28,
+  "printHistory": [
+    {
+      "id": "2026-06-22T05:04:10.683Z-20-bb6jay",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "20",
+      "location": "基隆",
+      "product": "空心菜",
+      "qty": 1
+    },
+    {
+      "id": "2026-06-22T05:04:10.683Z-5號-vkcsmz",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "5號",
+      "location": "基隆",
+      "product": "空心菜",
+      "qty": 2
+    },
+    {
+      "id": "2026-06-22T05:04:10.683Z-裕成-zbwr5c",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "裕成",
+      "location": "基隆",
+      "product": "空心菜",
+      "qty": 2
+    },
+    {
+      "id": "2026-06-22T05:04:10.683Z-42-5quzgb",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "42",
+      "location": "力行",
+      "product": "空心菜",
+      "qty": 2
+    },
+    {
+      "id": "2026-06-22T05:04:10.683Z-P-zj7ubu",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "P",
+      "location": "力行",
+      "product": "空心菜",
+      "qty": 2
+    },
+    {
+      "id": "2026-06-22T05:04:10.683Z-153-c049jr",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "153",
+      "location": "力行",
+      "product": "空心菜",
+      "qty": 2
+    },
+    {
+      "id": "2026-06-22T05:04:10.683Z-鑫-jy8zkg",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "鑫",
+      "location": "宜蘭",
+      "product": "空心菜",
+      "qty": 2
+    },
+    {
+      "id": "2026-06-22T05:04:10.683Z-新莊-sfmi25",
+      "timestamp": "2026-06-22T05:04:10.683Z",
+      "customer": "新莊",
+      "location": "新莊",
+      "product": "空心菜",
+      "qty": 2
+    }
+  ],
   "printDraft": []
 }
