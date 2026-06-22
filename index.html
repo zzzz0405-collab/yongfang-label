@@ -230,20 +230,30 @@
         .print-mode-hint { font-size: 12px; color: #666; line-height: 1.45; margin: 0 0 6px; }
         .print-dual-row {
             display: flex;
-            gap: 6px;
+            gap: 10px;
+            justify-content: center;
             width: 100%;
         }
         .print-dual-row .btn-print {
-            flex: 1;
-            width: auto;
+            flex: 0 0 auto;
+            width: 68px;
+            height: 68px;
             margin: 0;
-            padding: 12px 4px;
-            font-size: 15px;
+            padding: 4px 2px;
+            font-size: 12px;
+            line-height: 1.25;
             box-sizing: border-box;
+            white-space: normal;
+            word-break: keep-all;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
         .draft-actions .print-dual-row .btn-print {
-            padding: 10px 4px;
-            font-size: 14px;
+            width: 64px;
+            height: 64px;
+            font-size: 12px;
         }
         .draft-section {
             margin-top: 12px;
@@ -535,7 +545,7 @@
             color: #007bff;
         }
         .customer-list-container {
-            --customer-cell-height: 64px;
+            --customer-cell-height: 72px;
             --customer-grid-gap: 2px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -557,118 +567,80 @@
             min-width: 0;
         }
         .customer-item {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
+            display: block;
             background: #ffffff;
             padding: 0;
             border: 1px solid #bdbdbd;
             border-radius: 2px;
             min-height: var(--customer-cell-height);
+            height: var(--customer-cell-height);
             box-sizing: border-box;
             overflow: hidden;
         }
-        .customer-name {
-            width: 100%;
-            flex: 0 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: clamp(18px, 2.2vw, 24px);
-            font-weight: bold;
-            color: #222;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid #bdbdbd;
-            padding: 3px 2px;
-            cursor: pointer;
-            user-select: none;
-            line-height: 1.1;
-            box-sizing: border-box;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .customer-name:hover { background: #eef6ff; }
-        .customer-bottom {
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: row;
-            align-items: stretch;
-        }
-        .customer-loc {
-            flex: 0 0 50%;
-            width: 50%;
-            max-width: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            color: #333;
-            font-weight: bold;
-            line-height: 1.1;
-            border-right: 1px solid #e0e0e0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding: 0 2px;
-            box-sizing: border-box;
-        }
-        .customer-qty-row {
-            flex: 0 0 50%;
-            width: 50%;
-            max-width: 50%;
-            display: flex;
-            align-items: stretch;
-            justify-content: center;
-            padding: 1px 2px;
-            min-width: 0;
-            box-sizing: border-box;
-        }
-        .qty-stepper {
+        .customer-item.has-qty { background: #f8fbff; }
+        .customer-cell-grid {
             position: relative;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
+            grid-template-rows: repeat(3, 1fr);
             width: 100%;
-            max-width: 76px;
             height: 100%;
-            min-height: 34px;
-            border: 1px solid #888;
-            border-radius: 2px;
-            overflow: hidden;
-            flex-shrink: 0;
-            background: #fff;
+            min-height: var(--customer-cell-height);
             box-sizing: border-box;
         }
-        .qty-stepper:focus-within { outline: 2px solid #0d6efd; outline-offset: 0; }
-        .qty-stepper-display {
-            grid-row: 1 / 3;
+        .customer-name-slot {
             grid-column: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-right: 1px solid #ccc;
-            background: #fff;
+            border-right: 1px solid #bdbdbd;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: clamp(13px, 1.8vw, 17px);
+            font-weight: bold;
+            color: #222;
+            line-height: 1;
             cursor: pointer;
             user-select: none;
-            min-height: 0;
-            padding: 1px 0;
             box-sizing: border-box;
+            min-height: 0;
         }
-        .qty-stepper-display.has-qty { background: #cfe2ff; }
-        .qty-stepper-digit {
-            font-size: 12px;
+        .customer-name-slot-1 { grid-row: 1; }
+        .customer-name-slot-2 { grid-row: 2; }
+        .customer-name-slot-3 { grid-row: 3; border-bottom: none; }
+        .customer-name-slot:hover { background: #eef6ff; }
+        .customer-qty-panel {
+            grid-column: 2;
+            grid-row: 1 / 3;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #bdbdbd;
+            cursor: pointer;
+            user-select: none;
+            background: #fff;
+            box-sizing: border-box;
+            min-height: 0;
+        }
+        .customer-qty-panel:hover { background: #f5f9ff; }
+        .customer-qty-panel.has-qty { background: #cfe2ff; }
+        .customer-qty-char-row {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
             font-weight: bold;
-            line-height: 1.05;
             color: #222;
+            border-bottom: 1px solid #e0e0e0;
+            line-height: 1;
+            min-height: 0;
         }
-        .qty-stepper-zero,
-        .qty-stepper-minus {
+        .customer-qty-char-row:last-child { border-bottom: none; }
+        .customer-qty-minus {
+            grid-column: 2;
+            grid-row: 3;
             border: none;
             background: #fff;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             line-height: 1;
             cursor: pointer;
@@ -678,25 +650,16 @@
             align-items: center;
             justify-content: center;
             color: #333;
+            box-sizing: border-box;
         }
-        .qty-stepper-zero {
-            grid-row: 1;
-            grid-column: 2;
-            border-bottom: 1px solid #ccc;
-        }
-        .qty-stepper-zero:hover { background: #f0f0f0; }
-        .qty-stepper-minus {
-            grid-row: 2;
-            grid-column: 2;
-        }
-        .qty-stepper-minus:hover { background: #f8d7da; }
-        .qty-stepper-minus:disabled { opacity: 0.35; cursor: not-allowed; }
+        .customer-qty-minus:hover { background: #f8d7da; }
+        .customer-qty-minus:disabled { opacity: 0.35; cursor: not-allowed; }
         .customer-qty-input {
             position: absolute;
-            left: 0;
+            right: 0;
             top: 0;
             width: 50%;
-            height: 100%;
+            height: 66.666%;
             opacity: 0;
             border: none;
             margin: 0;
@@ -707,8 +670,6 @@
         }
         .customer-qty-input::-webkit-outer-spin-button,
         .customer-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .customer-qty-input.has-qty { background: transparent; }
-        .customer-qty-input:focus { outline: none; }
         .customer-qty-label { display: none; }
 
         .print-detail-panel {
@@ -814,6 +775,11 @@
             flex: none;
             margin: 0;
             box-sizing: border-box;
+        }
+        .print-action-col .print-dual-row .btn-print {
+            width: 68px;
+            height: 68px;
+            flex: 0 0 auto;
         }
         .print-action-col .btn-add-draft {
             background-color: #fd7e14;
@@ -1422,26 +1388,37 @@
                 text-align: center;
             }
             .app-header {
-                flex-wrap: wrap;
-                row-gap: 4px;
+                flex-wrap: nowrap;
+                align-items: center;
+                gap: 6px;
+            }
+            .app-header-main {
+                flex: 0 1 auto;
+                min-width: 0;
             }
             .app-header-center {
-                order: 3;
-                flex: 1 1 100%;
-                padding: 2px 0 4px;
+                order: 0;
+                flex: 1 1 auto;
+                min-width: 0;
+                padding: 0 4px;
             }
             .app-header-current-product {
-                font-size: 28px;
+                font-size: clamp(18px, 4.8vw, 28px);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .app-header-title {
-                font-size: 17px;
+                font-size: 15px;
             }
-            .app-header-sub {
-                font-size: 11px;
-            }
+            .app-header-sub,
             .app-header-version {
+                display: none;
+            }
+            .app-header-badge {
+                flex-shrink: 0;
                 font-size: 10px;
-                margin-top: 2px;
+                padding: 4px 7px;
             }
             .customer-list-container {
                 max-height: calc(16px + var(--customer-cell-height) * 10 + var(--customer-grid-gap) * 9);
@@ -1463,8 +1440,8 @@
         }
 
         @media (max-width: 520px) {
-            .customer-name {
-                font-size: 16px;
+            .customer-name-slot {
+                font-size: 13px;
             }
             .product-item {
                 min-width: 68px;
@@ -2965,39 +2942,55 @@
             persistEmbeddedDataIfLinked();
         }
 
-        function formatQtyStepperDigitsHtml(qty) {
-            const s = String(Math.max(0, parseInt(qty, 10) || 0));
-            return s.split('').map(d => `<span class="qty-stepper-digit">${d}</span>`).join('');
+        function formatCustomerNameSlotsHtml(name) {
+            const chars = Array.from(name || '').slice(0, 3);
+            while (chars.length < 3) chars.push('\u00a0');
+            return [1, 2, 3].map((n, i) =>
+                `<div class="customer-name-slot customer-name-slot-${n}" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${chars[i]}</div>`
+            ).join('');
+        }
+
+        function getQtyTwoRowDisplay(qty) {
+            const q = Math.max(0, parseInt(qty, 10) || 0);
+            if (q === 0) return { top: '', bottom: '0' };
+            if (q < 10) return { top: '', bottom: String(q) };
+            const s = String(q);
+            if (s.length === 2) return { top: s[0], bottom: s[1] };
+            return { top: s.slice(-2, -1), bottom: s.slice(-1) };
+        }
+
+        function formatQtyPanelHtml(qty) {
+            const d = getQtyTwoRowDisplay(qty);
+            return `<div class="customer-qty-char-row">${d.top || '\u00a0'}</div><div class="customer-qty-char-row">${d.bottom}</div>`;
         }
 
         function updateQtyStepperDisplays() {
-            document.querySelectorAll('.customer-qty-input').forEach(input => {
-                const display = input.closest('.qty-stepper')?.querySelector('.qty-stepper-display');
-                const minusBtn = input.closest('.qty-stepper')?.querySelector('.qty-stepper-minus');
-                if (!display) return;
+            document.querySelectorAll('.customer-item').forEach(item => {
+                const input = item.querySelector('.customer-qty-input');
+                if (!input) return;
                 const qty = parseInt(input.value, 10) || 0;
-                display.innerHTML = formatQtyStepperDigitsHtml(qty);
-                display.classList.toggle('has-qty', qty > 0);
+                const panel = item.querySelector('.customer-qty-panel');
+                const minusBtn = item.querySelector('.customer-qty-minus');
+                if (panel) {
+                    panel.innerHTML = formatQtyPanelHtml(qty);
+                    panel.classList.toggle('has-qty', qty > 0);
+                    panel.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
+                }
+                item.classList.toggle('has-qty', qty > 0);
                 if (minusBtn) minusBtn.disabled = qty <= 0;
             });
         }
 
         function buildCustomerItemHtml(cust, savedQty, rowIndex) {
             const qtyNum = parseInt(savedQty) || 0;
+            const hasQty = qtyNum > 0;
             return `
-                <div class="customer-item">
-                    <div class="customer-name" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${cust.name}</div>
-                    <div class="customer-bottom">
-                        <div class="customer-loc">${cust.location}</div>
-                        <div class="customer-qty-row">
-                            <div class="qty-stepper">
-                                <div class="qty-stepper-display${qtyNum > 0 ? ' has-qty' : ''}" onclick="focusCustomerQtyFromDisplay(this)" title="點一下可輸入數字">${formatQtyStepperDigitsHtml(qtyNum)}</div>
-                                <button type="button" class="qty-stepper-zero" onclick="event.stopPropagation(); resetCustomerQty(this)" title="歸零">0</button>
-                                <button type="button" class="qty-stepper-minus" onclick="event.stopPropagation(); decrementCustomerQty(this)" title="減 1 件"${qtyNum <= 0 ? ' disabled' : ''}>−</button>
-                                <input type="number" data-cust="${cust.name}" data-loc="${cust.location}" data-col="${cust.col}" data-row="${rowIndex}" class="customer-qty-input${qtyNum > 0 ? ' has-qty' : ''}" value="${savedQty}" min="0" oninput="syncPreview()" onchange="syncPreview()" onkeydown="handleCustomerQtyKeydown(event)">
-                            </div>
-                            <span class="customer-qty-label">件</span>
-                        </div>
+                <div class="customer-item${hasQty ? ' has-qty' : ''}">
+                    <div class="customer-cell-grid">
+                        ${formatCustomerNameSlotsHtml(cust.name)}
+                        <div class="customer-qty-panel${hasQty ? ' has-qty' : ''}" onclick="focusCustomerQtyFromCell(this)" title="點一下輸入件數">${formatQtyPanelHtml(qtyNum)}</div>
+                        <button type="button" class="customer-qty-minus" onclick="event.stopPropagation(); decrementCustomerQty(this)" title="減 1 件"${hasQty ? '' : ' disabled'}>−</button>
+                        <input type="number" data-cust="${cust.name}" data-loc="${cust.location}" data-col="${cust.col}" data-row="${rowIndex}" class="customer-qty-input${hasQty ? ' has-qty' : ''}" value="${savedQty}" min="0" oninput="syncPreview()" onchange="syncPreview()" onkeydown="handleCustomerQtyKeydown(event)">
                     </div>
                 </div>
             `;
@@ -3045,18 +3038,9 @@
             focusCustomerQtyInput(nextInput);
         }
 
-        function focusCustomerQtyFromDisplay(el) {
-            const input = el.closest('.qty-stepper')?.querySelector('.customer-qty-input');
+        function focusCustomerQtyFromCell(el) {
+            const input = el.closest('.customer-item')?.querySelector('.customer-qty-input');
             focusCustomerQtyInput(input);
-        }
-
-        function resetCustomerQty(btn) {
-            const row = btn.closest('.customer-item');
-            if (!row) return;
-            const input = row.querySelector('.customer-qty-input');
-            if (!input) return;
-            input.value = 0;
-            syncPreview();
         }
 
         function incrementCustomerQty(el) {
