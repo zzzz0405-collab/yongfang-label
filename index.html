@@ -65,10 +65,10 @@
             gap: 10px;
             align-items: start;
         }
-        .selected-product-bar { grid-area: totals; }
-        .product-sidebar { grid-area: products; }
-        .customer-area { grid-area: customers; }
-        .draft-section { grid-area: draft; }
+        .print-workspace .selected-product-bar { grid-area: totals; }
+        .print-workspace .product-sidebar { grid-area: products; }
+        .print-workspace .customer-area { grid-area: customers; }
+        .print-workspace .draft-section { grid-area: draft; }
         .product-sidebar {
             flex: 0 0 108px;
             display: flex;
@@ -268,15 +268,24 @@
             position: sticky;
             top: 0;
             z-index: 900;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
             margin: calc(-12px - var(--safe-top)) calc(-12px - var(--safe-right)) 12px calc(-12px - var(--safe-left));
             padding: calc(14px + var(--safe-top)) calc(16px + var(--safe-right)) 14px calc(16px + var(--safe-left));
             background: linear-gradient(180deg, #0a7ae4 0%, var(--app-header-bg) 100%);
             color: var(--app-header-text);
             box-shadow: 0 2px 12px rgba(9, 105, 218, 0.25);
+        }
+        .app-header-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+        }
+        .app-header-panel[hidden] {
+            display: none !important;
+        }
+        .app-header-panel--auction {
+            background: transparent;
         }
         .app-header-main { min-width: 0; flex: 0 1 auto; }
         .app-header-center {
@@ -330,6 +339,28 @@
             border-radius: 999px;
             padding: 6px 10px;
             white-space: nowrap;
+        }
+        .app-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .app-header-reset-btn {
+            border: 1px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+        .app-header-reset-btn:hover {
+            background: rgba(255,255,255,0.25);
         }
         .app-install-tip {
             display: none;
@@ -684,6 +715,522 @@
             border: none;
             margin: 0;
             padding: 0;
+        }
+        /* 拍賣標籤：螢幕預覽固定直向 60×100；實際列印走獨立視窗 */
+        .auction-label-container {
+            width: 60mm;
+            height: 100mm;
+            box-sizing: border-box;
+            position: relative;
+            background: #ffffff;
+            overflow: hidden;
+            border: 1px dashed #ccc;
+            page-break-after: always;
+            --auction-brand: 15mm;
+            --auction-org: 3.5mm;
+            --auction-org-spacing: 0.55mm;
+            --auction-org-scale-x: 1.18;
+            --auction-farm-code: 10.8mm;
+            --auction-farm-scale-x: 1.32;
+            --auction-farm-spacing: 0.68mm;
+            --auction-grid-height: 60mm;
+            --auction-label-font: calc(var(--auction-grid-height) / 5 * 0.70);
+            --auction-value-font: calc(var(--auction-grid-height) / 5 * 0.66);
+            --auction-weight-font: calc(var(--auction-grid-height) / 5 * 0.70);
+            --auction-border: 1px;
+            --auction-grid-label-col: 25mm;
+            --auction-grid-value-col: 35mm;
+        }
+        .auction-label-sheet {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            position: static;
+            transform: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .auction-header {
+            flex: 0 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            padding: 1.5mm 0.5mm 0;
+            overflow: visible;
+            flex-shrink: 0;
+        }
+        .auction-brand {
+            width: 100%;
+            font-size: var(--auction-brand);
+            font-weight: 700;
+            line-height: 1;
+            color: #000;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .auction-org {
+            width: 100%;
+            font-size: var(--auction-org);
+            font-weight: 400;
+            line-height: 1;
+            margin-top: 0.6mm;
+            color: #000;
+            text-align: center;
+            flex-shrink: 0;
+            letter-spacing: var(--auction-org-spacing);
+            white-space: nowrap;
+            transform: scaleX(var(--auction-org-scale-x));
+            transform-origin: center;
+        }
+        .auction-farm-code {
+            width: 100%;
+            font-size: var(--auction-farm-code);
+            font-weight: 700;
+            line-height: 1;
+            margin-top: 1.8mm;
+            margin-bottom: -0.6mm;
+            padding: 0;
+            color: #000;
+            letter-spacing: var(--auction-farm-spacing);
+            text-align: center;
+            flex-shrink: 0;
+            transform: scaleX(var(--auction-farm-scale-x));
+            transform-origin: center;
+        }
+        .auction-body {
+            flex: 1 1 auto;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            min-width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .auction-grid {
+            flex: 0 0 auto;
+            width: 100%;
+            height: var(--auction-grid-height);
+            min-height: 0;
+            margin-top: auto;
+            align-self: stretch;
+            display: grid;
+            grid-template-columns: var(--auction-grid-label-col) var(--auction-grid-value-col);
+            grid-template-rows: repeat(5, minmax(0, 1fr));
+            box-sizing: border-box;
+            border-left: var(--auction-border) solid #000;
+            border-top: var(--auction-border) solid #000;
+        }
+        .auction-cell {
+            box-sizing: border-box;
+            border-right: var(--auction-border) solid #000;
+            border-bottom: var(--auction-border) solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            color: #000;
+            word-break: keep-all;
+            padding: 0;
+            line-height: 1;
+            min-height: 0;
+        }
+        .auction-field-label {
+            font-size: var(--auction-label-font);
+            font-weight: 700;
+            line-height: 1;
+        }
+        .auction-field-value {
+            font-size: var(--auction-value-font);
+            font-weight: 400;
+            line-height: 1;
+        }
+        .auction-field-value.auction-value-weight {
+            font-size: var(--auction-weight-font);
+            font-weight: 700;
+        }
+        .auction-preview-wrap .auction-label-container {
+            --auction-brand: 57px;
+            --auction-org: 15px;
+            --auction-org-spacing: 0.55mm;
+            --auction-org-scale-x: 1.18;
+            --auction-farm-code: 44px;
+            --auction-farm-scale-x: 1.32;
+            --auction-farm-spacing: 0.68mm;
+            --auction-grid-height: 60mm;
+            --auction-label-font: calc(var(--auction-grid-height) / 5 * 0.70);
+            --auction-value-font: calc(var(--auction-grid-height) / 5 * 0.66);
+            --auction-weight-font: calc(var(--auction-grid-height) / 5 * 0.70);
+            --auction-border: 1px;
+        }
+        .auction-print-hint {
+            margin: 0 0 10px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #495057;
+            line-height: 1.45;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+        .auction-layout-controls {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .auction-layout-controls[hidden] {
+            display: none !important;
+        }
+        .auction-layout-controls label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .auction-layout-controls select {
+            width: 100%;
+            padding: 7px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+        #preview-area .preview-shipping-wrap {
+            flex-shrink: 0;
+        }
+
+        /* 拍賣列印（獨立工作區，不共用出貨資料） */
+        .auction-workspace {
+            display: block;
+            width: 100%;
+            max-width: 1020px;
+            margin: 0 auto;
+        }
+        .auction-workspace[hidden] {
+            display: none !important;
+        }
+        .auction-main-layout {
+            display: grid;
+            grid-template-columns: 108px minmax(0, 1fr);
+            gap: 12px;
+            align-items: start;
+            width: 100%;
+        }
+        .auction-product-sidebar {
+            grid-column: 1;
+            grid-row: 1;
+            flex: 0 0 108px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+        .auction-product-sidebar-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 6px 4px;
+        }
+        .auction-product-sidebar .product-list-container {
+            max-height: min(60vh, 480px);
+        }
+        .auction-product-sidebar .product-item.manual-product {
+            font-size: 13px;
+            line-height: 1.25;
+            padding: 8px 4px;
+        }
+        .auction-product-sidebar .product-btn-row {
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .auction-product-sidebar .product-btn-row .btn-add,
+        .auction-product-sidebar .product-btn-row .btn-remove {
+            flex: 1;
+            padding: 6px 4px;
+            font-size: 16px;
+        }
+        .auction-product-sidebar .product-sidebar-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .auction-product-sidebar .product-sidebar-tools .btn-mini {
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            font-size: 12px;
+            padding: 8px 4px;
+        }
+        .auction-layout {
+            grid-column: 2;
+            grid-row: 1;
+            width: 100%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .auction-top-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: start;
+        }
+        .auction-manage-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 118px;
+        }
+        .auction-manage-actions .btn-mini {
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            white-space: nowrap;
+            padding: 10px 8px;
+            font-size: 13px;
+        }
+        .auction-field input.is-unregistered {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+        .auction-form-card,
+        .auction-queue-card {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 14px;
+            box-sizing: border-box;
+        }
+        .auction-form-card h3,
+        .auction-queue-card h3 {
+            margin: 0 0 6px 0;
+            font-size: 17px;
+        }
+        .auction-hint {
+            margin: 0 0 12px 0;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.5;
+        }
+        .auction-field {
+            margin-bottom: 10px;
+        }
+        .auction-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 4px;
+        }
+        .auction-field input,
+        .auction-field select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .auction-field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .auction-stepper {
+            display: flex;
+            align-items: stretch;
+            gap: 6px;
+        }
+        .auction-stepper input {
+            flex: 1;
+            min-width: 0;
+            width: auto;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .auction-stepper input::-webkit-outer-spin-button,
+        .auction-stepper input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .auction-stepper-arrows {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: none;
+        }
+        .auction-stepper-btn {
+            flex: 1;
+            width: 34px;
+            min-height: 0;
+            padding: 0;
+            border: 1px solid #adb5bd;
+            border-radius: 4px;
+            background: #f8f9fa;
+            color: #495057;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .auction-stepper-btn:hover {
+            background: #e9ecef;
+            border-color: #868e96;
+        }
+        .auction-stepper-btn:active {
+            background: #dee2e6;
+        }
+        .auction-print-qty-hint {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .auction-print-qty-hint.is-error {
+            color: #c82333;
+        }
+        .auction-print-actions {
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+        .auction-print-actions .print-mode-hint {
+            margin: 0 0 8px 0;
+        }
+        .auction-print-actions .auction-counter {
+            margin-top: 10px;
+        }
+        .auction-market-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .auction-market-chip {
+            border: 1px solid #b6d4fe;
+            background: #e7f1ff;
+            color: #0d47a1;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .auction-market-chip:hover {
+            background: #cfe2ff;
+        }
+        .auction-queue-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #0d47a1;
+        }
+        .auction-queue-list {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #fafafa;
+            margin-bottom: 10px;
+        }
+        .auction-queue-empty {
+            padding: 20px 12px;
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+        }
+        .auction-queue-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 6px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 13px;
+        }
+        .auction-queue-item:last-child { border-bottom: none; }
+        .auction-queue-item-main { font-weight: bold; color: #111; }
+        .auction-queue-item-meta { color: #555; margin-top: 2px; }
+        .auction-queue-item-remove {
+            border: none;
+            background: #ffe0e0;
+            color: #c62828;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            align-self: start;
+        }
+        .auction-preview-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+            overflow-x: auto;
+        }
+        .auction-counter {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+        }
+        .auction-counter strong {
+            color: #007bff;
+            font-size: 18px;
+        }
+        @media (max-width: 760px) {
+            .auction-main-layout {
+                grid-template-columns: 1fr;
+            }
+            .auction-layout-controls {
+                grid-template-columns: 1fr;
+            }
+            .auction-product-sidebar {
+                grid-column: 1;
+                grid-row: 1;
+            }
+            .auction-layout {
+                grid-column: 1;
+                grid-row: 2;
+            }
+            .auction-top-row {
+                grid-template-columns: 1fr;
+            }
+            .auction-manage-actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+                min-width: 0;
+            }
+            .auction-manage-actions .btn-mini {
+                flex: 1 1 auto;
+            }
+            .auction-product-sidebar .product-list-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-height: none;
+                min-height: 0;
+            }
+            .auction-product-sidebar .product-item {
+                width: auto;
+                min-width: 72px;
+                flex: 1 1 auto;
+            }
         }
 
         .print-detail-panel {
@@ -1129,6 +1676,9 @@
             overflow-x: auto;
             max-width: 100%;
         }
+        #preview-area[hidden] {
+            display: none !important;
+        }
         #preview-area .label-container {
             flex-shrink: 0;
         }
@@ -1185,9 +1735,8 @@
             overflow: hidden;
         }
 
-        /* 列印專屬設定 */
+        /* 列印專屬設定（@page 尺寸由 runPrintJob 動態注入，避免拍賣/出貨互相覆蓋） */
         @media print {
-            @page { size: 100mm 60mm; margin: 0; }
             html, body {
                 margin: 0 !important;
                 padding: 0 !important;
@@ -1317,6 +1866,117 @@
                 -webkit-text-fill-color: #000000;
                 overflow: hidden !important;
             }
+            body.printing-auction .label-container {
+                display: none !important;
+            }
+            body.printing-label .auction-label-container {
+                display: none !important;
+            }
+            body.printing-auction html,
+            body.printing-auction body {
+                width: 60mm !important;
+                height: 102mm !important;
+                min-height: 102mm !important;
+                max-height: 102mm !important;
+                overflow: hidden !important;
+            }
+            body.printing-auction #print-area {
+                width: 60mm !important;
+                height: 102mm !important;
+                overflow: hidden !important;
+            }
+            body.printing-auction .auction-label-container {
+                display: block !important;
+                position: relative !important;
+                width: 60mm !important;
+                height: 102mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                background: #ffffff !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                --auction-brand: 15mm;
+                --auction-org: 3.5mm;
+                --auction-org-spacing: 0.55mm;
+                --auction-org-scale-x: 1.18;
+                --auction-farm-code: 10.8mm;
+                --auction-farm-scale-x: 1.32;
+                --auction-farm-spacing: 0.68mm;
+                --auction-grid-height: 60mm;
+                --auction-label-font: calc(var(--auction-grid-height) / 5 * 0.70);
+                --auction-value-font: calc(var(--auction-grid-height) / 5 * 0.66);
+                --auction-weight-font: calc(var(--auction-grid-height) / 5 * 0.70);
+                --auction-border: 2px;
+                --auction-grid-label-col: 25mm;
+                --auction-grid-value-col: 35mm;
+            }
+            body.printing-auction .auction-label-sheet {
+                width: 60mm !important;
+                height: 100mm !important;
+                position: absolute !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+                transform-origin: center center !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+                background: #ffffff !important;
+            }
+            body.printing-auction .auction-header {
+                flex: 0 0 auto !important;
+                width: 100% !important;
+                height: auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                box-sizing: border-box !important;
+                padding: 1.5mm 0.5mm 0 !important;
+                overflow: visible !important;
+                flex-shrink: 0 !important;
+            }
+            body.printing-auction .auction-body {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                height: auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            body.printing-auction .auction-grid {
+                flex: 0 0 auto !important;
+                display: grid !important;
+                grid-template-columns: var(--auction-grid-label-col) var(--auction-grid-value-col) !important;
+                grid-template-rows: repeat(5, minmax(0, 1fr)) !important;
+                width: 100% !important;
+                height: var(--auction-grid-height) !important;
+                margin-top: auto !important;
+                align-self: stretch !important;
+                min-height: 0 !important;
+                box-sizing: border-box !important;
+            }
+            body.printing-auction .auction-cell {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                overflow: hidden !important;
+                color: #000 !important;
+                -webkit-text-fill-color: #000;
+            }
+            body.printing-auction .auction-label-container:last-child {
+                page-break-after: avoid;
+            }
         }
 
         @media (max-width: 900px) {
@@ -1333,7 +1993,7 @@
                 gap: 6px;
                 align-items: start;
             }
-            .product-sidebar {
+            .print-workspace .product-sidebar {
                 grid-area: products;
                 width: auto;
                 flex-direction: column;
@@ -1406,7 +2066,7 @@
             .customer-grid-total-text {
                 text-align: center;
             }
-            .app-header {
+            .app-header-panel {
                 flex-wrap: nowrap;
                 align-items: center;
                 gap: 6px;
@@ -1434,10 +2094,14 @@
             .app-header-version {
                 display: none;
             }
-            .app-header-badge {
+            .app-header-badge,
+            .app-header-reset-btn {
                 flex-shrink: 0;
                 font-size: 10px;
                 padding: 4px 7px;
+            }
+            .app-header-right {
+                gap: 6px;
             }
             .customer-list-container {
                 max-height: calc(16px + var(--customer-cell-height) * 10 + var(--customer-grid-gap) * 9);
@@ -1471,18 +2135,48 @@
         }
     </style>
 </head>
-<body class="app-locked">
+<body>
 
     <header class="app-header">
-        <div class="app-header-main">
-            <h1 class="app-header-title">永芳標籤列印</h1>
-            <p class="app-header-sub">出貨標籤 · 雲端同步</p>
-            <p class="app-header-version" id="app-release-note">版本 —</p>
+        <div class="app-header-panel" id="app-header-label">
+            <div class="app-header-main">
+                <h1 class="app-header-title">標籤列印</h1>
+                <p class="app-header-sub">出貨標籤 · 雲端同步</p>
+                <p class="app-header-version app-release-note">版本 —</p>
+            </div>
+            <div class="app-header-center">
+                <span class="app-header-current-product" id="current-product-display">—</span>
+            </div>
+            <div class="app-header-right">
+                <button type="button" class="app-header-reset-btn" onclick="clearAllQtys()" title="所有客戶件數歸零">🔄 歸零</button>
+                <span class="app-header-badge app-mode-badge">Web App</span>
+            </div>
         </div>
-        <div class="app-header-center">
-            <span class="app-header-current-product" id="current-product-display">—</span>
+        <div class="app-header-panel app-header-panel--auction" id="app-header-auction" hidden>
+            <div class="app-header-main">
+                <h1 class="app-header-title">拍賣列印</h1>
+                <p class="app-header-sub">拍賣標籤 · 獨立資料</p>
+                <p class="app-header-version app-release-note">版本 —</p>
+            </div>
+            <div class="app-header-center">
+                <span class="app-header-current-product" id="auction-current-product-display">—</span>
+            </div>
+            <div class="app-header-right">
+                <button type="button" class="app-header-reset-btn" onclick="clearAuctionForm()" title="清空拍賣標籤輸入">🔄 清空輸入</button>
+                <span class="app-header-badge app-mode-badge">Web App</span>
+            </div>
         </div>
-        <span class="app-header-badge" id="app-mode-badge">Web App</span>
+        <div class="app-header-panel" id="app-header-generic" hidden>
+            <div class="app-header-main">
+                <h1 class="app-header-title">永芳標籤列印</h1>
+                <p class="app-header-sub" id="app-header-generic-sub">—</p>
+                <p class="app-header-version app-release-note">版本 —</p>
+            </div>
+            <div class="app-header-center"></div>
+            <div class="app-header-right">
+                <span class="app-header-badge app-mode-badge">Web App</span>
+            </div>
+        </div>
     </header>
 
     <div id="app-install-tip" class="app-install-tip">
@@ -1513,7 +2207,6 @@
                 </div>
                 <div class="product-sidebar-tools">
                     <button type="button" class="btn-mini" style="background-color:#6f42c1;" onclick="openProductModal()">⚙️ 品項</button>
-                    <button type="button" class="btn-clear-qty" onclick="clearAllQtys()">🔄 歸零</button>
                 </div>
             </aside>
             <div class="selected-product-bar">
@@ -1538,11 +2231,11 @@
                     <div class="print-action-row">
                         <div class="print-detail-panel" id="print-detail-panel">
                             <div class="print-detail-head">
-                                <span>標籤明細</span>
+                                <span id="print-detail-title">標籤明細</span>
                                 <span id="print-detail-total">共 0 張</span>
                             </div>
                             <div class="print-detail-list" id="print-detail-list">
-                                <div class="print-detail-empty">尚無待列印標籤（請輸入件數）</div>
+                                <div class="print-detail-empty" id="print-detail-empty">尚無待列印標籤（請輸入件數）</div>
                             </div>
                         </div>
                         <div class="print-action-col">
@@ -1580,6 +2273,142 @@
                     <button type="button" class="btn-mini" style="background-color:#dc3545;" onclick="clearDraft()">🗑️ 清空草稿</button>
                 </div>
             </div>
+        </div>
+
+        <div id="auction-workspace" class="auction-workspace" hidden>
+            <div class="auction-main-layout">
+                <aside class="auction-product-sidebar">
+                    <div class="auction-product-sidebar-label">品項</div>
+                    <div class="product-panel">
+                        <div class="product-list-container" id="auction-product-list"></div>
+                        <div class="product-btn-row">
+                            <button type="button" class="btn-add" onclick="addProduct()" title="新增品項">＋</button>
+                            <button type="button" class="btn-remove" onclick="deleteAuctionSelectedProduct()" title="刪除目前品項">－</button>
+                        </div>
+                    </div>
+                    <div class="product-sidebar-tools">
+                        <button type="button" class="btn-mini" style="background-color:#6f42c1;" onclick="openProductModal()">⚙️ 品項</button>
+                    </div>
+                </aside>
+                <div class="auction-layout">
+                <div class="auction-top-row">
+                <section class="auction-form-card">
+                    <h3>🔨 拍賣標籤輸入</h3>
+                    <p class="auction-hint">左側快選品項（第一項為手動輸入）。小代號留空可印空白標籤；有填小代號須先登記。</p>
+                    <div class="auction-market-chips" id="auction-market-chips"></div>
+                    <div class="auction-field">
+                        <label for="auction-input-subcode">小代號</label>
+                        <input type="text" id="auction-input-subcode" placeholder="例：A01、123" autocomplete="off" oninput="onAuctionSubcodeInput()">
+                    </div>
+                    <div class="auction-field">
+                        <label for="auction-input-market">市場</label>
+                        <input type="text" id="auction-input-market" list="auction-market-datalist" placeholder="例：台北、基隆" autocomplete="off" oninput="syncAuctionPreview()">
+                        <datalist id="auction-market-datalist"></datalist>
+                    </div>
+                    <div class="auction-field">
+                        <label for="auction-input-product">品名</label>
+                        <input type="text" id="auction-input-product" placeholder="例：菠菜、空心菜" autocomplete="off" oninput="syncAuctionPreview()">
+                    </div>
+                    <div class="auction-field-row">
+                        <div class="auction-field">
+                            <label for="auction-input-qty">件數</label>
+                            <input type="number" id="auction-input-qty" min="0" step="1" value="" placeholder="0" oninput="onAuctionPieceQtyInput()">
+                        </div>
+                        <div class="auction-field">
+                            <label for="auction-input-weight">重量</label>
+                            <input type="text" id="auction-input-weight" inputmode="decimal" placeholder="例：20KG" autocomplete="off" oninput="syncAuctionPreview()" onblur="normalizeAuctionWeightField()">
+                        </div>
+                    </div>
+                    <div class="auction-field">
+                        <label for="auction-input-print-qty">列印數量</label>
+                        <div class="auction-stepper">
+                            <input type="number" id="auction-input-print-qty" min="1" step="1" value="1" inputmode="numeric" oninput="onAuctionPrintQtyInput()">
+                            <div class="auction-stepper-arrows">
+                                <button type="button" class="auction-stepper-btn" onclick="stepAuctionPrintQty(1)" title="加 1 張">▲</button>
+                                <button type="button" class="auction-stepper-btn" onclick="stepAuctionPrintQty(-1)" title="減 1 張">▼</button>
+                            </div>
+                        </div>
+                        <div class="auction-print-qty-hint" id="auction-print-qty-hint">不可大於件數</div>
+                    </div>
+                    <p class="auction-print-hint">列印版型固定依印表機設定；畫面預覽會自動轉正方便查看。Chrome：<strong>邊界→無</strong>、紙張→USER、方向→<strong>橫向</strong>、份數→<strong>1</strong>。</p>
+                    <div class="auction-layout-controls" hidden>
+                        <div>
+                            <label for="auction-layout-paper">紙張方向</label>
+                            <select id="auction-layout-paper" onchange="onAuctionLayoutControlChange()">
+                                <option value="portrait">直向（60 × 102）</option>
+                                <option value="landscape">橫向（102 × 60）</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="auction-layout-content-rotate">內容角度</label>
+                            <select id="auction-layout-content-rotate" onchange="onAuctionLayoutControlChange()">
+                                <option value="0">0°</option>
+                                <option value="90">90°</option>
+                                <option value="-90">-90°</option>
+                                <option value="180">180°</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="auction-layout-print-rotate">送印角度</label>
+                            <select id="auction-layout-print-rotate" onchange="onAuctionLayoutControlChange()">
+                                <option value="0">0°</option>
+                                <option value="90">90°</option>
+                                <option value="-90">-90°</option>
+                                <option value="180">180°</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="auction-layout-preview-rotate">預覽角度</label>
+                            <select id="auction-layout-preview-rotate" onchange="onAuctionLayoutControlChange()">
+                                <option value="auto">自動轉正</option>
+                                <option value="0">0°</option>
+                                <option value="90">90°</option>
+                                <option value="-90">-90°</option>
+                                <option value="180">180°</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="auction-print-actions">
+                        <p class="print-mode-hint">綠：區網標籤機（系統列印）　藍：API 標籤機（雲端，預留）</p>
+                        <div class="print-dual-row">
+                            <button type="button" class="btn-print btn-print-system" onclick="printAuctionForm()">🖨️ 系統列印</button>
+                            <button type="button" class="btn-print btn-print-api" onclick="printAuctionFormApi()">🖨️ API 標籤</button>
+                        </div>
+                        <div class="auction-counter">拍賣累計列印：<strong id="auction-count-num">0</strong> 張</div>
+                    </div>
+                    <div class="auction-preview-wrap">
+                        <div class="auction-label-container" id="auction-form-preview">
+                            <div class="auction-label-sheet">
+                            <div class="auction-header">
+                                <div class="auction-brand">永芳</div>
+                                <div class="auction-org">果菜生產合作社</div>
+                                <div class="auction-farm-code">N99833</div>
+                            </div>
+                            <div class="auction-body">
+                            <div class="auction-grid">
+                                <div class="auction-cell auction-field-label">小代號</div>
+                                <div class="auction-cell auction-field-value" id="auction-preview-subcode"></div>
+                                <div class="auction-cell auction-field-label">市場</div>
+                                <div class="auction-cell auction-field-value" id="auction-preview-market"></div>
+                                <div class="auction-cell auction-field-label">品名</div>
+                                <div class="auction-cell auction-field-value" id="auction-preview-product"></div>
+                                <div class="auction-cell auction-field-label">件數</div>
+                                <div class="auction-cell auction-field-value" id="auction-preview-qty"></div>
+                                <div class="auction-cell auction-field-label">重量</div>
+                                <div class="auction-cell auction-field-value auction-value-weight" id="auction-preview-weight"></div>
+                            </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="auction-manage-actions">
+                    <button type="button" class="btn-mini" style="background-color:#17a2b8;" onclick="openAuctionSubcodeModal()">⚙️ 小代號管理</button>
+                    <button type="button" class="btn-mini" style="background-color:#6f42c1;" onclick="openAuctionMarketModal()">⚙️ 市場管理</button>
+                </div>
+                </div>
+            </div>
+        </div>
         </div>
 
         <div id="tab-history" class="tab-panel history-tab-panel">
@@ -1629,38 +2458,12 @@
                 <button type="button" class="btn-mini" style="background-color:#2da44e;" onclick="loadFromGitHubNow()">⬇️ 從 GitHub 載入</button>
             </div>
 
-            <div class="settings-collapse">
-                <div class="settings-collapse-head">
-                    <button type="button" class="settings-collapse-toggle" id="printer-settings-toggle" onclick="toggleSettingsCollapse('printer-settings-body', 'printer-settings-toggle')">▶ 印表機設定</button>
-                    <button type="button" class="btn-mini" style="background-color:#57606a;flex-shrink:0;" onclick="manualPrinterCheck()">🔌 手動檢測</button>
-                </div>
-                <div class="settings-collapse-body" id="printer-settings-body">
-                    <div class="settings-subsection">
-                        <h4>區網標籤機（系統列印 · 綠燈）</h4>
-                        <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:4px;">區網狀態 API（Windows start-print-server.bat）</label>
-                        <input type="text" id="printer-status-api-url" placeholder="http://Windows電腦IP:3847" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;">
-                        <div class="github-settings-grid">
-                            <input type="text" id="printer-local-ip" placeholder="IP（192.168.50.241）">
-                            <input type="text" id="printer-local-port" placeholder="Port（9100）">
-                        </div>
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
-                            <input type="checkbox" id="printer-local-enabled" checked> 啟用連線檢測
-                        </label>
-                    </div>
-                    <div class="settings-subsection">
-                        <h4>API 標籤機（芯烨雲 · 藍燈 · 預留列印）</h4>
-                        <div class="github-settings-grid">
-                            <input type="text" id="printer-api-user" placeholder="開發者 ID（user）">
-                            <input type="password" id="printer-api-key" placeholder="UserKEY">
-                            <input type="text" id="printer-api-sn" placeholder="印表機 SN" style="grid-column:1/-1;">
-                        </div>
-                        <p style="font-size:12px;color:#888;margin:8px 0 0;line-height:1.5;">至 <a href="https://www.xpyun.net/open/index.html" target="_blank" rel="noopener">芯烨雲開放平台</a> 註冊並加入 SN。UserKEY 只存本機。</p>
-                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
-                            <input type="checkbox" id="printer-api-enabled"> 啟用連線檢測
-                        </label>
-                    </div>
-                    <button type="button" class="btn-mini" style="background-color:#24292f;margin-top:8px;" onclick="savePrinterSettings()">💾 儲存印表機設定</button>
-                </div>
+            <div class="settings-subsection">
+                <h4>API 列印</h4>
+                <p style="font-size:13px;color:#666;line-height:1.6;margin:8px 0 0;">
+                    系統列印固定使用瀏覽器列印，不提供手動設定。<br>
+                    API 標籤機設定已移到下方「🖨️ 印表機」分頁。
+                </p>
             </div>
         </div>
 
@@ -1669,17 +2472,29 @@
             <p id="printer-status-text" style="font-size:14px;color:#333;line-height:1.6;margin:0 0 8px;text-align:center;">檢查中…</p>
             <div class="printer-dual-status">
                 <div class="printer-unit">
-                    <div class="printer-unit-label">系統標籤機 · 綠燈</div>
+                    <div class="printer-unit-label">API 標籤機 · 藍燈</div>
                     <div class="printer-lamp-large lamp-bad" id="printer-lamp-1"></div>
                     <div class="printer-unit-ip" id="printer-status-1">—</div>
                 </div>
-                <div class="printer-unit">
-                    <div class="printer-unit-label">API 標籤機 · 藍燈</div>
-                    <div class="printer-lamp-large lamp-bad" id="printer-lamp-2"></div>
-                    <div class="printer-unit-ip" id="printer-status-2">—</div>
+            </div>
+            <div class="settings-subsection" style="margin-top:10px;">
+                <h4>API 標籤機設定（芯烨雲）</h4>
+                <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:4px;">API 代理網址（選填，例：Windows start-print-server.bat）</label>
+                <input type="text" id="printer-status-api-url" placeholder="http://Windows電腦IP:3847" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;">
+                <div class="github-settings-grid">
+                    <input type="text" id="printer-api-user" placeholder="開發者 ID（user）">
+                    <input type="password" id="printer-api-key" placeholder="UserKEY">
+                    <input type="text" id="printer-api-sn" placeholder="印表機 SN" style="grid-column:1/-1;">
+                </div>
+                <p style="font-size:12px;color:#888;margin:8px 0 0;line-height:1.5;">至 <a href="https://www.xpyun.net/open/index.html" target="_blank" rel="noopener">芯烨雲開放平台</a> 註冊並加入 SN。UserKEY 只存本機。</p>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
+                    <input type="checkbox" id="printer-api-enabled"> 啟用 API 連線檢測
+                </label>
+                <div class="btn-group" style="margin-top:10px;flex-wrap:wrap;">
+                    <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="savePrinterSettings()">💾 儲存 API 設定</button>
+                    <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="manualPrinterCheck()">🔌 手動檢測</button>
                 </div>
             </div>
-            <p style="font-size:13px;color:#666;line-height:1.6;margin:12px 0 0;text-align:center;">設定請到 ⚙️ <strong>設定</strong> → 展開「印表機設定」<br>旁邊可按 <strong>🔌 手動檢測</strong></p>
             <ul id="printer-status-tips" style="text-align:left;font-size:13px;color:#666;line-height:1.7;padding-left:20px;margin:12px 0 0;"></ul>
         </div>
     </main>
@@ -1699,8 +2514,7 @@
         </button>
         <button type="button" data-tab="printer" onclick="switchAppTab('printer')">
             <span class="nav-lamps">
-                <span class="nav-lamp lamp-bad" id="nav-printer-lamp-1" title="系統標籤機"></span>
-                <span class="nav-lamp lamp-bad" id="nav-printer-lamp-2" title="API 標籤機"></span>
+                <span class="nav-lamp lamp-bad" id="nav-printer-lamp-1" title="API 標籤機"></span>
             </span>
             <span>印表機</span>
         </button>
@@ -1727,33 +2541,67 @@
                 <h3>⚙️ 品項順序管理</h3>
                 <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="closeProductModal()">✖ 關閉</button>
             </div>
-            <p style="color:#666; font-size:14px; margin-top:0;">(點擊上下箭頭調整下拉選單順序，點擊叉叉刪除)</p>
+            <p style="color:#666; font-size:14px; margin-top:0;">(點擊鉛筆修改名稱與拍賣重量 KG，上下箭頭調整順序，叉叉刪除)</p>
             <div class="modal-list" id="modal-product-list">
                 <!-- 這裡自動產生品項列表 -->
             </div>
         </div>
     </div>
 
-    <div id="preview-area">
-        <div class="label-container">
-            <div class="half-label">
-                <div class="customer-col" id="preview-cust1">請輸入件數</div>
-                <div class="info-col">
-                    <div class="loc-box">
-                        <div class="loc-name" id="preview-loc-name1">地點</div>
-                        <div class="loc-date" id="preview-loc-date1"></div>
-                    </div>
-                    <div class="prod-box" id="preview-sub1">品項</div>
-                </div>
+    <!-- 拍賣小代號管理 -->
+    <div id="auctionSubcodeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ 小代號管理</h3>
+                <button type="button" class="btn-mini" style="background-color:#dc3545;" onclick="closeAuctionSubcodeModal()">✖ 關閉</button>
             </div>
-            <div class="half-label">
-                <div class="customer-col" id="preview-cust2">請輸入件數</div>
-                <div class="info-col">
-                    <div class="loc-box">
-                        <div class="loc-name" id="preview-loc-name2">地點</div>
-                        <div class="loc-date" id="preview-loc-date2"></div>
+            <p style="color:#666;font-size:14px;margin-top:0;">未登記的小代號無法列印；小代號留空可印空白標籤。點選名稱可帶入小代號欄位，上下箭頭調整順序。</p>
+            <div class="input-row" style="margin-bottom:10px;">
+                <input type="text" id="auction-subcode-new" placeholder="新增小代號" onkeydown="if(event.key==='Enter'){event.preventDefault();addAuctionSubcode();}">
+                <button type="button" class="btn-mini" style="background-color:#17a2b8;" onclick="addAuctionSubcode()">＋ 新增</button>
+            </div>
+            <div class="modal-list" id="auction-subcode-list"></div>
+        </div>
+    </div>
+
+    <!-- 拍賣市場管理 -->
+    <div id="auctionMarketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ 市場管理</h3>
+                <button type="button" class="btn-mini" style="background-color:#dc3545;" onclick="closeAuctionMarketModal()">✖ 關閉</button>
+            </div>
+            <p style="color:#666;font-size:14px;margin-top:0;">僅供拍賣列印使用。點選名稱可帶入市場欄位，上下箭頭調整順序。</p>
+            <div class="input-row" style="margin-bottom:10px;">
+                <input type="text" id="auction-market-new" placeholder="新增市場名稱" onkeydown="if(event.key==='Enter'){event.preventDefault();addAuctionMarket();}">
+                <button type="button" class="btn-mini" style="background-color:#17a2b8;" onclick="addAuctionMarket()">＋ 新增</button>
+            </div>
+            <div class="modal-list" id="auction-market-list"></div>
+        </div>
+    </div>
+
+    <div id="preview-area">
+        <div class="preview-shipping-wrap" id="preview-shipping-wrap">
+            <div class="label-container">
+                <div class="half-label">
+                    <div class="customer-col" id="preview-cust1">請輸入件數</div>
+                    <div class="info-col">
+                        <div class="loc-box">
+                            <div class="loc-name" id="preview-loc-name1">地點</div>
+                            <div class="loc-date" id="preview-loc-date1"></div>
+                        </div>
+                        <div class="prod-box" id="preview-sub1">品項</div>
                     </div>
-                    <div class="prod-box" id="preview-sub2">品項</div>
+                </div>
+                <div class="half-label">
+                    <div class="customer-col" id="preview-cust2">請輸入件數</div>
+                    <div class="info-col">
+                        <div class="loc-box">
+                            <div class="loc-name" id="preview-loc-name2">地點</div>
+                            <div class="loc-date" id="preview-loc-date2"></div>
+                        </div>
+                        <div class="prod-box" id="preview-sub2">品項</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1775,14 +2623,14 @@
 
     <script>
         // 頂部版本時間：開啟頁面時自動顯示本機現在時間（例：6/22-12:12）
-        const APP_UI_REV = '16';
+        const APP_UI_REV = '88';
 
         const PRINTER_CONFIG_KEY = 'printerConfigV3';
+        const AUCTION_LAYOUT_CONFIG_KEY = 'auctionPrintLayoutV2';
         const PRINTER_STATUS_POLL_MS = 20000;
         let printerStatusPollTimer = null;
         const CUSTOMER_COLUMN_COUNT = 3;
         let currentAppTab = 'label';
-        let printMode = 'label';
         const BLANK_PRODUCT = '空白';
         const EMBEDDED_DATA_ID = 'label-system-data';
 
@@ -1928,6 +2776,96 @@
         }
 
         let printDraft = loadPrintDraft();
+
+        const DEFAULT_AUCTION_MARKETS = ['台北', '基隆', '台中', '高雄', '板橋'];
+        const DEFAULT_AUCTION_PRODUCT_WEIGHTS = {
+            '青蔥': 20
+        };
+        let auctionMarkets = JSON.parse(localStorage.getItem('auctionMarkets') || 'null');
+        if (!Array.isArray(auctionMarkets) || auctionMarkets.length === 0) {
+            auctionMarkets = DEFAULT_AUCTION_MARKETS.slice();
+        }
+        let auctionSubcodes = JSON.parse(localStorage.getItem('auctionSubcodes') || '[]');
+        if (!Array.isArray(auctionSubcodes)) auctionSubcodes = [];
+        let auctionProductWeights = (function loadAuctionProductWeights() {
+            let stored = {};
+            try {
+                stored = JSON.parse(localStorage.getItem('auctionProductWeights') || '{}');
+            } catch (err) {
+                stored = {};
+            }
+            if (!stored || typeof stored !== 'object') stored = {};
+            return { ...DEFAULT_AUCTION_PRODUCT_WEIGHTS, ...stored };
+        })();
+        let auctionQueue = JSON.parse(localStorage.getItem('auctionQueue') || '[]');
+        if (!Array.isArray(auctionQueue)) auctionQueue = [];
+        let auctionPrintCount = parseInt(localStorage.getItem('auctionPrintCount'), 10) || 0;
+        let auctionPrintHistory = JSON.parse(localStorage.getItem('auctionPrintHistory') || '[]');
+        if (!Array.isArray(auctionPrintHistory)) auctionPrintHistory = [];
+
+        function saveAuctionMarkets() {
+            localStorage.setItem('auctionMarkets', JSON.stringify(auctionMarkets));
+            persistEmbeddedDataIfLinked();
+            persistGitHubDataIfConfigured();
+        }
+
+        function saveAuctionSubcodes() {
+            localStorage.setItem('auctionSubcodes', JSON.stringify(auctionSubcodes));
+            persistEmbeddedDataIfLinked();
+            persistGitHubDataIfConfigured();
+        }
+
+        function saveAuctionQueue() {
+            localStorage.setItem('auctionQueue', JSON.stringify(auctionQueue));
+            persistEmbeddedDataIfLinked();
+            persistGitHubDataIfConfigured();
+        }
+
+        function saveAuctionPrintHistory() {
+            localStorage.setItem('auctionPrintHistory', JSON.stringify(auctionPrintHistory));
+            persistEmbeddedDataIfLinked();
+            persistGitHubDataIfConfigured();
+        }
+
+        function saveAuctionPrintCount() {
+            localStorage.setItem('auctionPrintCount', String(auctionPrintCount));
+            persistEmbeddedDataIfLinked();
+            persistGitHubDataIfConfigured();
+        }
+
+        function saveAuctionProductWeights() {
+            localStorage.setItem('auctionProductWeights', JSON.stringify(auctionProductWeights));
+            persistEmbeddedDataIfLinked();
+            persistGitHubDataIfConfigured();
+        }
+
+        function applyAuctionDataFromExport(data) {
+            if (!data || typeof data !== 'object') return;
+            if (Array.isArray(data.auctionMarkets) && data.auctionMarkets.length > 0) {
+                auctionMarkets = data.auctionMarkets.slice();
+            }
+            if (Array.isArray(data.auctionSubcodes)) {
+                auctionSubcodes = data.auctionSubcodes.slice();
+            }
+            if (Array.isArray(data.auctionQueue)) {
+                auctionQueue = data.auctionQueue.map(item => ({ ...item }));
+            }
+            if (Array.isArray(data.auctionPrintHistory)) {
+                auctionPrintHistory = data.auctionPrintHistory.slice();
+            }
+            if (data.auctionPrintCount != null) {
+                auctionPrintCount = parseInt(data.auctionPrintCount, 10) || 0;
+            }
+            if (data.auctionProductWeights && typeof data.auctionProductWeights === 'object') {
+                auctionProductWeights = { ...DEFAULT_AUCTION_PRODUCT_WEIGHTS, ...data.auctionProductWeights };
+                saveAuctionProductWeights();
+            }
+            localStorage.setItem('auctionMarkets', JSON.stringify(auctionMarkets));
+            localStorage.setItem('auctionSubcodes', JSON.stringify(auctionSubcodes));
+            localStorage.setItem('auctionQueue', JSON.stringify(auctionQueue));
+            localStorage.setItem('auctionPrintHistory', JSON.stringify(auctionPrintHistory));
+            localStorage.setItem('auctionPrintCount', String(auctionPrintCount));
+        }
         normalizePrintDraftItems();
         let draftExpandedProducts = new Set();
         let draftSelectedProducts = new Set();
@@ -2240,6 +3178,472 @@
             `;
         }
 
+        const AUCTION_FARM_CODE = 'N99833';
+        const AUCTION_MANUAL_PRODUCT = '__auction_manual__';
+        let auctionSelectedProductKey = localStorage.getItem('auctionSelectedProductKey') || AUCTION_MANUAL_PRODUCT;
+
+        function getAuctionProductWeights() {
+            return auctionProductWeights;
+        }
+
+        function formatAuctionWeightKg(kg) {
+            const raw = String(kg == null ? '' : kg).trim();
+            if (!raw) return '';
+            const num = raw.replace(/\s*KG$/i, '').trim();
+            if (!num) return '';
+            return num + 'KG';
+        }
+
+        function normalizeAuctionWeightInput(raw) {
+            const text = String(raw || '').trim();
+            if (!text) return '';
+            const withUnit = text.match(/^(\d+(?:\.\d+)?)\s*KG$/i);
+            if (withUnit) return withUnit[1] + 'KG';
+            if (/^\d+(?:\.\d+)?$/.test(text)) return text + 'KG';
+            return formatAuctionWeightKg(text);
+        }
+
+        function normalizeAuctionWeightField() {
+            const weightEl = document.getElementById('auction-input-weight');
+            if (!weightEl) return;
+            weightEl.value = normalizeAuctionWeightInput(weightEl.value);
+            syncAuctionPreview();
+        }
+
+        function parseAuctionProductEntry(rawKey) {
+            const raw = String(rawKey || '').trim();
+            const inline = raw.match(/^(.+?)-(\d+(?:\.\d+)?)\s*KG$/i);
+            if (inline) {
+                return { product: inline[1].trim(), kg: inline[2] };
+            }
+            const weights = getAuctionProductWeights();
+            if (weights[raw] != null && weights[raw] !== '') {
+                return { product: raw, kg: String(weights[raw]) };
+            }
+            return { product: raw, kg: '' };
+        }
+
+        function applyAuctionProductToForm(rawKey) {
+            const parsed = parseAuctionProductEntry(rawKey);
+            const productEl = document.getElementById('auction-input-product');
+            const weightEl = document.getElementById('auction-input-weight');
+            if (productEl) productEl.value = parsed.product;
+            if (weightEl) weightEl.value = parsed.kg ? formatAuctionWeightKg(parsed.kg) : '';
+            return parsed;
+        }
+
+        function getAuctionProductPickerList() {
+            return [AUCTION_MANUAL_PRODUCT, ...productList.filter(prod => !isBlankProduct(prod))];
+        }
+
+        function getAuctionProductPickerLabel(key) {
+            if (key === AUCTION_MANUAL_PRODUCT) return '手動輸入';
+            const parsed = parseAuctionProductEntry(key);
+            if (parsed.kg) return `${parsed.product}-${parsed.kg}KG`;
+            return getProductDisplayText(key);
+        }
+
+        function ensureAuctionSelectedProductKey() {
+            const list = getAuctionProductPickerList();
+            if (!list.includes(auctionSelectedProductKey)) {
+                auctionSelectedProductKey = AUCTION_MANUAL_PRODUCT;
+                localStorage.setItem('auctionSelectedProductKey', auctionSelectedProductKey);
+            }
+        }
+
+        function setAuctionSelectedProduct(key) {
+            if (!getAuctionProductPickerList().includes(key)) return;
+            auctionSelectedProductKey = key;
+            localStorage.setItem('auctionSelectedProductKey', key);
+            if (key !== AUCTION_MANUAL_PRODUCT) {
+                applyAuctionProductToForm(key);
+            }
+            renderAuctionProductBoxes();
+            updateAuctionHeaderProduct();
+            syncAuctionPreview();
+        }
+
+        function renderAuctionProductBoxes() {
+            const container = document.getElementById('auction-product-list');
+            if (!container) return;
+            ensureAuctionSelectedProductKey();
+            container.innerHTML = '';
+            getAuctionProductPickerList().forEach(key => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                const classes = ['product-item'];
+                if (key === auctionSelectedProductKey) classes.push('selected');
+                if (key === AUCTION_MANUAL_PRODUCT) classes.push('manual-product');
+                btn.className = classes.join(' ');
+                btn.textContent = getAuctionProductPickerLabel(key);
+                btn.onclick = () => setAuctionSelectedProduct(key);
+                container.appendChild(btn);
+            });
+        }
+
+        function deleteAuctionSelectedProduct() {
+            if (auctionSelectedProductKey === AUCTION_MANUAL_PRODUCT) {
+                alert('「手動輸入」無法刪除，請先選擇左側品項！');
+                return;
+            }
+            const index = productList.indexOf(auctionSelectedProductKey);
+            if (index < 0) {
+                alert('請先選擇要刪除的品項！');
+                return;
+            }
+            deleteProductAt(index);
+        }
+
+        const AUCTION_LABEL_LAYOUT = {
+            labelW: 60,
+            labelH: 100,
+            brand: '15mm',
+            org: '3.5mm',
+            orgLetterSpacing: '0.55mm',
+            orgScaleX: 1.18,
+            farmCode: '10.8mm',
+            farmLetterSpacing: '0.68mm',
+            farmScaleX: 1.32,
+            gridHeightMm: 60,
+            // 送印預設使用橫向頁面（102x60）
+            printPageW: 102,
+            printPageH: 60,
+            // 列印內容角度（只影響送印，不影響畫面預覽）
+            printRotateDeg: 0,
+            // 預覽角度（null = 依紙張方向自動轉正；可改成 0/90/-90/180 強制）
+            previewRotateDeg: null,
+            printJobRotateDeg: 0,
+            printScale: 1,
+            gridLabelCol: '25mm',
+            gridValueCol: '35mm',
+            tableLabel: 'auto',
+            tableValue: 'auto',
+            tableWeight: 'auto',
+            borderPx: 2
+        };
+
+        function loadAuctionLayoutConfig() {
+            try {
+                const raw = JSON.parse(localStorage.getItem(AUCTION_LAYOUT_CONFIG_KEY) || 'null');
+                if (!raw || typeof raw !== 'object') return;
+                if (raw.paper === 'portrait') {
+                    AUCTION_LABEL_LAYOUT.printPageW = 60;
+                    AUCTION_LABEL_LAYOUT.printPageH = 102;
+                } else if (raw.paper === 'landscape') {
+                    AUCTION_LABEL_LAYOUT.printPageW = 102;
+                    AUCTION_LABEL_LAYOUT.printPageH = 60;
+                }
+                const printRotate = Number(raw.printRotateDeg);
+                const contentRotate = Number(raw.contentRotateDeg);
+                if (Number.isFinite(contentRotate)) {
+                    AUCTION_LABEL_LAYOUT.printRotateDeg = contentRotate;
+                } else if (Number.isFinite(printRotate)) {
+                    AUCTION_LABEL_LAYOUT.printRotateDeg = printRotate;
+                }
+                const printJobRotate = Number(raw.printJobRotateDeg);
+                if (Number.isFinite(printJobRotate)) AUCTION_LABEL_LAYOUT.printJobRotateDeg = printJobRotate;
+                if (raw.previewRotateDeg === 'auto' || raw.previewRotateDeg == null) {
+                    AUCTION_LABEL_LAYOUT.previewRotateDeg = null;
+                } else {
+                    const previewRotate = Number(raw.previewRotateDeg);
+                    if (Number.isFinite(previewRotate)) AUCTION_LABEL_LAYOUT.previewRotateDeg = previewRotate;
+                }
+            } catch (err) {}
+        }
+
+        function saveAuctionLayoutConfig() {
+            const paper = AUCTION_LABEL_LAYOUT.printPageW > AUCTION_LABEL_LAYOUT.printPageH ? 'landscape' : 'portrait';
+            const payload = {
+                paper,
+                // 相容舊鍵名：printRotateDeg 仍保留
+                printRotateDeg: AUCTION_LABEL_LAYOUT.printRotateDeg,
+                contentRotateDeg: AUCTION_LABEL_LAYOUT.printRotateDeg,
+                printJobRotateDeg: AUCTION_LABEL_LAYOUT.printJobRotateDeg,
+                previewRotateDeg: AUCTION_LABEL_LAYOUT.previewRotateDeg == null ? 'auto' : AUCTION_LABEL_LAYOUT.previewRotateDeg
+            };
+            localStorage.setItem(AUCTION_LAYOUT_CONFIG_KEY, JSON.stringify(payload));
+        }
+
+        function fillAuctionLayoutControls() {
+            const paperEl = document.getElementById('auction-layout-paper');
+            const contentRotateEl = document.getElementById('auction-layout-content-rotate');
+            const printRotateEl = document.getElementById('auction-layout-print-rotate');
+            const previewRotateEl = document.getElementById('auction-layout-preview-rotate');
+            const paper = AUCTION_LABEL_LAYOUT.printPageW > AUCTION_LABEL_LAYOUT.printPageH ? 'landscape' : 'portrait';
+            if (paperEl) paperEl.value = paper;
+            if (contentRotateEl) contentRotateEl.value = String(AUCTION_LABEL_LAYOUT.printRotateDeg);
+            if (printRotateEl) printRotateEl.value = String(AUCTION_LABEL_LAYOUT.printJobRotateDeg);
+            if (previewRotateEl) {
+                previewRotateEl.value = AUCTION_LABEL_LAYOUT.previewRotateDeg == null
+                    ? 'auto'
+                    : String(AUCTION_LABEL_LAYOUT.previewRotateDeg);
+            }
+        }
+
+        function onAuctionLayoutControlChange() {
+            const paperEl = document.getElementById('auction-layout-paper');
+            const contentRotateEl = document.getElementById('auction-layout-content-rotate');
+            const printRotateEl = document.getElementById('auction-layout-print-rotate');
+            const previewRotateEl = document.getElementById('auction-layout-preview-rotate');
+            const paper = paperEl ? paperEl.value : 'portrait';
+            if (paper === 'landscape') {
+                AUCTION_LABEL_LAYOUT.printPageW = 102;
+                AUCTION_LABEL_LAYOUT.printPageH = 60;
+            } else {
+                AUCTION_LABEL_LAYOUT.printPageW = 60;
+                AUCTION_LABEL_LAYOUT.printPageH = 102;
+            }
+            const contentRotate = Number(contentRotateEl ? contentRotateEl.value : AUCTION_LABEL_LAYOUT.printRotateDeg);
+            AUCTION_LABEL_LAYOUT.printRotateDeg = Number.isFinite(contentRotate) ? contentRotate : 0;
+            const printRotate = Number(printRotateEl ? printRotateEl.value : AUCTION_LABEL_LAYOUT.printJobRotateDeg);
+            AUCTION_LABEL_LAYOUT.printJobRotateDeg = Number.isFinite(printRotate) ? printRotate : 0;
+            const previewValue = previewRotateEl ? previewRotateEl.value : 'auto';
+            AUCTION_LABEL_LAYOUT.previewRotateDeg = previewValue === 'auto' ? null : Number(previewValue) || 0;
+            applyAuctionPreviewLayout();
+            syncAuctionPreview();
+            saveAuctionLayoutConfig();
+        }
+
+        loadAuctionLayoutConfig();
+
+        function countAuctionPrintPages(pagesHtml) {
+            return (pagesHtml.match(/class="auction-page"/g) || []).length || 1;
+        }
+
+        function resolveAuctionPreviewRotateDeg() {
+            const manual = Number(AUCTION_LABEL_LAYOUT.previewRotateDeg);
+            if (Number.isFinite(manual)) return manual;
+            return AUCTION_LABEL_LAYOUT.printPageW > AUCTION_LABEL_LAYOUT.printPageH ? 90 : 0;
+        }
+
+        function applyAuctionPreviewLayout() {
+            const previewEl = document.getElementById('auction-form-preview');
+            if (!previewEl) return;
+            const sheetEl = previewEl.querySelector('.auction-label-sheet');
+            if (!sheetEl) return;
+            const labelW = AUCTION_LABEL_LAYOUT.labelW || 60;
+            const labelH = AUCTION_LABEL_LAYOUT.labelH || 100;
+            const previewRotateDeg = resolveAuctionPreviewRotateDeg();
+            const quarterTurn = Math.abs(previewRotateDeg) % 180 === 90;
+            const viewportW = quarterTurn ? labelH : labelW;
+            const viewportH = quarterTurn ? labelW : labelH;
+
+            previewEl.style.width = `${viewportW}mm`;
+            previewEl.style.height = `${viewportH}mm`;
+            previewEl.style.position = 'relative';
+            previewEl.style.overflow = 'hidden';
+
+            sheetEl.style.width = `${labelW}mm`;
+            sheetEl.style.height = `${labelH}mm`;
+            sheetEl.style.position = 'absolute';
+            sheetEl.style.left = '50%';
+            sheetEl.style.top = '50%';
+            sheetEl.style.transform = `translate(-50%, -50%) rotate(${previewRotateDeg}deg)`;
+            sheetEl.style.transformOrigin = 'center center';
+        }
+
+        function buildAuctionPrintStyles(pageCount) {
+            const L = AUCTION_LABEL_LAYOUT;
+            const labelW = L.labelW || 60;
+            const labelH = L.labelH || 100;
+            const pageW = L.printPageW;
+            const pageH = L.printPageH;
+            const rowHeightMm = (L.gridHeightMm || 60) / 5;
+            const tableLabelSize = `${(rowHeightMm * 0.70).toFixed(2)}mm`;
+            const tableValueSize = `${(rowHeightMm * 0.66).toFixed(2)}mm`;
+            const tableWeightSize = `${(rowHeightMm * 0.70).toFixed(2)}mm`;
+            const contentRot = Number(L.printRotateDeg) || 0;
+            const jobRot = Number(L.printJobRotateDeg) || 0;
+            // 使用實際 transform 合併旋轉，避免 page-orientation 在不同瀏覽器/驅動行為不一致
+            const rot = contentRot + jobRot;
+            const scale = L.printScale;
+            return `@page { size: ${pageW}mm ${pageH}mm; margin: 0; }
+* { box-sizing: border-box; }
+html, body {
+    margin: 0; padding: 0; width: ${pageW}mm; height: ${pageH}mm;
+    background: #fff; overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+@media print {
+    html, body {
+        width: ${pageW}mm !important; height: ${pageH}mm !important;
+        margin: 0 !important; padding: 0 !important; overflow: hidden !important;
+    }
+}
+.auction-page {
+    width: ${pageW}mm; height: ${pageH}mm; max-height: ${pageH}mm;
+    margin: 0; padding: 0; position: relative; overflow: hidden;
+    page-break-inside: avoid; break-inside: avoid;
+    page-break-after: avoid; break-after: avoid-page;
+    background: #fff;
+}
+.auction-page + .auction-page {
+    page-break-before: always; break-before: page;
+}
+.auction-sheet {
+    width: ${labelW}mm; height: ${labelH}mm; position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%) rotate(${rot}deg) scale(${scale});
+    transform-origin: center center;
+    display: flex; flex-direction: column; overflow: hidden; background: #fff;
+}
+.auction-header {
+    flex: 0 0 auto; width: 100%;
+    display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+    text-align: center; padding: 1.5mm 0.5mm 0; overflow: hidden; flex-shrink: 0;
+}
+.auction-brand { width: 100%; font-size: ${L.brand}; font-weight: 700; line-height: 1; color: #000; text-align: center; flex-shrink: 0; }
+.auction-org { width: 100%; font-size: ${L.org}; font-weight: 400; line-height: 1; margin-top: 0.6mm; color: #000; text-align: center; flex-shrink: 0; letter-spacing: ${L.orgLetterSpacing}; white-space: nowrap; transform: scaleX(${L.orgScaleX}); transform-origin: center; }
+.auction-farm-code { width: 100%; font-size: ${L.farmCode}; font-weight: 700; line-height: 1; margin-top: 1.8mm; margin-bottom: -0.6mm; padding: 0; color: #000; letter-spacing: ${L.farmLetterSpacing}; text-align: center; flex-shrink: 0; transform: scaleX(${L.farmScaleX}); transform-origin: center; }
+.auction-body {
+    flex: 1 1 auto; width: 100%;
+    display: flex; flex-direction: column; min-height: 0; min-width: 0;
+    padding: 0; overflow: hidden;
+}
+.auction-grid {
+    flex: 0 0 auto; width: 100%; height: ${L.gridHeightMm}mm; min-height: 0; margin-top: auto; align-self: stretch;
+    display: grid; grid-template-columns: ${L.gridLabelCol} ${L.gridValueCol}; grid-template-rows: repeat(5, minmax(0, 1fr));
+    border-left: ${L.borderPx}px solid #000; border-top: ${L.borderPx}px solid #000;
+}
+.auction-cell {
+    border-right: ${L.borderPx}px solid #000; border-bottom: ${L.borderPx}px solid #000;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    overflow: hidden; color: #000; word-break: keep-all; padding: 0;
+    line-height: 1; min-height: 0;
+}
+.auction-field-label { font-size: ${tableLabelSize}; font-weight: 700; line-height: 1; }
+.auction-field-value { font-size: ${tableValueSize}; font-weight: 400; line-height: 1; }
+.auction-field-value.auction-value-weight { font-size: ${tableWeightSize}; font-weight: 700; line-height: 1; }`;
+        }
+
+        function buildAuctionPrintLabelPage(subCode, market, product, pieceQty, weight) {
+            const pieceText = pieceQty > 0 ? String(pieceQty) : '';
+            const weightText = weight ? String(weight) : '';
+            return `
+                <div class="auction-page">
+                    <div class="auction-sheet">
+                        <div class="auction-header">
+                            <div class="auction-brand">永芳</div>
+                            <div class="auction-org">果菜生產合作社</div>
+                            <div class="auction-farm-code">${escapeHtml(AUCTION_FARM_CODE)}</div>
+                        </div>
+                        <div class="auction-body">
+                            <div class="auction-grid">
+                                <div class="auction-cell auction-field-label">小代號</div>
+                                <div class="auction-cell auction-field-value">${escapeHtml(subCode || '')}</div>
+                                <div class="auction-cell auction-field-label">市場</div>
+                                <div class="auction-cell auction-field-value">${escapeHtml(market || '')}</div>
+                                <div class="auction-cell auction-field-label">品名</div>
+                                <div class="auction-cell auction-field-value">${escapeHtml(getProductPrintText(product))}</div>
+                                <div class="auction-cell auction-field-label">件數</div>
+                                <div class="auction-cell auction-field-value">${escapeHtml(pieceText)}</div>
+                                <div class="auction-cell auction-field-label">重量</div>
+                                <div class="auction-cell auction-field-value auction-value-weight">${escapeHtml(weightText)}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function buildAuctionPrintDocument(pagesHtml) {
+            const pageCount = countAuctionPrintPages(pagesHtml);
+            return `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><title>拍賣標籤</title><style>${buildAuctionPrintStyles(pageCount)}</style></head><body>${pagesHtml}</body></html>`;
+        }
+
+        function buildAuctionPrintPagesFromItems(items) {
+            let pagesHtml = '';
+            items.forEach(item => {
+                const copies = Math.max(1, parseInt(item.printQty, 10) || 1);
+                for (let i = 0; i < copies; i++) {
+                    pagesHtml += buildAuctionPrintLabelPage(
+                        item.subCode || '',
+                        item.market,
+                        item.product,
+                        item.qty,
+                        item.weight || ''
+                    );
+                }
+            });
+            return pagesHtml;
+        }
+
+        function runAuctionPrintJob(pagesHtml, onAfterPrint) {
+            if (!pagesHtml.trim()) {
+                alert('沒有可列印的內容！');
+                return false;
+            }
+            const iframe = document.createElement('iframe');
+            iframe.setAttribute('aria-hidden', 'true');
+            iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+            document.body.appendChild(iframe);
+            const printWin = iframe.contentWindow;
+            const doc = printWin.document;
+            doc.open();
+            doc.write(buildAuctionPrintDocument(pagesHtml));
+            doc.close();
+            let finished = false;
+            let printTriggered = false;
+            const cleanup = () => {
+                if (finished) return;
+                finished = true;
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                if (typeof onAfterPrint === 'function') onAfterPrint();
+            };
+            const triggerPrint = () => {
+                if (printTriggered) return;
+                printTriggered = true;
+                try {
+                    printWin.focus();
+                    if ('onafterprint' in printWin) {
+                        printWin.onafterprint = cleanup;
+                    } else {
+                        printWin.addEventListener('afterprint', cleanup, { once: true });
+                    }
+                    printWin.print();
+                } catch (err) {
+                    cleanup();
+                    alert('列印失敗：' + (err.message || String(err)));
+                    return;
+                }
+                setTimeout(cleanup, 120000);
+            };
+            iframe.onload = () => setTimeout(triggerPrint, 200);
+            if (doc.readyState === 'complete') {
+                setTimeout(triggerPrint, 200);
+            }
+            return true;
+        }
+
+        function buildAuctionLabelHtml(subCode, market, product, pieceQty, weight) {
+            const pieceText = pieceQty > 0 ? String(pieceQty) : '';
+            const weightText = weight ? String(weight) : '';
+            return `
+                <div class="auction-label-container">
+                    <div class="auction-label-sheet">
+                    <div class="auction-header">
+                        <div class="auction-brand">永芳</div>
+                        <div class="auction-org">果菜生產合作社</div>
+                        <div class="auction-farm-code">${escapeHtml(AUCTION_FARM_CODE)}</div>
+                    </div>
+                    <div class="auction-body">
+                    <div class="auction-grid">
+                        <div class="auction-cell auction-field-label">小代號</div>
+                        <div class="auction-cell auction-field-value">${escapeHtml(subCode || '')}</div>
+                        <div class="auction-cell auction-field-label">市場</div>
+                        <div class="auction-cell auction-field-value">${escapeHtml(market || '')}</div>
+                        <div class="auction-cell auction-field-label">品名</div>
+                        <div class="auction-cell auction-field-value">${escapeHtml(getProductPrintText(product))}</div>
+                        <div class="auction-cell auction-field-label">件數</div>
+                        <div class="auction-cell auction-field-value">${escapeHtml(pieceText)}</div>
+                        <div class="auction-cell auction-field-label">重量</div>
+                        <div class="auction-cell auction-field-value auction-value-weight">${escapeHtml(weightText)}</div>
+                    </div>
+                    </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function appendLabelsFromItems(printArea, items) {
             let totalPrinted = 0;
             items.forEach(item => {
@@ -2249,6 +3653,402 @@
                 }
             });
             return totalPrinted;
+        }
+
+        function getAuctionPieceQtyFromInput() {
+            return parseInt(document.getElementById('auction-input-qty')?.value, 10) || 0;
+        }
+
+        function getAuctionMaxPrintQty(pieceQty) {
+            const qty = pieceQty != null ? pieceQty : getAuctionPieceQtyFromInput();
+            return qty > 0 ? qty : 999;
+        }
+
+        function clampAuctionPrintQty(value, pieceQty) {
+            const maxQty = getAuctionMaxPrintQty(pieceQty);
+            const num = parseInt(value, 10);
+            if (!Number.isFinite(num) || num < 1) return 1;
+            return Math.min(num, maxQty);
+        }
+
+        function updateAuctionPrintQtyHint(pieceQty, printQty) {
+            const hintEl = document.getElementById('auction-print-qty-hint');
+            if (!hintEl) return;
+            const qty = pieceQty != null ? pieceQty : getAuctionPieceQtyFromInput();
+            const print = printQty != null ? printQty : clampAuctionPrintQty(document.getElementById('auction-input-print-qty')?.value, qty);
+            if (qty > 0 && print > qty) {
+                hintEl.textContent = `不可大於件數（最多 ${qty} 張）`;
+                hintEl.classList.add('is-error');
+                return false;
+            }
+            hintEl.textContent = qty > 0 ? `最多 ${qty} 張（不可大於件數）` : '件數為 0 時可自由設定列印數量';
+            hintEl.classList.remove('is-error');
+            return true;
+        }
+
+        function onAuctionPieceQtyInput() {
+            const pieceQty = getAuctionPieceQtyFromInput();
+            const printEl = document.getElementById('auction-input-print-qty');
+            if (printEl) {
+                printEl.value = String(clampAuctionPrintQty(printEl.value, pieceQty));
+            }
+            updateAuctionPrintQtyHint(pieceQty);
+            syncAuctionPreview();
+        }
+
+        function onAuctionPrintQtyInput() {
+            const pieceQty = getAuctionPieceQtyFromInput();
+            const printEl = document.getElementById('auction-input-print-qty');
+            if (printEl) {
+                printEl.value = String(clampAuctionPrintQty(printEl.value, pieceQty));
+            }
+            updateAuctionPrintQtyHint(pieceQty);
+        }
+
+        function stepAuctionPrintQty(delta) {
+            const pieceQty = getAuctionPieceQtyFromInput();
+            const printEl = document.getElementById('auction-input-print-qty');
+            if (!printEl) return;
+            const current = parseInt(printEl.value, 10) || 1;
+            printEl.value = String(clampAuctionPrintQty(current + delta, pieceQty));
+            updateAuctionPrintQtyHint(pieceQty);
+        }
+
+        function getAuctionFormValues() {
+            const qty = parseInt(document.getElementById('auction-input-qty')?.value, 10) || 0;
+            return {
+                subCode: (document.getElementById('auction-input-subcode')?.value || '').trim(),
+                market: (document.getElementById('auction-input-market')?.value || '').trim(),
+                product: (document.getElementById('auction-input-product')?.value || '').trim(),
+                qty,
+                printQty: clampAuctionPrintQty(document.getElementById('auction-input-print-qty')?.value, qty),
+                weight: normalizeAuctionWeightInput(document.getElementById('auction-input-weight')?.value || '')
+            };
+        }
+
+        function setAuctionFormValues(values) {
+            const subCodeEl = document.getElementById('auction-input-subcode');
+            const marketEl = document.getElementById('auction-input-market');
+            const productEl = document.getElementById('auction-input-product');
+            const qtyEl = document.getElementById('auction-input-qty');
+            const weightEl = document.getElementById('auction-input-weight');
+            if (subCodeEl && values.subCode != null) subCodeEl.value = values.subCode;
+            if (marketEl && values.market != null) marketEl.value = values.market;
+            if (productEl && values.product != null) productEl.value = values.product;
+            if (qtyEl && values.qty != null) qtyEl.value = values.qty > 0 ? String(values.qty) : '';
+            const printQtyEl = document.getElementById('auction-input-print-qty');
+            if (printQtyEl && values.printQty != null) {
+                const pieceQty = values.qty != null ? values.qty : getAuctionPieceQtyFromInput();
+                printQtyEl.value = String(clampAuctionPrintQty(values.printQty, pieceQty));
+            }
+            if (weightEl && values.weight != null) weightEl.value = values.weight;
+            updateAuctionPrintQtyHint(
+                values.qty != null ? values.qty : getAuctionPieceQtyFromInput()
+            );
+        }
+
+        function clearAuctionForm() {
+            setAuctionFormValues({ subCode: '', market: '', product: '', qty: 0, printQty: 1, weight: '' });
+            if (auctionSelectedProductKey !== AUCTION_MANUAL_PRODUCT) {
+                applyAuctionProductToForm(auctionSelectedProductKey);
+            }
+            syncAuctionPreview();
+        }
+
+        function renderAuctionMarketUi() {
+            const chipsEl = document.getElementById('auction-market-chips');
+            const datalistEl = document.getElementById('auction-market-datalist');
+            if (datalistEl) {
+                datalistEl.innerHTML = auctionMarkets.map(m => `<option value="${escapeHtml(m)}">`).join('');
+            }
+            if (!chipsEl) return;
+            chipsEl.innerHTML = auctionMarkets.map((market, index) => `
+                <button type="button" class="auction-market-chip" onclick="selectAuctionMarketByIndex(${index})">${escapeHtml(market)}</button>
+            `).join('');
+        }
+
+        function selectAuctionMarketByIndex(index) {
+            const market = auctionMarkets[index] || '';
+            const el = document.getElementById('auction-input-market');
+            if (el) el.value = market;
+            syncAuctionPreview();
+        }
+
+        function renderAuctionCounter() {
+            const countNumEl = document.getElementById('auction-count-num');
+            if (countNumEl) countNumEl.textContent = String(auctionPrintCount);
+        }
+
+        function validateAuctionFormForPrint(v) {
+            const subcodeCheck = validateAuctionSubcodeForPrint(v.subCode);
+            if (!subcodeCheck.ok) return subcodeCheck;
+            if (v.qty > 0 && v.printQty > v.qty) {
+                return { ok: false, message: `列印數量不可大於件數（最多 ${v.qty} 張）` };
+            }
+            if (v.printQty < 1) {
+                return { ok: false, message: '列印數量至少為 1 張' };
+            }
+            return { ok: true };
+        }
+
+        function printAuctionForm() {
+            const v = getAuctionFormValues();
+            const check = validateAuctionFormForPrint(v);
+            if (!check.ok) {
+                alert(check.message);
+                return;
+            }
+            if (v.market && !auctionMarkets.includes(v.market)) {
+                auctionMarkets.push(v.market);
+                saveAuctionMarkets();
+                renderAuctionMarketUi();
+            }
+            const item = { ...v };
+            const copies = v.printQty;
+            const pagesHtml = buildAuctionPrintPagesFromItems([item]);
+            runAuctionPrintJob(pagesHtml, () => {
+                recordAuctionPrintHistory([item]);
+                auctionPrintCount += copies;
+                saveAuctionPrintCount();
+                renderAuctionCounter();
+            });
+        }
+
+        function printAuctionFormApi() {
+            const v = getAuctionFormValues();
+            const check = validateAuctionFormForPrint(v);
+            if (!check.ok) {
+                alert(check.message);
+                return;
+            }
+            const cfg = loadPrinterSettings();
+            if (!cfg.api?.enabled || !isPrinterConfigured({ mode: 'xpyun', enabled: true, ...cfg.api })) {
+                alert('請到 ⚙️ 設定 → 印表機設定，填寫並啟用 API 標籤機（芯烨雲）');
+                return;
+            }
+            alert('API 拍賣標籤列印功能建置中，目前請使用「🖨️ 系統列印」。');
+        }
+
+        function renderAuctionUi() {
+            fillAuctionLayoutControls();
+            applyAuctionPreviewLayout();
+            renderAuctionProductBoxes();
+            renderAuctionMarketUi();
+            renderAuctionCounter();
+            updateAuctionPrintQtyHint();
+            updateAuctionSubcodeInputState();
+            updateAuctionHeaderProduct();
+        }
+
+        function syncAuctionPreview() {
+            const v = getAuctionFormValues();
+            const setText = (id, text) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text;
+            };
+            setText('auction-preview-subcode', v.subCode);
+            setText('auction-preview-market', v.market);
+            setText('auction-preview-product', v.product);
+            setText('auction-preview-qty', v.qty > 0 ? String(v.qty) : '');
+            setText('auction-preview-weight', v.weight);
+            updateAuctionSubcodeInputState();
+        }
+
+        function normalizeAuctionSubcode(code) {
+            return (code || '').trim();
+        }
+
+        function isAuctionSubcodeRegistered(subCode) {
+            const code = normalizeAuctionSubcode(subCode);
+            if (!code) return true;
+            return auctionSubcodes.some(item => normalizeAuctionSubcode(item) === code);
+        }
+
+        function validateAuctionSubcodeForPrint(subCode) {
+            const code = normalizeAuctionSubcode(subCode);
+            if (!code) return { ok: true };
+            if (isAuctionSubcodeRegistered(code)) return { ok: true };
+            return {
+                ok: false,
+                message: `小代號「${code}」尚未登記，無法列印。請至小代號管理新增，或留空小代號以列印空白標籤。`
+            };
+        }
+
+        function updateAuctionSubcodeInputState() {
+            const el = document.getElementById('auction-input-subcode');
+            if (!el) return;
+            const code = normalizeAuctionSubcode(el.value);
+            el.classList.toggle('is-unregistered', !!code && !isAuctionSubcodeRegistered(code));
+        }
+
+        function onAuctionSubcodeInput() {
+            updateAuctionSubcodeInputState();
+            syncAuctionPreview();
+        }
+
+        function selectAuctionSubcode(code) {
+            const el = document.getElementById('auction-input-subcode');
+            if (el) el.value = code;
+            onAuctionSubcodeInput();
+            closeAuctionSubcodeModal();
+        }
+
+        function selectAuctionMarket(market) {
+            const el = document.getElementById('auction-input-market');
+            if (el) el.value = market;
+            syncAuctionPreview();
+            closeAuctionMarketModal();
+        }
+
+        function recordAuctionPrintHistory(items) {
+            const timestamp = new Date().toISOString();
+            items.forEach(item => {
+                auctionPrintHistory.unshift({
+                    id: `${timestamp}-${item.market}-${Math.random().toString(36).slice(2, 8)}`,
+                    timestamp,
+                    market: item.market,
+                    product: item.product,
+                    qty: item.qty,
+                    printQty: Math.max(1, parseInt(item.printQty, 10) || 1),
+                    weight: item.weight || '',
+                    subCode: item.subCode || '',
+                    batchNo: item.subCode || item.batchNo || ''
+                });
+            });
+            saveAuctionPrintHistory();
+        }
+
+        function renderAuctionMarketModalList() {
+            const listEl = document.getElementById('auction-market-list');
+            if (!listEl) return;
+            if (auctionMarkets.length === 0) {
+                listEl.innerHTML = '<div class="modal-item"><div class="modal-item-info" style="color:#888;">尚無市場</div></div>';
+                return;
+            }
+            listEl.innerHTML = auctionMarkets.map((market, index) => `
+                <div class="modal-item">
+                    <div class="modal-item-info" style="cursor:pointer;color:#0d47a1;" onclick="selectAuctionMarket(${JSON.stringify(market)})">${escapeHtml(market)}</div>
+                    <div class="modal-item-actions">
+                        <button class="btn-icon" title="往上移" onclick="moveAuctionMarket(${index}, -1)" ${index === 0 ? 'disabled' : ''}>⬆️</button>
+                        <button class="btn-icon" title="往下移" onclick="moveAuctionMarket(${index}, 1)" ${index === auctionMarkets.length - 1 ? 'disabled' : ''}>⬇️</button>
+                        <button class="btn-icon" title="刪除" onclick="deleteAuctionMarket(${index})">❌</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAuctionSubcodeModalList() {
+            const listEl = document.getElementById('auction-subcode-list');
+            if (!listEl) return;
+            if (auctionSubcodes.length === 0) {
+                listEl.innerHTML = '<div class="modal-item"><div class="modal-item-info" style="color:#888;">尚無小代號</div></div>';
+                return;
+            }
+            listEl.innerHTML = auctionSubcodes.map((code, index) => `
+                <div class="modal-item">
+                    <div class="modal-item-info" style="cursor:pointer;color:#0d47a1;" onclick="selectAuctionSubcode(${JSON.stringify(code)})">${escapeHtml(code)}</div>
+                    <div class="modal-item-actions">
+                        <button class="btn-icon" title="往上移" onclick="moveAuctionSubcode(${index}, -1)" ${index === 0 ? 'disabled' : ''}>⬆️</button>
+                        <button class="btn-icon" title="往下移" onclick="moveAuctionSubcode(${index}, 1)" ${index === auctionSubcodes.length - 1 ? 'disabled' : ''}>⬇️</button>
+                        <button class="btn-icon" title="刪除" onclick="deleteAuctionSubcode(${index})">❌</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moveAuctionMarket(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= auctionMarkets.length) return;
+            const temp = auctionMarkets[index];
+            auctionMarkets[index] = auctionMarkets[newIndex];
+            auctionMarkets[newIndex] = temp;
+            saveAuctionMarkets();
+            renderAuctionMarketModalList();
+            renderAuctionMarketUi();
+        }
+
+        function moveAuctionSubcode(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= auctionSubcodes.length) return;
+            const temp = auctionSubcodes[index];
+            auctionSubcodes[index] = auctionSubcodes[newIndex];
+            auctionSubcodes[newIndex] = temp;
+            saveAuctionSubcodes();
+            renderAuctionSubcodeModalList();
+        }
+
+        function openAuctionSubcodeModal() {
+            renderAuctionSubcodeModalList();
+            const modal = document.getElementById('auctionSubcodeModal');
+            if (modal) modal.style.display = 'block';
+        }
+
+        function closeAuctionSubcodeModal() {
+            const modal = document.getElementById('auctionSubcodeModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function openAuctionMarketModal() {
+            renderAuctionMarketModalList();
+            const modal = document.getElementById('auctionMarketModal');
+            if (modal) modal.style.display = 'block';
+        }
+
+        function closeAuctionMarketModal() {
+            const modal = document.getElementById('auctionMarketModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function addAuctionSubcode() {
+            const input = document.getElementById('auction-subcode-new');
+            if (!input) return;
+            const code = normalizeAuctionSubcode(input.value);
+            if (!code) return;
+            if (auctionSubcodes.some(item => normalizeAuctionSubcode(item) === code)) {
+                alert('此小代號已在清單中！');
+                return;
+            }
+            auctionSubcodes.push(code);
+            input.value = '';
+            saveAuctionSubcodes();
+            renderAuctionSubcodeModalList();
+            updateAuctionSubcodeInputState();
+        }
+
+        function deleteAuctionSubcode(index) {
+            const code = auctionSubcodes[index];
+            if (!code) return;
+            if (!confirm(`確定要刪除小代號「${code}」嗎？`)) return;
+            auctionSubcodes.splice(index, 1);
+            saveAuctionSubcodes();
+            renderAuctionSubcodeModalList();
+            updateAuctionSubcodeInputState();
+        }
+
+        function addAuctionMarket() {
+            const input = document.getElementById('auction-market-new');
+            if (!input) return;
+            const name = input.value.trim();
+            if (!name) return;
+            if (auctionMarkets.includes(name)) {
+                alert('此市場已在清單中！');
+                return;
+            }
+            auctionMarkets.push(name);
+            input.value = '';
+            saveAuctionMarkets();
+            renderAuctionMarketModalList();
+            renderAuctionMarketUi();
+        }
+
+        function deleteAuctionMarket(index) {
+            const name = auctionMarkets[index];
+            if (!name) return;
+            if (!confirm(`確定要刪除市場「${name}」嗎？`)) return;
+            auctionMarkets.splice(index, 1);
+            saveAuctionMarkets();
+            renderAuctionMarketModalList();
+            renderAuctionMarketUi();
         }
 
         function recordPrintHistoryFromDraftItems(items) {
@@ -2352,7 +4152,8 @@
                     customer: item.customer,
                     location: item.location,
                     product,
-                    qty: item.qty
+                    qty: item.qty,
+                    printType: 'label'
                 });
             });
         }
@@ -2484,21 +4285,37 @@
 
         function switchAppTab(tab) {
             currentAppTab = tab;
-            const printTabs = ['label', 'auction'];
-            const isPrintTab = printTabs.includes(tab);
-            const workspace = document.getElementById('print-workspace');
-            if (workspace) {
-                if (isPrintTab) {
-                    workspace.removeAttribute('hidden');
-                    printMode = tab;
-                    updatePrintTabTitle();
-                } else {
-                    workspace.setAttribute('hidden', '');
-                }
+            const labelWorkspace = document.getElementById('print-workspace');
+            const auctionWorkspace = document.getElementById('auction-workspace');
+            const previewArea = document.getElementById('preview-area');
+
+            if (tab === 'label') {
+                if (labelWorkspace) labelWorkspace.removeAttribute('hidden');
+                if (auctionWorkspace) auctionWorkspace.setAttribute('hidden', '');
+                if (previewArea) previewArea.removeAttribute('hidden');
+                updateAppHeader('label');
+                syncPreview();
+            } else if (tab === 'auction') {
+                if (labelWorkspace) labelWorkspace.setAttribute('hidden', '');
+                if (auctionWorkspace) auctionWorkspace.removeAttribute('hidden');
+                if (previewArea) previewArea.setAttribute('hidden', '');
+                updateAppHeader('auction');
+                renderAuctionUi();
+                syncAuctionPreview();
+            } else {
+                if (labelWorkspace) labelWorkspace.setAttribute('hidden', '');
+                if (auctionWorkspace) auctionWorkspace.setAttribute('hidden', '');
+                if (previewArea) previewArea.setAttribute('hidden', '');
+                updateAppHeader(tab);
             }
+
             ['history', 'settings', 'printer'].forEach(name => {
                 const panel = document.getElementById('tab-' + name);
-                if (panel) panel.classList.toggle('active', tab === name);
+                if (!panel) return;
+                const active = tab === name;
+                panel.classList.toggle('active', active);
+                panel.hidden = !active;
+                panel.style.display = active ? 'block' : 'none';
             });
             document.querySelectorAll('.app-bottom-nav button[data-tab]').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
@@ -2515,10 +4332,29 @@
             }
         }
 
-        function updatePrintTabTitle() {
-            const sub = document.querySelector('.app-header-sub');
-            if (!sub) return;
-            sub.textContent = printMode === 'auction' ? '拍賣列印 · 雲端同步' : '出貨標籤 · 雲端同步';
+        function updateAppHeader(tab) {
+            const labelPanel = document.getElementById('app-header-label');
+            const auctionPanel = document.getElementById('app-header-auction');
+            const genericPanel = document.getElementById('app-header-generic');
+            const genericSub = document.getElementById('app-header-generic-sub');
+            if (labelPanel) labelPanel.hidden = tab !== 'label';
+            if (auctionPanel) auctionPanel.hidden = tab !== 'auction';
+            if (genericPanel) genericPanel.hidden = tab === 'label' || tab === 'auction';
+            if (genericSub) {
+                const subMap = {
+                    history: '列印紀錄',
+                    settings: '設定',
+                    printer: '印表機狀態'
+                };
+                genericSub.textContent = subMap[tab] || '永芳標籤系統';
+            }
+            if (tab === 'auction') updateAuctionHeaderProduct();
+        }
+
+        function updateAuctionHeaderProduct() {
+            ensureAuctionSelectedProductKey();
+            const el = document.getElementById('auction-current-product-display');
+            if (el) el.textContent = getAuctionProductPickerLabel(auctionSelectedProductKey);
         }
 
         function toggleSettingsCollapse(bodyId, toggleId) {
@@ -2530,12 +4366,11 @@
         }
 
         function getDefaultPrinterSettings() {
-            const legacyIp = localStorage.getItem('printerIp') || '192.168.50.241';
             const legacyPort = localStorage.getItem('printerPort') || '9100';
             const legacyApi = localStorage.getItem('printServerUrl') || '';
             return {
                 statusApiUrl: legacyApi.replace(/\/$/, ''),
-                local: { ip: legacyIp, port: legacyPort, enabled: true },
+                local: { ip: '', port: legacyPort, enabled: false },
                 api: { cloudUser: '', cloudUserKey: '', cloudSn: '', enabled: false }
             };
         }
@@ -2545,11 +4380,7 @@
             if (data.local && data.api) {
                 return {
                     statusApiUrl: (data.statusApiUrl || '').replace(/\/$/, ''),
-                    local: {
-                        ip: data.local.ip || '',
-                        port: data.local.port || '9100',
-                        enabled: data.local.enabled !== false
-                    },
+                    local: { ip: '', port: '9100', enabled: false },
                     api: {
                         cloudUser: data.api.cloudUser || '',
                         cloudUserKey: data.api.cloudUserKey || '',
@@ -2559,15 +4390,10 @@
                 };
             }
             if (Array.isArray(data.printers) && data.printers.length >= 2) {
-                const p1 = data.printers.find(x => x.id === 1) || data.printers[0];
                 const p2 = data.printers.find(x => x.id === 2) || data.printers[1];
                 return {
                     statusApiUrl: (data.statusApiUrl || '').replace(/\/$/, ''),
-                    local: {
-                        ip: p1?.ip || '',
-                        port: p1?.port || '9100',
-                        enabled: p1?.enabled !== false
-                    },
+                    local: { ip: '', port: '9100', enabled: false },
                     api: {
                         cloudUser: p2?.cloudUser || '',
                         cloudUserKey: p2?.cloudUserKey || '',
@@ -2600,14 +4426,6 @@
             return [
                 {
                     id: 1,
-                    role: 'local',
-                    mode: 'tcp',
-                    ip: c.local?.ip || '',
-                    port: c.local?.port || '9100',
-                    enabled: c.local?.enabled !== false
-                },
-                {
-                    id: 2,
                     role: 'api',
                     mode: 'xpyun',
                     enabled: c.api?.enabled === true,
@@ -2627,9 +4445,6 @@
             const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
             const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
             setVal('printer-status-api-url', cfg.statusApiUrl || '');
-            setVal('printer-local-ip', cfg.local?.ip || '192.168.50.241');
-            setVal('printer-local-port', cfg.local?.port || '9100');
-            setCheck('printer-local-enabled', cfg.local?.enabled !== false);
             setVal('printer-api-user', cfg.api?.cloudUser || '');
             setVal('printer-api-key', cfg.api?.cloudUserKey || '');
             setVal('printer-api-sn', cfg.api?.cloudSn || '');
@@ -2639,11 +4454,7 @@
         function readPrinterSettingsFromForm() {
             return {
                 statusApiUrl: (document.getElementById('printer-status-api-url')?.value || '').trim().replace(/\/$/, ''),
-                local: {
-                    ip: (document.getElementById('printer-local-ip')?.value || '').trim(),
-                    port: (document.getElementById('printer-local-port')?.value || '').trim() || '9100',
-                    enabled: !!document.getElementById('printer-local-enabled')?.checked
-                },
+                local: { ip: '', port: '9100', enabled: false },
                 api: {
                     cloudUser: (document.getElementById('printer-api-user')?.value || '').trim(),
                     cloudUserKey: (document.getElementById('printer-api-key')?.value || '').trim(),
@@ -2773,7 +4584,7 @@
                 el.className = base + ' lamp-bad';
                 return;
             }
-            el.className = base + (printerId === 1 ? ' lamp-green' : ' lamp-blue');
+            el.className = base + ' lamp-blue';
         }
 
         function applyPrinterStatusResults(results) {
@@ -2811,7 +4622,7 @@
             });
             const textEl = document.getElementById('printer-status-text');
             if (textEl) {
-                if (enabledCount === 0) textEl.textContent = '請到設定啟用並填寫印表機';
+                if (enabledCount === 0) textEl.textContent = '請先啟用並填寫 API 印表機設定';
                 else if (connectedCount === enabledCount) textEl.textContent = `全部在線（${connectedCount}/${enabledCount}）`;
                 else if (connectedCount === 0) textEl.textContent = '全部離線 — 紅燈';
                 else textEl.textContent = `部分在線（${connectedCount}/${enabledCount}）`;
@@ -2819,18 +4630,17 @@
             const tipsEl = document.getElementById('printer-status-tips');
             if (tipsEl) {
                 tipsEl.innerHTML = [
-                    '系統標籤機：標籤列印頁按「🖨️ 系統標籤機」（瀏覽器列印）',
-                    'API 標籤機：標籤列印頁按「🖨️ API 標籤機」（雲端，建置中）',
-                    '綠燈＝區網標籤機 TCP 連線成功',
+                    '系統列印固定使用瀏覽器列印（不提供手動設定）',
+                    'API 標籤機：拍賣列印頁按「🖨️ API 標籤」（目前建置中）',
                     '藍燈＝芯烨雲 API 在線',
                     '紅燈＝離線、異常或未設定',
-                    '區網檢測需 Windows 執行 start-print-server.bat'
+                    '若無法直連芯烨雲，可填寫 API 代理網址（start-print-server.bat）'
                 ].map(t => `<li>${t}</li>`).join('');
             }
         }
 
         function markAllPrintersOffline(reason) {
-            [1, 2].forEach(id => {
+            [1].forEach(id => {
                 setPrinterLamp(document.getElementById(`nav-printer-lamp-${id}`), false, id);
                 setPrinterLamp(document.getElementById(`printer-lamp-${id}`), false, id);
                 const statusEl = document.getElementById(`printer-status-${id}`);
@@ -2845,8 +4655,8 @@
             const apiBase = getPrinterStatusApiBaseUrl();
             const activePrinters = channels.filter(p => p.enabled !== false);
             if (activePrinters.length === 0) {
-                markAllPrintersOffline('未啟用印表機');
-                if (showAlert) alert('請到設定啟用至少一個印表機通道');
+                markAllPrintersOffline('未啟用 API 印表機');
+                if (showAlert) alert('請先啟用並填寫 API 印表機設定');
                 return;
             }
             const results = [];
@@ -2898,7 +4708,11 @@
 
         function restorePreviewArea() {
             document.getElementById('print-area').innerHTML = '';
-            syncPreview();
+            if (currentAppTab === 'auction') {
+                syncAuctionPreview();
+            } else {
+                syncPreview();
+            }
         }
 
         function isIOSDevice() {
@@ -2912,24 +4726,48 @@
                 alert('沒有可列印的內容！');
                 return;
             }
+            const isAuctionPrint = currentAppTab === 'auction' || !!printArea.querySelector('.auction-label-container');
             document.body.classList.add('printing');
+            document.body.classList.add(isAuctionPrint ? 'printing-auction' : 'printing-label');
+            let pageStyle = document.getElementById('dynamic-print-page');
+            if (!pageStyle) {
+                pageStyle = document.createElement('style');
+                pageStyle.id = 'dynamic-print-page';
+                document.head.appendChild(pageStyle);
+            }
+            pageStyle.textContent = isAuctionPrint
+                ? '@page { size: 60mm 102mm; margin: 0; }'
+                : '@page { size: 100mm 60mm; margin: 0; }';
             let finished = false;
             const finish = () => {
                 if (finished) return;
                 finished = true;
-                document.body.classList.remove('printing');
+                document.body.classList.remove('printing', 'printing-auction', 'printing-label');
                 window.removeEventListener('afterprint', finish);
                 resetPrintAreaScreenStyle(printArea);
                 restorePreviewArea();
                 if (typeof onAfterPrint === 'function') onAfterPrint();
             };
+            if (isAuctionPrint) {
+                printArea.style.width = '60mm';
+                printArea.style.height = '102mm';
+                printArea.style.margin = '0';
+                printArea.style.padding = '0';
+                printArea.style.overflow = 'hidden';
+            }
             const ios = isIOSDevice();
             if (ios) {
                 printArea.style.display = 'block';
                 printArea.style.position = 'fixed';
                 printArea.style.left = '0';
                 printArea.style.top = '0';
-                printArea.style.width = '100mm';
+                if (isAuctionPrint) {
+                    printArea.style.width = '60mm';
+                    printArea.style.height = '102mm';
+                } else {
+                    printArea.style.width = '100mm';
+                    printArea.style.height = '';
+                }
                 printArea.style.zIndex = '999999';
                 printArea.style.background = '#ffffff';
             }
@@ -2954,6 +4792,10 @@
             printArea.style.left = '';
             printArea.style.top = '';
             printArea.style.width = '';
+            printArea.style.height = '';
+            printArea.style.margin = '';
+            printArea.style.padding = '';
+            printArea.style.overflow = '';
             printArea.style.zIndex = '';
             printArea.style.background = '';
         }
@@ -2977,12 +4819,14 @@
 
         function updateCustomerCellDisplays() {
             document.querySelectorAll('.cust-cell').forEach(cell => {
-                const input = cell.querySelector('.cust-cell-input');
-                if (!input) return;
-                const qty = parseInt(input.value, 10) || 0;
+                const input = cell.querySelector('.customer-qty-input');
                 const qtyEl = cell.querySelector('.cust-cell-qty');
                 const minus = cell.querySelector('.cust-cell-minus');
-                cell.classList.toggle('has-qty', qty > 0);
+                if (!input) return;
+                const qty = parseInt(input.value, 10) || 0;
+                const hasQty = qty > 0;
+                input.classList.toggle('has-qty', hasQty);
+                cell.classList.toggle('has-qty', hasQty);
                 if (qtyEl) {
                     qtyEl.textContent = String(qty);
                     qtyEl.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
@@ -3047,14 +4891,14 @@
         }
 
         function focusCustomerQtyFromCell(el) {
-            const input = el.closest('.cust-cell')?.querySelector('.cust-cell-input');
+            const input = el.closest('.cust-cell')?.querySelector('.customer-qty-input');
             focusCustomerQtyInput(input);
         }
 
         function incrementCustomerQty(el) {
             const row = el.closest('.cust-cell');
             if (!row) return;
-            const input = row.querySelector('.cust-cell-input');
+            const input = row.querySelector('.customer-qty-input');
             if (!input) return;
             input.value = (parseInt(input.value, 10) || 0) + 1;
             syncPreview();
@@ -3063,7 +4907,7 @@
         function decrementCustomerQty(btn) {
             const row = btn.closest('.cust-cell');
             if (!row) return;
-            const input = row.querySelector('.cust-cell-input');
+            const input = row.querySelector('.customer-qty-input');
             if (!input) return;
             const next = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
             input.value = next;
@@ -3085,7 +4929,6 @@
 
         // 繪製主畫面 UI，且不清除使用者已經輸入的數字
         function renderUI() {
-            // 先備份目前畫面上的輸入件數
             let currentInputs = document.querySelectorAll('.customer-qty-input');
             let qtys = {};
             currentInputs.forEach(input => {
@@ -3096,6 +4939,7 @@
                 selectedProduct = productList[0] || '';
             }
             renderProductBoxes();
+            renderAuctionProductBoxes();
 
             const custList = document.getElementById('customer-list');
             custList.innerHTML = '';
@@ -3305,10 +5149,15 @@
             listContainer.innerHTML = '';
             productList.forEach((prod, index) => {
                 const isBlank = isBlankProduct(prod);
+                const parsed = parseAuctionProductEntry(prod);
+                const infoText = parsed.kg
+                    ? `${escapeHtml(parsed.product)} · ${escapeHtml(parsed.kg)}KG`
+                    : escapeHtml(getProductDisplayText(prod));
                 listContainer.innerHTML += `
                     <div class="modal-item">
-                        <div class="modal-item-info">${getProductDisplayText(prod)}</div>
+                        <div class="modal-item-info">${infoText}</div>
                         <div class="modal-item-actions">
+                            <button class="btn-icon" title="修改名稱與拍賣重量" onclick="editProductAt(${index})" ${isBlank ? 'disabled' : ''}>✏️</button>
                             <button class="btn-icon" title="往上移" onclick="moveProduct(${index}, -1)" ${index === 0 || isBlank ? 'disabled' : ''}>⬆️</button>
                             <button class="btn-icon" title="往下移" onclick="moveProduct(${index}, 1)" ${index === productList.length - 1 || isBlank ? 'disabled' : ''}>⬇️</button>
                             <button class="btn-icon" title="刪除" onclick="deleteProductAt(${index})" ${isBlank ? 'disabled' : ''}>❌</button>
@@ -3316,6 +5165,54 @@
                     </div>
                 `;
             });
+        }
+
+        function editProductAt(index) {
+            const prod = productList[index];
+            if (isBlankProduct(prod)) return;
+            const parsed = parseAuctionProductEntry(prod);
+            const newNameRaw = prompt('請修改品項名稱：', parsed.product);
+            if (newNameRaw === null) return;
+            const newName = newNameRaw.trim();
+            if (!newName) return;
+            if (newName === BLANK_PRODUCT) {
+                alert('請改用品項列表最右側的「空白」品項！');
+                return;
+            }
+            if (newName !== parsed.product && productList.includes(newName)) {
+                alert('這個品項已經在名單裡囉！');
+                return;
+            }
+
+            const weightRaw = prompt(`請輸入「${newName}」的拍賣重量（KG，可留空）：`, parsed.kg || '');
+            if (weightRaw === null) return;
+            const kg = String(weightRaw).trim().replace(/\s*KG$/i, '');
+
+            productList[index] = newName;
+            delete auctionProductWeights[prod];
+            delete auctionProductWeights[parsed.product];
+            if (kg) {
+                auctionProductWeights[newName] = parseFloat(kg) || kg;
+            } else {
+                delete auctionProductWeights[newName];
+            }
+            saveAuctionProductWeights();
+
+            if (selectedProduct === prod || selectedProduct === parsed.product) {
+                selectedProduct = newName;
+                localStorage.setItem('selectedProduct', selectedProduct);
+            }
+            if (auctionSelectedProductKey === prod || auctionSelectedProductKey === parsed.product) {
+                auctionSelectedProductKey = newName;
+                localStorage.setItem('auctionSelectedProductKey', newName);
+            }
+
+            saveProducts();
+            renderProductModalList();
+            renderUI();
+            renderAuctionUi();
+            syncPreview();
+            syncAuctionPreview();
         }
 
         function moveProduct(index, direction) {
@@ -3328,7 +5225,9 @@
             saveProducts();
             renderProductModalList();
             renderUI();
+            renderAuctionUi();
             syncPreview();
+            syncAuctionPreview();
         }
 
         function deleteProductAt(index) {
@@ -3347,10 +5246,18 @@
                 selectedProduct = productList[0] || '';
                 localStorage.setItem('selectedProduct', selectedProduct);
             }
+            if (auctionSelectedProductKey === prod) {
+                auctionSelectedProductKey = AUCTION_MANUAL_PRODUCT;
+                localStorage.setItem('auctionSelectedProductKey', AUCTION_MANUAL_PRODUCT);
+            }
+            delete auctionProductWeights[prod];
+            saveAuctionProductWeights();
             saveProducts();
             renderProductModalList();
             renderUI();
+            renderAuctionUi();
             syncPreview();
+            syncAuctionPreview();
         }
 
         function addProduct() {
@@ -3362,9 +5269,24 @@
             }
             if (productList.includes(newProd.trim())) { alert("這個品項已經在名單裡囉！"); return; }
 
-            productList.push(newProd.trim());
+            const trimmed = newProd.trim();
+            productList.push(trimmed);
             saveProducts();
-            setSelectedProduct(newProd.trim());
+
+            if (currentAppTab === 'auction') {
+                const weightRaw = prompt(`請輸入「${trimmed}」的拍賣重量（KG，可留空）：`, '');
+                if (weightRaw !== null) {
+                    const kg = String(weightRaw).trim().replace(/\s*KG$/i, '');
+                    if (kg) {
+                        auctionProductWeights[trimmed] = parseFloat(kg) || kg;
+                        saveAuctionProductWeights();
+                    }
+                }
+                setAuctionSelectedProduct(trimmed);
+            } else {
+                setSelectedProduct(trimmed);
+            }
+
             renderUI();
             if (document.getElementById('productModal').style.display === 'block') {
                 renderProductModalList();
@@ -3516,32 +5438,18 @@
 
         function generateAndPrint() {
             const subProd = getSelectedProduct();
-            const inputs = document.querySelectorAll('.customer-qty-input');
             const printArea = document.getElementById('print-area');
-            const printItems = [];
+            const printItems = getCurrentPrintItems();
             
             printArea.innerHTML = ''; 
 
-            inputs.forEach(input => {
-                const cust = input.getAttribute('data-cust');
-                const loc = input.getAttribute('data-loc');
-                const qty = parseInt(input.value) || 0;
-                if (qty <= 0) return;
-                printItems.push({ customer: cust, location: loc, qty, product: subProd });
-            });
-
-            const totalPrintedThisTime = appendLabelsFromItems(printArea, printItems.map(item => ({
-                customer: item.customer,
-                location: item.location,
-                qty: item.qty,
-                product: subProd
-            })));
-
-            if (totalPrintedThisTime === 0) {
-                alert("請至少為一位客戶輸入出貨件數 (填寫大於0的數字)！");
+            if (printItems.length === 0) {
+                alert('請至少為一位客戶輸入出貨件數 (填寫大於0的數字)！');
                 restorePreviewArea();
                 return;
             }
+
+            const totalPrintedThisTime = appendLabelsFromItems(printArea, printItems);
 
             recordPrintHistory(subProd, printItems);
 
@@ -3695,7 +5603,13 @@
                 myCustomersList: customers,
                 labelPrintCount: printCount,
                 printHistory: printHistory,
-                printDraft: printDraft
+                printDraft: printDraft,
+                auctionMarkets: auctionMarkets,
+                auctionSubcodes: auctionSubcodes,
+                auctionQueue: auctionQueue,
+                auctionPrintCount: auctionPrintCount,
+                auctionPrintHistory: auctionPrintHistory,
+                auctionProductWeights: auctionProductWeights
             };
         }
 
@@ -3906,6 +5820,7 @@
 
             applyJsonHistoryData(data);
             applyPrintDraftFromData(data, options);
+            applyAuctionDataFromExport(data);
             localStorage.setItem('myProducts', JSON.stringify(productList));
             localStorage.setItem('myCustomersList', JSON.stringify(customers));
             localStorage.setItem('labelPrintCount', printCount);
@@ -4539,6 +6454,7 @@
                 renderUI();
                 syncPreview();
                 renderDraftPanel();
+                renderAuctionUi();
                 updateSyncStatusDisplay();
                 updateGitHubStatusDisplay();
                 if (ok) {
@@ -4665,19 +6581,21 @@
             reader.readAsText(file);
         }
 
-        window.onload = async function() {
-            registerServiceWorker();
-            if (isAppUnlocked()) {
-                unlockApp();
-                await startApp();
-            } else {
-                const input = document.getElementById('app-login-password');
-                if (input) input.focus();
-            }
-        };
-
+        const APP_PASSWORD_ENABLED = false;
         const APP_ACCESS_PASSWORD = '0935767777';
         const APP_AUTH_SESSION_KEY = 'labelAppAuthed';
+
+        window.onload = async function() {
+            registerServiceWorker();
+            if (APP_PASSWORD_ENABLED && !isAppUnlocked()) {
+                document.body.classList.add('app-locked');
+                const input = document.getElementById('app-login-password');
+                if (input) input.focus();
+                return;
+            }
+            unlockApp();
+            await startApp();
+        };
 
         function isAppUnlocked() {
             return sessionStorage.getItem(APP_AUTH_SESSION_KEY) === '1';
@@ -4712,6 +6630,7 @@
             syncPreview();
             updateSyncStatusDisplay();
             renderDraftPanel();
+            renderAuctionUi();
             fillGitHubConfigForm();
             fillPrinterSettingsForm();
             updateGitHubStatusDisplay();
@@ -4726,7 +6645,7 @@
 
         function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
-            navigator.serviceWorker.register('./sw.js').catch(() => {});
+            navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
         }
 
         function initInstallTip() {
@@ -4774,16 +6693,20 @@
         }
 
         function initReleaseNote() {
-            const el = document.getElementById('app-release-note');
-            if (el) el.textContent = '版本 ' + formatReleaseTimestamp() + ' · UI' + APP_UI_REV;
+            const text = '版本 ' + formatReleaseTimestamp() + ' · UI' + APP_UI_REV;
+            document.querySelectorAll('.app-release-note').forEach(el => {
+                el.textContent = text;
+            });
         }
 
         function initWebAppShell() {
             if (initWebAppShell.done) return;
             initWebAppShell.done = true;
             initReleaseNote();
-            const badge = document.getElementById('app-mode-badge');
-            if (badge) badge.textContent = isStandaloneApp() ? '已安裝' : 'Web App';
+            const badgeText = isStandaloneApp() ? '已安裝' : 'Web App';
+            document.querySelectorAll('.app-mode-badge').forEach(badge => {
+                badge.textContent = badgeText;
+            });
             initInstallTip();
         }
 
