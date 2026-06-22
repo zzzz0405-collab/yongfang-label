@@ -46,12 +46,12 @@
         .selected-product-bar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-end;
             gap: 10px;
             background: #fff;
             border: 1px solid #dee2e6;
             border-radius: 12px;
-            padding: 10px 14px;
+            padding: 8px 14px;
             margin-bottom: 10px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
@@ -197,7 +197,28 @@
             color: var(--app-header-text);
             box-shadow: 0 2px 12px rgba(9, 105, 218, 0.25);
         }
-        .app-header-main { min-width: 0; }
+        .app-header-main { min-width: 0; flex: 0 1 auto; }
+        .app-header-center {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+        }
+        .app-header-current-product {
+            font-size: clamp(22px, 5.5vw, 38px);
+            font-weight: 900;
+            color: #ff4d4f;
+            line-height: 1.05;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.2), 0 2px 8px rgba(0,0,0,0.35);
+        }
         .app-header-title {
             margin: 0;
             font-size: 20px;
@@ -1176,25 +1197,41 @@
             body {
                 padding: calc(10px + var(--safe-top)) calc(10px + var(--safe-right)) calc(72px + var(--safe-bottom)) calc(10px + var(--safe-left));
             }
-            .print-workspace-body {
+            .print-workspace {
+                display: flex;
                 flex-direction: column;
-            }
-            .product-sidebar {
-                flex: none;
-                width: 100%;
-                flex-direction: row;
-                flex-wrap: nowrap;
-                align-items: stretch;
                 gap: 8px;
             }
+            .print-workspace-body {
+                display: contents;
+            }
+            .product-sidebar {
+                order: 1;
+                flex: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+                background: #fff;
+                border: 1px solid #dee2e6;
+                border-radius: 12px;
+                padding: 8px 10px;
+                box-sizing: border-box;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            }
             .product-sidebar-label {
-                writing-mode: vertical-rl;
-                text-orientation: upright;
-                flex: 0 0 auto;
-                padding: 8px 4px;
+                writing-mode: horizontal-tb;
+                text-orientation: mixed;
+                flex: none;
+                text-align: left;
+                background: transparent;
+                padding: 0 0 4px;
+                font-size: 13px;
+                color: #555;
             }
             .product-panel {
-                flex: 1;
+                flex: none;
+                width: 100%;
                 min-width: 0;
             }
             .product-list-container {
@@ -1203,6 +1240,8 @@
                 overflow-y: hidden;
                 max-height: none;
                 min-height: auto;
+                padding: 4px 2px;
+                -webkit-overflow-scrolling: touch;
             }
             .product-item {
                 flex: 0 0 auto;
@@ -1211,19 +1250,47 @@
                 min-height: 44px;
             }
             .product-sidebar-tools {
-                flex: 0 0 88px;
-            }
-            .selected-product-bar {
-                flex-direction: column;
-                align-items: stretch;
+                flex: none;
+                width: 100%;
+                flex-direction: row;
                 gap: 6px;
             }
-            .customer-grid-current-product {
-                font-size: 26px;
-                text-align: center;
+            .product-sidebar-tools .btn-mini,
+            .product-sidebar-tools .btn-clear-qty {
+                flex: 1;
+                margin: 0;
+            }
+            .selected-product-bar {
+                order: 2;
+                justify-content: center;
+                margin-bottom: 0;
+            }
+            .customer-area {
+                order: 3;
+            }
+            .draft-section {
+                order: 4;
             }
             .customer-grid-total-text {
                 text-align: center;
+            }
+            .app-header {
+                flex-wrap: wrap;
+                row-gap: 4px;
+            }
+            .app-header-center {
+                order: 3;
+                flex: 1 1 100%;
+                padding: 2px 0 4px;
+            }
+            .app-header-current-product {
+                font-size: 28px;
+            }
+            .app-header-title {
+                font-size: 17px;
+            }
+            .app-header-sub {
+                font-size: 11px;
             }
             .customer-list-container {
                 max-height: calc(16px + var(--customer-cell-height) * 10 + var(--customer-grid-gap) * 9);
@@ -1262,6 +1329,9 @@
             <h1 class="app-header-title">永芳標籤列印</h1>
             <p class="app-header-sub">出貨標籤 · 雲端同步</p>
         </div>
+        <div class="app-header-center">
+            <span class="app-header-current-product" id="current-product-display">—</span>
+        </div>
         <span class="app-header-badge" id="app-mode-badge">Web App</span>
     </header>
 
@@ -1283,7 +1353,6 @@
     <main class="app-main">
         <div id="print-workspace" class="print-workspace">
             <div class="selected-product-bar">
-                <span class="customer-grid-current-product" id="current-product-display">—</span>
                 <span class="customer-grid-total-text">1-3 列總件數：<strong id="column-total-all">0</strong> 件</span>
             </div>
             <div class="print-workspace-body">
