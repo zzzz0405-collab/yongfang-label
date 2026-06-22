@@ -1,0 +1,13 @@
+{
+  "name": "yongfang-label",
+  "version": "1.0.0",
+  "private": true,
+  "description": "永芳標籤列印 — 印表機連線狀態 API",
+  "scripts": {
+    "start": "node print-server.js",
+    "printer-api": "node print-server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

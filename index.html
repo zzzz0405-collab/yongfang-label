@@ -126,9 +126,10 @@
             background: #adb5bd;
             box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
         }
-        .nav-lamp.lamp-ok { background: #28a745; }
-        .nav-lamp.lamp-warn { background: #ffc107; }
-        .nav-lamp.lamp-bad { background: #dc3545; }
+        .nav-lamp.lamp-green { background: #28a745; box-shadow: 0 0 6px rgba(40,167,69,0.55); }
+        .nav-lamp.lamp-blue { background: #0969da; box-shadow: 0 0 6px rgba(9,105,218,0.55); }
+        .nav-lamp.lamp-bad { background: #dc3545; box-shadow: 0 0 6px rgba(220,53,69,0.45); }
+        .nav-lamps { display: flex; gap: 5px; align-items: center; justify-content: center; min-height: 18px; }
         .settings-panel-card,
         .printer-panel-card,
         .history-tab-panel {
@@ -145,9 +146,35 @@
             background: #adb5bd;
             box-shadow: inset 0 -4px 12px rgba(0,0,0,0.15), 0 0 20px rgba(0,0,0,0.08);
         }
-        .printer-lamp-large.lamp-ok { background: #28a745; box-shadow: 0 0 24px rgba(40,167,69,0.45); }
-        .printer-lamp-large.lamp-warn { background: #ffc107; box-shadow: 0 0 24px rgba(255,193,7,0.45); }
+        .printer-lamp-large.lamp-green { background: #28a745; box-shadow: 0 0 24px rgba(40,167,69,0.45); }
+        .printer-lamp-large.lamp-blue { background: #0969da; box-shadow: 0 0 24px rgba(9,105,218,0.45); }
         .printer-lamp-large.lamp-bad { background: #dc3545; box-shadow: 0 0 24px rgba(220,53,69,0.45); }
+        .printer-dual-status {
+            display: flex;
+            gap: 28px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 8px 0 12px;
+        }
+        .printer-unit { text-align: center; min-width: 100px; }
+        .printer-unit-label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 6px; }
+        .printer-unit-ip { font-size: 11px; color: #888; margin-top: 6px; word-break: break-all; }
+        .printer-block {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+        .printer-block h4 { margin: 0 0 8px 0; font-size: 14px; color: #333; }
+        .printer-mode-row { margin-bottom: 8px; }
+        .printer-mode-row select {
+            width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 14px; box-sizing: border-box; font-family: inherit;
+        }
+        .printer-cloud-fields { display: none; }
+        .printer-cloud-fields.show { display: block; }
+        .printer-tcp-fields.hide { display: none; }
         .draft-section {
             margin-top: 12px;
             background: #fff;
@@ -1379,11 +1406,70 @@
             </div>
         </div>
 
-        <div id="tab-printer" class="tab-panel printer-panel-card" style="text-align:center;">
-            <h3 style="margin:0 0 8px 0;">🖨️ 印表機連線</h3>
-            <div class="printer-lamp-large" id="printer-lamp-large"></div>
-            <p id="printer-status-text" style="font-size:15px;color:#333;line-height:1.6;margin:0 0 12px;">檢查中…</p>
-            <ul id="printer-status-tips" style="text-align:left;font-size:13px;color:#666;line-height:1.7;padding-left:20px;margin:0;"></ul>
+        <div id="tab-printer" class="tab-panel printer-panel-card">
+            <h3 style="margin:0 0 8px 0;text-align:center;">🖨️ 印表機連線</h3>
+            <p id="printer-status-text" style="font-size:14px;color:#333;line-height:1.6;margin:0 0 8px;text-align:center;">檢查中…</p>
+            <div class="printer-dual-status">
+                <div class="printer-unit">
+                    <div class="printer-unit-label">印表機 1 · 綠燈</div>
+                    <div class="printer-lamp-large lamp-bad" id="printer-lamp-1"></div>
+                    <div class="printer-unit-ip" id="printer-status-1">—</div>
+                </div>
+                <div class="printer-unit">
+                    <div class="printer-unit-label">印表機 2 · 藍燈</div>
+                    <div class="printer-lamp-large lamp-bad" id="printer-lamp-2"></div>
+                    <div class="printer-unit-ip" id="printer-status-2">—</div>
+                </div>
+            </div>
+            <div class="printer-settings-note" style="font-size:13px;color:#555;line-height:1.6;margin-bottom:12px;padding:10px;background:#e7f1ff;border:1px solid #b8daff;border-radius:8px;">
+                列印方式與<strong>原本相同</strong>（瀏覽器系統列印）。<br>
+                <strong style="color:#28a745;">印表機 1</strong>：區網 XP-420B（TCP 9100）→ 連線成功 <strong style="color:#28a745;">綠燈</strong><br>
+                <strong style="color:#0969da;">印表機 2</strong>：同型號 + <strong>芯烨雲 API</strong> → 連線成功 <strong style="color:#0969da;">藍燈</strong>；失敗 <strong style="color:#dc3545;">紅燈</strong><br>
+                印表機 1 需 Windows 執行 <code style="background:#eee;padding:1px 4px;">start-print-server.bat</code> 檢測區網；印表機 2 雲端可從外網直接檢測。
+            </div>
+            <label style="display:block;font-size:13px;font-weight:bold;margin-bottom:4px;">區網狀態 API（印表機 1 用）</label>
+            <input type="text" id="printer-status-api-url" placeholder="http://Windows電腦IP:3847" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:12px;">
+            <div class="printer-block">
+                <h4>印表機 1 · 區網 XP-420B（綠燈）</h4>
+                <div class="github-settings-grid printer-tcp-fields" id="printer-1-tcp-fields">
+                    <input type="text" id="printer-1-name" placeholder="名稱（選填）">
+                    <input type="text" id="printer-1-ip" placeholder="IP（192.168.50.241）">
+                    <input type="text" id="printer-1-port" placeholder="Port（9100）">
+                </div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
+                    <input type="checkbox" id="printer-1-enabled" checked> 啟用檢測
+                </label>
+            </div>
+            <div class="printer-block">
+                <h4>印表機 2 · 芯烨雲 XP-420B（藍燈）</h4>
+                <div class="printer-mode-row">
+                    <select id="printer-2-mode" onchange="togglePrinter2ModeFields()">
+                        <option value="xpyun">芯烨雲 API（雲端列印）</option>
+                        <option value="tcp">區網 TCP 9100</option>
+                    </select>
+                </div>
+                <input type="text" id="printer-2-name" placeholder="名稱（選填）" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;">
+                <div class="printer-cloud-fields show" id="printer-2-cloud-fields">
+                    <div class="github-settings-grid">
+                        <input type="text" id="printer-2-cloud-user" placeholder="開發者 ID（user）">
+                        <input type="password" id="printer-2-cloud-key" placeholder="UserKEY">
+                        <input type="text" id="printer-2-cloud-sn" placeholder="印表機 SN（機身底部）" style="grid-column:1/-1;">
+                    </div>
+                    <p style="font-size:12px;color:#888;margin:8px 0 0;line-height:1.5;">至 <a href="https://www.xpyun.net/open/index.html" target="_blank" rel="noopener">芯烨雲開放平台</a> 註冊，並將 SN 加入帳號。UserKEY 只存本機。</p>
+                </div>
+                <div class="github-settings-grid printer-tcp-fields hide" id="printer-2-tcp-fields">
+                    <input type="text" id="printer-2-ip" placeholder="IP">
+                    <input type="text" id="printer-2-port" placeholder="Port（9100）">
+                </div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
+                    <input type="checkbox" id="printer-2-enabled"> 啟用檢測
+                </label>
+            </div>
+            <div class="btn-group" style="margin-top:0;flex-wrap:wrap;justify-content:center;">
+                <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="savePrinterSettings()">💾 儲存設定</button>
+                <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="refreshPrinterStatus(true)">🔌 立即檢測</button>
+            </div>
+            <ul id="printer-status-tips" style="text-align:left;font-size:13px;color:#666;line-height:1.7;padding-left:20px;margin:12px 0 0;"></ul>
         </div>
     </main>
 
@@ -1401,7 +1487,11 @@
             <span class="nav-icon">⚙️</span><span>設定</span>
         </button>
         <button type="button" data-tab="printer" onclick="switchAppTab('printer')">
-            <span class="nav-lamp" id="nav-printer-lamp"></span><span>印表機</span>
+            <span class="nav-lamps">
+                <span class="nav-lamp lamp-bad" id="nav-printer-lamp-1" title="印表機 1"></span>
+                <span class="nav-lamp lamp-bad" id="nav-printer-lamp-2" title="印表機 2"></span>
+            </span>
+            <span>印表機</span>
         </button>
     </nav>
 
@@ -1473,6 +1563,9 @@
 </script>
 
     <script>
+        const PRINTER_CONFIG_KEY = 'printerConfigV2';
+        const PRINTER_STATUS_POLL_MS = 20000;
+        let printerStatusPollTimer = null;
         const CUSTOMER_COLUMN_COUNT = 3;
         let currentAppTab = 'label';
         let printMode = 'label';
@@ -2190,39 +2283,329 @@
             sub.textContent = printMode === 'auction' ? '拍賣列印 · 雲端同步' : '出貨標籤 · 雲端同步';
         }
 
-        function setPrinterLampClass(el, status) {
+        function getDefaultPrinterSettings() {
+            const legacyIp = localStorage.getItem('printerIp') || '192.168.50.241';
+            const legacyPort = localStorage.getItem('printerPort') || '9100';
+            const legacyApi = localStorage.getItem('printServerUrl') || '';
+            return {
+                statusApiUrl: legacyApi.replace(/\/$/, ''),
+                printers: [
+                    { id: 1, name: '印表機 1', mode: 'tcp', ip: legacyIp, port: legacyPort, enabled: true },
+                    { id: 2, name: '印表機 2', mode: 'xpyun', ip: '', port: '9100', enabled: false, cloudUser: '', cloudUserKey: '', cloudSn: '' }
+                ]
+            };
+        }
+
+        function normalizePrinterEntry(p, fallbackId) {
+            const id = p.id || fallbackId;
+            const mode = p.mode === 'tcp' ? 'tcp' : (p.mode === 'xpyun' ? 'xpyun' : (id === 2 ? 'xpyun' : 'tcp'));
+            return {
+                id,
+                name: p.name || `印表機 ${id}`,
+                mode,
+                ip: p.ip || '',
+                port: p.port || '9100',
+                enabled: p.enabled !== false,
+                cloudUser: p.cloudUser || '',
+                cloudUserKey: p.cloudUserKey || '',
+                cloudSn: p.cloudSn || ''
+            };
+        }
+
+        function loadPrinterSettings() {
+            try {
+                const raw = localStorage.getItem(PRINTER_CONFIG_KEY);
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (data && Array.isArray(data.printers) && data.printers.length >= 2) {
+                        return {
+                            statusApiUrl: (data.statusApiUrl || '').replace(/\/$/, ''),
+                            printers: data.printers.map((p, i) => normalizePrinterEntry(p, i + 1))
+                        };
+                    }
+                }
+            } catch (err) {}
+            return getDefaultPrinterSettings();
+        }
+
+        function savePrinterSettingsToStorage(settings) {
+            localStorage.setItem(PRINTER_CONFIG_KEY, JSON.stringify(settings));
+        }
+
+        function togglePrinter2ModeFields() {
+            const mode = document.getElementById('printer-2-mode')?.value || 'xpyun';
+            const cloudEl = document.getElementById('printer-2-cloud-fields');
+            const tcpEl = document.getElementById('printer-2-tcp-fields');
+            if (cloudEl) cloudEl.classList.toggle('show', mode === 'xpyun');
+            if (tcpEl) tcpEl.classList.toggle('hide', mode === 'xpyun');
+        }
+
+        function fillPrinterSettingsForm() {
+            const cfg = loadPrinterSettings();
+            const apiEl = document.getElementById('printer-status-api-url');
+            if (apiEl) apiEl.value = cfg.statusApiUrl || '';
+            const p1 = cfg.printers.find(x => x.id === 1) || cfg.printers[0];
+            const p2 = cfg.printers.find(x => x.id === 2) || cfg.printers[1];
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+            const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+            setVal('printer-1-name', p1?.name || '印表機 1');
+            setVal('printer-1-ip', p1?.ip || '192.168.50.241');
+            setVal('printer-1-port', p1?.port || '9100');
+            setCheck('printer-1-enabled', p1?.enabled !== false);
+            setVal('printer-2-name', p2?.name || '印表機 2');
+            setVal('printer-2-mode', p2?.mode === 'tcp' ? 'tcp' : 'xpyun');
+            setVal('printer-2-ip', p2?.ip || '');
+            setVal('printer-2-port', p2?.port || '9100');
+            setVal('printer-2-cloud-user', p2?.cloudUser || '');
+            setVal('printer-2-cloud-key', p2?.cloudUserKey || '');
+            setVal('printer-2-cloud-sn', p2?.cloudSn || '');
+            setCheck('printer-2-enabled', p2?.enabled === true);
+            togglePrinter2ModeFields();
+        }
+
+        function readPrinterSettingsFromForm() {
+            const statusApiUrl = (document.getElementById('printer-status-api-url')?.value || '').trim().replace(/\/$/, '');
+            const mode2 = document.getElementById('printer-2-mode')?.value === 'tcp' ? 'tcp' : 'xpyun';
+            return {
+                statusApiUrl,
+                printers: [
+                    {
+                        id: 1,
+                        name: (document.getElementById('printer-1-name')?.value || '').trim() || '印表機 1',
+                        mode: 'tcp',
+                        ip: (document.getElementById('printer-1-ip')?.value || '').trim(),
+                        port: (document.getElementById('printer-1-port')?.value || '').trim() || '9100',
+                        enabled: !!document.getElementById('printer-1-enabled')?.checked
+                    },
+                    {
+                        id: 2,
+                        name: (document.getElementById('printer-2-name')?.value || '').trim() || '印表機 2',
+                        mode: mode2,
+                        ip: (document.getElementById('printer-2-ip')?.value || '').trim(),
+                        port: (document.getElementById('printer-2-port')?.value || '').trim() || '9100',
+                        enabled: !!document.getElementById('printer-2-enabled')?.checked,
+                        cloudUser: (document.getElementById('printer-2-cloud-user')?.value || '').trim(),
+                        cloudUserKey: (document.getElementById('printer-2-cloud-key')?.value || '').trim(),
+                        cloudSn: (document.getElementById('printer-2-cloud-sn')?.value || '').trim()
+                    }
+                ]
+            };
+        }
+
+        function isPrinterConfigured(p) {
+            if (!p || p.enabled === false) return false;
+            if (p.mode === 'xpyun') {
+                return !!(String(p.cloudUser || '').trim() && String(p.cloudUserKey || '').trim() && String(p.cloudSn || '').trim());
+            }
+            return !!String(p.ip || '').trim();
+        }
+
+        async function sha1Hex(str) {
+            if (window.crypto && window.crypto.subtle) {
+                const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(str));
+                return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            throw new Error('瀏覽器不支援 SHA-1');
+        }
+
+        async function checkXpyunPrinterStatus(printer, apiBase) {
+            const user = String(printer.cloudUser || '').trim();
+            const userKey = String(printer.cloudUserKey || '').trim();
+            const sn = String(printer.cloudSn || '').trim();
+            if (!user || !userKey || !sn) {
+                return { id: printer.id, ok: false, message: '芯烨雲 API 未填完整' };
+            }
+            if (apiBase) {
+                try {
+                    const resp = await fetch(`${apiBase}/api/xpyun-status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        cache: 'no-store',
+                        body: JSON.stringify({ user, userKey, sn })
+                    });
+                    const data = await resp.json().catch(() => ({}));
+                    return {
+                        id: printer.id,
+                        ok: data.online === true,
+                        message: data.message || (data.error || '芯烨雲檢測失敗')
+                    };
+                } catch (err) {
+                    return { id: printer.id, ok: false, message: '芯烨雲 API 代理失敗' };
+                }
+            }
+            try {
+                const timestamp = String(Math.floor(Date.now() / 1000));
+                const sign = await sha1Hex(user + userKey + timestamp);
+                const resp = await fetch('https://open.xpyun.net/api/openapi/xprinter/queryPrinterStatus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+                    cache: 'no-store',
+                    body: JSON.stringify({ user, timestamp, sign, sn })
+                });
+                const json = await resp.json().catch(() => ({}));
+                if (json.code !== 0) {
+                    return { id: printer.id, ok: false, message: json.msg || `芯烨雲錯誤 (${json.code})` };
+                }
+                const status = parseInt(json.data, 10);
+                if (status === 1) return { id: printer.id, ok: true, message: `芯烨雲在線 · ${sn}` };
+                if (status === 2) return { id: printer.id, ok: false, message: `芯烨雲異常（可能缺紙）· ${sn}` };
+                return { id: printer.id, ok: false, message: `芯烨雲離線 · ${sn}` };
+            } catch (err) {
+                return { id: printer.id, ok: false, message: '無法直連芯烨雲，請填區網狀態 API' };
+            }
+        }
+
+        async function checkTcpPrinterStatus(printer, apiBase) {
+            if (!String(printer.ip || '').trim()) {
+                return { id: printer.id, ok: false, message: '未設定 IP' };
+            }
+            if (!apiBase) {
+                return { id: printer.id, ok: false, message: '請填區網狀態 API 網址' };
+            }
+            try {
+                const resp = await fetch(
+                    `${apiBase}/api/status?ip=${encodeURIComponent(printer.ip)}&port=${encodeURIComponent(printer.port || 9100)}`,
+                    { cache: 'no-store' }
+                );
+                const data = await resp.json().catch(() => ({}));
+                return {
+                    id: printer.id,
+                    ok: !!data.printer,
+                    message: data.message || (data.printer ? '區網在線' : '區網離線')
+                };
+            } catch (err) {
+                return { id: printer.id, ok: false, message: '狀態 API 無法連線' };
+            }
+        }
+
+        async function checkSinglePrinterStatus(printer, apiBase) {
+            if (!isPrinterConfigured(printer)) {
+                return { id: printer.id, ok: false, message: printer.enabled === false ? '未啟用' : '設定未完成' };
+            }
+            if (printer.mode === 'xpyun') {
+                return checkXpyunPrinterStatus(printer, apiBase);
+            }
+            return checkTcpPrinterStatus(printer, apiBase);
+        }
+
+        function savePrinterSettings() {
+            const settings = readPrinterSettingsFromForm();
+            savePrinterSettingsToStorage(settings);
+            refreshPrinterStatus(true);
+            alert('印表機設定已儲存');
+        }
+
+        function getPrinterStatusApiBaseUrl() {
+            const cfg = loadPrinterSettings();
+            if (cfg.statusApiUrl) return cfg.statusApiUrl;
+            if (location.protocol.startsWith('http') && location.port === '3847') return location.origin;
+            return '';
+        }
+
+        function setPrinterLamp(el, ok, printerId) {
             if (!el) return;
-            const cls = status === 'ok' ? 'lamp-ok' : status === 'warn' ? 'lamp-warn' : 'lamp-bad';
-            if (el.classList.contains('nav-lamp')) {
-                el.className = 'nav-lamp ' + cls;
-            } else {
-                el.className = 'printer-lamp-large ' + cls;
+            const base = el.classList.contains('nav-lamp') ? 'nav-lamp' : 'printer-lamp-large';
+            if (!ok) {
+                el.className = base + ' lamp-bad';
+                return;
+            }
+            el.className = base + (printerId === 1 ? ' lamp-green' : ' lamp-blue');
+        }
+
+        function applyPrinterStatusResults(results) {
+            const cfg = loadPrinterSettings();
+            const byId = {};
+            (results || []).forEach(r => { byId[r.id] = r; });
+            let connectedCount = 0;
+            let enabledCount = 0;
+            [1, 2].forEach(id => {
+                const p = cfg.printers.find(x => x.id === id) || { enabled: false };
+                const r = byId[id];
+                if (p.enabled === false) {
+                    setPrinterLamp(document.getElementById(`nav-printer-lamp-${id}`), false, id);
+                    setPrinterLamp(document.getElementById(`printer-lamp-${id}`), false, id);
+                    const statusEl = document.getElementById(`printer-status-${id}`);
+                    if (statusEl) statusEl.textContent = '未啟用';
+                    return;
+                }
+                const configured = isPrinterConfigured(p);
+                if (configured) enabledCount++;
+                const ok = configured && r && r.ok;
+                if (ok) connectedCount++;
+                setPrinterLamp(document.getElementById(`nav-printer-lamp-${id}`), ok, id);
+                setPrinterLamp(document.getElementById(`printer-lamp-${id}`), ok, id);
+                const statusEl = document.getElementById(`printer-status-${id}`);
+                if (statusEl) {
+                    if (!configured) statusEl.textContent = p.mode === 'xpyun' ? '請填芯烨雲 ID / KEY / SN' : '請填 IP';
+                    else if (ok) statusEl.textContent = r.message || '已連線';
+                    else statusEl.textContent = (r && r.message) || '無法連線';
+                }
+            });
+            const textEl = document.getElementById('printer-status-text');
+            if (textEl) {
+                if (enabledCount === 0) textEl.textContent = '請啟用並設定至少一台印表機';
+                else if (connectedCount === enabledCount) textEl.textContent = `全部在線（${connectedCount}/${enabledCount}）`;
+                else if (connectedCount === 0) textEl.textContent = '全部離線 — 紅燈';
+                else textEl.textContent = `部分在線（${connectedCount}/${enabledCount}）`;
+            }
+            const tipsEl = document.getElementById('printer-status-tips');
+            if (tipsEl) {
+                tipsEl.innerHTML = [
+                    '列印：瀏覽器系統列印（與原本相同）',
+                    '綠燈＝印表機 1 區網 TCP 連線成功',
+                    '藍燈＝印表機 2 芯烨雲 API 在線',
+                    '紅燈＝離線、異常或未設定',
+                    '印表機 1 需 Windows 狀態 API；印表機 2 雲端可從外網檢測'
+                ].map(t => `<li>${t}</li>`).join('');
+            }
+        }
+
+        function markAllPrintersOffline(reason) {
+            [1, 2].forEach(id => {
+                setPrinterLamp(document.getElementById(`nav-printer-lamp-${id}`), false, id);
+                setPrinterLamp(document.getElementById(`printer-lamp-${id}`), false, id);
+                const statusEl = document.getElementById(`printer-status-${id}`);
+                if (statusEl) statusEl.textContent = reason || '無法檢測';
+            });
+            const textEl = document.getElementById('printer-status-text');
+            if (textEl) textEl.textContent = reason || '無法檢測印表機連線';
+        }
+
+        async function refreshPrinterStatus(showAlert) {
+            const cfg = loadPrinterSettings();
+            const apiBase = getPrinterStatusApiBaseUrl();
+            const activePrinters = cfg.printers.filter(p => p.enabled !== false);
+            if (activePrinters.length === 0) {
+                markAllPrintersOffline('未啟用印表機');
+                if (showAlert) alert('請至少啟用一台印表機');
+                return;
+            }
+            const results = [];
+            for (const p of cfg.printers) {
+                if (p.enabled === false) {
+                    results.push({ id: p.id, ok: false, message: '未啟用' });
+                    continue;
+                }
+                results.push(await checkSinglePrinterStatus(p, apiBase));
+            }
+            applyPrinterStatusResults(results);
+            if (showAlert) {
+                const enabledConfigured = cfg.printers.filter(isPrinterConfigured);
+                const okCount = results.filter(r => r.ok).length;
+                alert(okCount > 0
+                    ? `檢測完成：${okCount} 台連線成功`
+                    : `檢測完成：${enabledConfigured.length} 台已設定，目前皆無法連線（紅燈）`);
             }
         }
 
         function updatePrinterStatus() {
-            const navLamp = document.getElementById('nav-printer-lamp');
-            const largeLamp = document.getElementById('printer-lamp-large');
-            const textEl = document.getElementById('printer-status-text');
-            const tipsEl = document.getElementById('printer-status-tips');
-            let status = 'ok';
-            let message = '瀏覽器列印功能就緒';
-            const tips = [
-                '按「確認列印」會開啟系統列印視窗',
-                '請確認標籤印表機已開機並連線',
-                '標籤尺寸：100mm × 60mm'
-            ];
-            if (typeof window.print !== 'function') {
-                status = 'bad';
-                message = '此瀏覽器不支援列印功能';
-            } else if (!navigator.onLine) {
-                status = 'warn';
-                message = '目前離線（本機列印仍可使用）';
-            }
-            setPrinterLampClass(navLamp, status);
-            setPrinterLampClass(largeLamp, status);
-            if (textEl) textEl.textContent = message;
-            if (tipsEl) tipsEl.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+            refreshPrinterStatus(false);
+        }
+
+        function startPrinterStatusPolling() {
+            if (printerStatusPollTimer) clearInterval(printerStatusPollTimer);
+            refreshPrinterStatus(false);
+            printerStatusPollTimer = setInterval(() => refreshPrinterStatus(false), PRINTER_STATUS_POLL_MS);
         }
 
         function resetHistoryFilters() {
@@ -4014,8 +4397,9 @@
             updateSyncStatusDisplay();
             renderDraftPanel();
             fillGitHubConfigForm();
+            fillPrinterSettingsForm();
             updateGitHubStatusDisplay();
-            updatePrinterStatus();
+            startPrinterStatusPolling();
             switchAppTab('label');
         }
 
