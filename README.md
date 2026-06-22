@@ -1,0 +1,41 @@
+[請看這裡.txt](https://github.com/user-attachments/files/29189718/default.txt)
+永芳標籤 — 上傳 GitHub 用資料夾
+================================
+
+這個資料夾裡的檔案，就是要上傳到 GitHub 的內容。
+（上傳時請選「這些檔案」，上傳到 repo 根目錄，不要只上傳資料夾本身。）
+
+網址：https://github.com/zzzz0405-collab/yongfang-label
+
+【每次上傳前】
+1. 用記事本打開 index.html，搜尋「上傳 GitHub 前」
+2. 只改一行 APP_RELEASE_LINE，例如：
+   2026.06.20-3 · 06/20 22:00
+   （日期-第幾次上傳 · 月/日 時:分）
+3. 雙擊「更新上傳資料夾.bat」
+4. 上傳 index.html 和 sw.js 到 GitHub
+5. 手機看頂部版本字樣是否變了
+
+【上傳步驟】
+1. 開啟 GitHub 上面的 yongfang-label 專案
+2. 按 Add file → Upload files
+3. 把「本資料夾」裡除了本說明檔以外的所有檔案拖進去
+   （請看這裡.txt 可不上傳）
+4. 下方 Commit 寫「更新網頁」→ Commit changes
+5. 等 1～2 分鐘，用手機 Ctrl+Shift+R 強制刷新 GitHub Pages
+
+【檔案說明】
+index.html          主程式（必傳）
+label-data.json     客戶／品項資料（必傳）
+manifest.webmanifest  PWA 設定
+sw.js               離線快取
+icon.svg            圖示
+print-server.js     Windows 印表機狀態 API（選用，本機用）
+start-print-server.bat  雙擊啟動狀態 API（選用，本機用）
+package.json        Node 相依（選用，本機用）
+printer-config.json 印表機預設（選用，本機用）
+
+【注意】
+- 不用上傳 node_modules 資料夾
+- print-server 只在 Windows 本機跑，GitHub Pages 只放網頁檔即可
+- 改完程式後，記得再從專案根目錄複製最新檔案到本資料夾再上傳
