@@ -229,18 +229,19 @@
         .btn-print-api:hover { background-color: #0550ae !important; }
         .print-mode-hint { font-size: 12px; color: #666; line-height: 1.45; margin: 0 0 6px; }
         .print-dual-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
             width: 100%;
         }
         .print-dual-row .btn-print {
-            flex: 0 0 auto;
-            width: 92px;
-            height: 92px;
+            width: 100%;
+            aspect-ratio: 1;
+            min-height: 108px;
+            max-height: 128px;
             margin: 0;
-            padding: 6px 4px;
-            font-size: 14px;
+            padding: 8px 4px;
+            font-size: 15px;
             line-height: 1.25;
             box-sizing: border-box;
             white-space: normal;
@@ -251,9 +252,9 @@
             text-align: center;
         }
         .draft-actions .print-dual-row .btn-print {
-            width: 84px;
-            height: 84px;
-            font-size: 13px;
+            min-height: 96px;
+            max-height: 112px;
+            font-size: 14px;
         }
         .draft-section {
             margin-top: 12px;
@@ -581,30 +582,47 @@
             overflow: hidden;
             box-sizing: border-box;
         }
-        .cust-cell.has-qty { background: #f8fbff; }
+        .cust-cell.has-qty {
+            background: #cfe2ff;
+        }
+        .cust-cell.has-qty .cust-cell-names {
+            background: #cfe2ff;
+        }
+        .cust-cell.has-qty .cust-cell-names:hover {
+            background: #b8daff;
+        }
+        .cust-cell.has-qty .cust-cell-qty {
+            background: #cfe2ff;
+        }
+        .cust-cell.has-qty .cust-cell-qty:hover {
+            background: #b8daff;
+        }
         .cust-cell-names {
             grid-column: 1;
             grid-row: 1 / 4;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
             align-items: center;
-            justify-content: center;
-            gap: 1px;
+            justify-items: center;
             border-right: 1px solid #bdbdbd;
             cursor: pointer;
             user-select: none;
-            padding: 1px 0;
             box-sizing: border-box;
             min-height: 0;
         }
         .cust-cell-names:hover { background: #eef6ff; }
         .cust-cell-name-char {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
             font-size: clamp(13px, 1.9vw, 17px);
             font-weight: bold;
             color: #111;
-            line-height: 1.05;
+            line-height: 1;
         }
-        .cust-cell-q1, .cust-cell-q2, .cust-cell-minus {
+        .cust-cell-qty, .cust-cell-minus {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -613,38 +631,35 @@
             min-height: 0;
             line-height: 1;
         }
-        .cust-cell-q1, .cust-cell-q2 {
+        .cust-cell-qty {
             grid-column: 2;
-            font-size: 16px;
+            grid-row: 1 / 3;
+            font-size: clamp(22px, 5vw, 30px);
             color: #222;
             border-bottom: 1px solid #e5e5e5;
             cursor: pointer;
             user-select: none;
             background: #fff;
         }
-        .cust-cell-q1 { grid-row: 1; }
-        .cust-cell-q2 { grid-row: 2; }
-        .cust-cell-q1.has-qty, .cust-cell-q2.has-qty { background: #cfe2ff; }
-        .cust-cell-q1:hover, .cust-cell-q2:hover { background: #f5f9ff; }
-        .cust-cell.qty-zero .cust-cell-q1 { display: none; }
-        .cust-cell.qty-zero .cust-cell-q2 {
-            grid-row: 1 / 3;
-            font-size: clamp(24px, 5vw, 30px);
-            color: #333;
-        }
+        .cust-cell-qty:hover { background: #f5f9ff; }
         .cust-cell-minus {
             grid-row: 3;
             grid-column: 2;
             border: none;
-            background: #fff;
+            background: #ffe0e0;
             font-size: 18px;
-            color: #333;
+            color: #c62828;
             cursor: pointer;
             font-family: inherit;
             padding: 0;
         }
-        .cust-cell-minus:hover { background: #f8d7da; }
-        .cust-cell-minus:disabled { opacity: 0.35; cursor: not-allowed; }
+        .cust-cell-minus:hover { background: #f8b4b4; }
+        .cust-cell-minus:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            background: #ffe0e0;
+            color: #c62828;
+        }
         .cust-cell-input {
             position: absolute;
             opacity: 0;
@@ -760,10 +775,15 @@
             margin: 0;
             box-sizing: border-box;
         }
+        .print-action-col .print-dual-row {
+            width: 100%;
+        }
         .print-action-col .print-dual-row .btn-print {
-            width: 92px;
-            height: 92px;
-            flex: 0 0 auto;
+            width: 100%;
+            height: auto;
+            min-height: 108px;
+            max-height: 128px;
+            flex: none;
         }
         .print-action-col .btn-add-draft {
             background-color: #fd7e14;
@@ -1738,7 +1758,7 @@
 
     <script>
         // 頂部版本時間：開啟頁面時自動顯示本機現在時間（例：6/22-12:12）
-        const APP_UI_REV = '12';
+        const APP_UI_REV = '14';
 
         const PRINTER_CONFIG_KEY = 'printerConfigV3';
         const PRINTER_STATUS_POLL_MS = 20000;
@@ -2929,17 +2949,20 @@
 
         function formatCustomerNameHtml(name) {
             const chars = Array.from(name || '').slice(0, 3);
-            if (chars.length === 0) return '<span class="cust-cell-name-char">\u00a0</span>';
-            return chars.map(c => `<span class="cust-cell-name-char">${c}</span>`).join('');
-        }
-
-        function splitQty2Rows(qty) {
-            const q = Math.max(0, parseInt(qty, 10) || 0);
-            if (q === 0) return { top: '', bottom: '0' };
-            if (q < 10) return { top: '', bottom: String(q) };
-            const s = String(q);
-            if (s.length === 2) return { top: s[0], bottom: s[1] };
-            return { top: s.slice(-2, -1), bottom: s.slice(-1) };
+            const slots = ['\u00a0', '\u00a0', '\u00a0'];
+            if (chars.length === 1) {
+                slots[1] = chars[0];
+            } else if (chars.length === 2) {
+                slots[0] = chars[0];
+                slots[2] = chars[1];
+            } else if (chars.length >= 3) {
+                slots[0] = chars[0];
+                slots[1] = chars[1];
+                slots[2] = chars[2];
+            }
+            return slots.map((c, i) =>
+                `<span class="cust-cell-name-char cust-cell-name-slot-${i + 1}">${c}</span>`
+            ).join('');
         }
 
         function updateCustomerCellDisplays() {
@@ -2947,22 +2970,12 @@
                 const input = cell.querySelector('.cust-cell-input');
                 if (!input) return;
                 const qty = parseInt(input.value, 10) || 0;
-                const digits = splitQty2Rows(qty);
-                const q1 = cell.querySelector('.cust-cell-q1');
-                const q2 = cell.querySelector('.cust-cell-q2');
+                const qtyEl = cell.querySelector('.cust-cell-qty');
                 const minus = cell.querySelector('.cust-cell-minus');
-                const isZero = qty === 0;
-                cell.classList.toggle('qty-zero', isZero);
                 cell.classList.toggle('has-qty', qty > 0);
-                if (q1) {
-                    q1.textContent = isZero ? '' : (digits.top || '\u00a0');
-                    q1.classList.toggle('has-qty', qty > 0);
-                    q1.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
-                }
-                if (q2) {
-                    q2.textContent = isZero ? '0' : digits.bottom;
-                    q2.classList.toggle('has-qty', qty > 0);
-                    q2.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
+                if (qtyEl) {
+                    qtyEl.textContent = String(qty);
+                    qtyEl.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
                 }
                 if (minus) minus.disabled = qty <= 0;
             });
@@ -2971,14 +2984,10 @@
         function buildCustomerItemHtml(cust, savedQty, rowIndex) {
             const qtyNum = parseInt(savedQty, 10) || 0;
             const hasQty = qtyNum > 0;
-            const isZero = qtyNum === 0;
-            const digits = splitQty2Rows(qtyNum);
-            const nbsp = '\u00a0';
             return `
-                <div class="cust-cell${hasQty ? ' has-qty' : ''}${isZero ? ' qty-zero' : ''}">
+                <div class="cust-cell${hasQty ? ' has-qty' : ''}">
                     <div class="cust-cell-names" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${formatCustomerNameHtml(cust.name)}</div>
-                    <div class="cust-cell-q1${hasQty ? ' has-qty' : ''}" onclick="focusCustomerQtyFromCell(this)" title="點一下輸入件數">${isZero ? '' : (digits.top || nbsp)}</div>
-                    <div class="cust-cell-q2${hasQty ? ' has-qty' : ''}" onclick="focusCustomerQtyFromCell(this)" title="點一下輸入件數">${isZero ? '0' : digits.bottom}</div>
+                    <div class="cust-cell-qty" onclick="focusCustomerQtyFromCell(this)" title="點一下輸入件數">${qtyNum}</div>
                     <button type="button" class="cust-cell-minus" onclick="event.stopPropagation(); decrementCustomerQty(this)" title="減 1 件"${hasQty ? '' : ' disabled'}>−</button>
                     <input type="number" data-cust="${cust.name}" data-loc="${cust.location}" data-col="${cust.col}" data-row="${rowIndex}" class="cust-cell-input customer-qty-input${hasQty ? ' has-qty' : ''}" value="${savedQty}" min="0" oninput="syncPreview()" onchange="syncPreview()" onkeydown="handleCustomerQtyKeydown(event)">
                 </div>
