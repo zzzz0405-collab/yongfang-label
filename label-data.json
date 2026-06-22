@@ -1,14 +1,10 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-22T05:10:22.578Z",
+  "exportedAt": "2026-06-21T15:41:47.613Z",
   "myProducts": [
-    "空心菜",
-    "菠菜",
-    "青蔥",
-    "高麗菜",
     "空白"
   ],
-  "selectedProduct": "空心菜",
+  "selectedProduct": "空白",
   "myCustomersList": [
     {
       "name": "新莊",
@@ -191,70 +187,38 @@
       "col": 1
     }
   ],
-  "labelPrintCount": 28,
+  "labelPrintCount": 10,
   "printHistory": [
     {
-      "id": "2026-06-22T05:04:10.683Z-20-bb6jay",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "20",
-      "location": "基隆",
-      "product": "空心菜",
+      "id": "2026-06-21T15:41:01.944Z-新莊-2v97jj",
+      "timestamp": "2026-06-21T15:41:01.944Z",
+      "customer": "新莊",
+      "location": "新莊",
+      "product": "空白",
       "qty": 1
     },
     {
-      "id": "2026-06-22T05:04:10.683Z-5號-vkcsmz",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "5號",
+      "id": "2026-06-21T15:31:40.196Z-12-9um0u0",
+      "timestamp": "2026-06-21T15:31:40.196Z",
+      "customer": "12",
       "location": "基隆",
-      "product": "空心菜",
+      "product": "空白",
       "qty": 2
     },
     {
-      "id": "2026-06-22T05:04:10.683Z-裕成-zbwr5c",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "裕成",
+      "id": "2026-06-21T15:31:40.196Z-永成-jjmqho",
+      "timestamp": "2026-06-21T15:31:40.196Z",
+      "customer": "永成",
       "location": "基隆",
-      "product": "空心菜",
-      "qty": 2
+      "product": "空白",
+      "qty": 1
     },
     {
-      "id": "2026-06-22T05:04:10.683Z-42-5quzgb",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "42",
-      "location": "力行",
-      "product": "空心菜",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-22T05:04:10.683Z-P-zj7ubu",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "P",
-      "location": "力行",
-      "product": "空心菜",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-22T05:04:10.683Z-153-c049jr",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "153",
-      "location": "力行",
-      "product": "空心菜",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-22T05:04:10.683Z-鑫-jy8zkg",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "鑫",
-      "location": "宜蘭",
-      "product": "空心菜",
-      "qty": 2
-    },
-    {
-      "id": "2026-06-22T05:04:10.683Z-新莊-sfmi25",
-      "timestamp": "2026-06-22T05:04:10.683Z",
-      "customer": "新莊",
-      "location": "新莊",
-      "product": "空心菜",
+      "id": "2026-06-21T15:30:49.733Z-12-u4x1vi",
+      "timestamp": "2026-06-21T15:30:49.733Z",
+      "customer": "12",
+      "location": "基隆",
+      "product": "空白",
       "qty": 2
     }
   ],

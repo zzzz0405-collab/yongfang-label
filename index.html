@@ -1229,9 +1229,9 @@
                 overflow: hidden !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                --cust-font: 128px;
-                --info-font: 36px;
-                --date-font: 20px;
+                --cust-font: 96px;
+                --info-font: 26px;
+                --date-font: 14px;
                 --info-border: 3px;
             }
             .label-container:last-child { page-break-after: avoid; }
@@ -1248,23 +1248,23 @@
                 width: 68% !important;
                 height: 100% !important;
                 display: flex !important;
-                justify-content: flex-start !important;
+                justify-content: center !important;
                 align-items: center !important;
                 writing-mode: vertical-rl !important;
                 text-orientation: upright !important;
                 font-size: var(--cust-font) !important;
                 font-weight: 900 !important;
-                letter-spacing: 2px;
+                letter-spacing: 1px;
                 line-height: 1 !important;
                 color: #000000 !important;
                 -webkit-text-fill-color: #000000;
                 overflow: hidden !important;
                 word-break: keep-all !important;
             }
-            .customer-col.cust-len-2 { --cust-font: 128px; letter-spacing: 2px; }
-            .customer-col.cust-len-3 { --cust-font: 84px; letter-spacing: 1px; }
-            .customer-col.cust-len-4 { --cust-font: 64px; letter-spacing: 1px; }
-            .customer-col.cust-len-long { --cust-font: 48px; letter-spacing: 0; }
+            .customer-col.cust-len-2 { --cust-font: 96px; letter-spacing: 1px; }
+            .customer-col.cust-len-3 { --cust-font: 64px; letter-spacing: 1px; }
+            .customer-col.cust-len-4 { --cust-font: 50px; letter-spacing: 0; }
+            .customer-col.cust-len-long { --cust-font: 40px; letter-spacing: 0; }
             .info-col {
                 width: 32% !important;
                 height: 100% !important;
@@ -1775,7 +1775,7 @@
 
     <script>
         // 頂部版本時間：開啟頁面時自動顯示本機現在時間（例：6/22-12:12）
-        const APP_UI_REV = '15';
+        const APP_UI_REV = '16';
 
         const PRINTER_CONFIG_KEY = 'printerConfigV3';
         const PRINTER_STATUS_POLL_MS = 20000;
