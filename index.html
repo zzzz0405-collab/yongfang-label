@@ -1214,75 +1214,84 @@
                 padding: calc(10px + var(--safe-top)) calc(10px + var(--safe-right)) calc(72px + var(--safe-bottom)) calc(10px + var(--safe-left));
             }
             .print-workspace {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
+                display: grid;
+                grid-template-columns: 92px 1fr;
+                grid-template-areas:
+                    "totals totals"
+                    "products customers"
+                    "draft draft";
+                gap: 6px;
+                align-items: start;
             }
             .product-sidebar {
-                order: 1;
-                flex: none;
-                width: 100%;
+                grid-area: products;
+                width: auto;
                 flex-direction: column;
                 align-items: stretch;
-                gap: 6px;
-                background: #fff;
+                gap: 4px;
+                background: #fafafa;
                 border: 1px solid #dee2e6;
-                border-radius: 12px;
-                padding: 8px 10px;
+                border-radius: 10px;
+                padding: 4px;
                 box-sizing: border-box;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.04);
             }
             .product-sidebar-label {
                 writing-mode: horizontal-tb;
                 text-orientation: mixed;
-                flex: none;
-                text-align: left;
-                background: transparent;
-                padding: 0 0 4px;
-                font-size: 13px;
-                color: #555;
+                text-align: center;
+                background: #e9ecef;
+                padding: 4px 2px;
+                font-size: 11px;
+                border-radius: 6px;
             }
             .product-panel {
-                flex: none;
-                width: 100%;
+                flex: 1;
                 min-width: 0;
+                min-height: 0;
             }
             .product-list-container {
-                flex-direction: row;
-                overflow-x: auto;
-                overflow-y: hidden;
-                max-height: none;
-                min-height: auto;
+                flex-direction: column;
+                overflow-x: hidden;
+                overflow-y: auto;
+                max-height: min(52vh, 360px);
+                min-height: 120px;
                 padding: 4px 2px;
                 -webkit-overflow-scrolling: touch;
             }
             .product-item {
+                width: 100%;
                 flex: 0 0 auto;
-                min-width: 76px;
-                font-size: 16px;
-                min-height: 44px;
+                min-width: 0;
+                font-size: 15px;
+                min-height: 40px;
+                padding: 8px 4px;
+            }
+            .product-btn-row .btn-add,
+            .product-btn-row .btn-remove {
+                padding: 4px;
+                font-size: 14px;
             }
             .product-sidebar-tools {
-                flex: none;
-                width: 100%;
-                flex-direction: row;
-                gap: 6px;
+                flex-direction: column;
+                gap: 4px;
             }
             .product-sidebar-tools .btn-mini,
             .product-sidebar-tools .btn-clear-qty {
-                flex: 1;
-                margin: 0;
+                font-size: 11px;
+                padding: 6px 2px;
             }
             .selected-product-bar {
-                order: 2;
+                grid-area: totals;
                 justify-content: center;
                 margin-bottom: 0;
+                padding: 6px 10px;
             }
             .customer-area {
-                order: 3;
+                grid-area: customers;
+                min-width: 0;
             }
             .draft-section {
-                order: 4;
+                grid-area: draft;
             }
             .customer-grid-total-text {
                 text-align: center;
@@ -1648,9 +1657,8 @@
 </script>
 
     <script>
-        // ★ 每次上傳 GitHub 前請修改下面兩行 ★
-        const APP_RELEASE_VERSION = '2026.06.20';
-        const APP_RELEASE_UPLOADED_AT = '2026-06-20 18:30';
+        // ★ 上傳 GitHub 前只改這一行（例：2026.06.20-3 · 06/20 22:00）★
+        const APP_RELEASE_LINE = '2026.06.20-3 · 06/20 22:00';
 
         const PRINTER_CONFIG_KEY = 'printerConfigV2';
         const PRINTER_STATUS_POLL_MS = 20000;
@@ -4539,9 +4547,7 @@
 
         function initReleaseNote() {
             const el = document.getElementById('app-release-note');
-            if (el) {
-                el.textContent = `版本 ${APP_RELEASE_VERSION} · 上傳 ${APP_RELEASE_UPLOADED_AT}`;
-            }
+            if (el) el.textContent = '版本 ' + APP_RELEASE_LINE;
         }
 
         function initWebAppShell() {
