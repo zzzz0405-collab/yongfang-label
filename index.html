@@ -29,12 +29,133 @@
             font-family: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
             background-color: var(--app-bg);
             margin: 0;
-            padding: calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(12px + var(--safe-bottom)) calc(12px + var(--safe-left));
+            padding: calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(72px + var(--safe-bottom)) calc(12px + var(--safe-left));
             overflow-x: hidden;
             min-height: 100vh;
             min-height: 100dvh;
             -webkit-tap-highlight-color: transparent;
         }
+        .app-main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .print-workspace { display: block; }
+        .print-workspace[hidden] { display: none !important; }
+        .selected-product-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .print-workspace-body {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            min-height: 0;
+        }
+        .product-sidebar {
+            flex: 0 0 108px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+        .product-sidebar-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 6px 4px;
+        }
+        .customer-area {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .app-bottom-nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 950;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            background: #ffffff;
+            border-top: 1px solid #dee2e6;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+            padding: 6px calc(4px + var(--safe-right)) calc(6px + var(--safe-bottom)) calc(4px + var(--safe-left));
+        }
+        .app-bottom-nav button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 6px 2px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            min-height: 52px;
+        }
+        .app-bottom-nav button.active {
+            color: var(--app-accent);
+            background: #e7f1ff;
+        }
+        .app-bottom-nav .nav-icon { font-size: 18px; line-height: 1; }
+        .nav-lamp {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #adb5bd;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+        }
+        .nav-lamp.lamp-ok { background: #28a745; }
+        .nav-lamp.lamp-warn { background: #ffc107; }
+        .nav-lamp.lamp-bad { background: #dc3545; }
+        .settings-panel-card,
+        .printer-panel-card,
+        .history-tab-panel {
+            background: var(--app-card);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .printer-lamp-large {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            margin: 16px auto;
+            background: #adb5bd;
+            box-shadow: inset 0 -4px 12px rgba(0,0,0,0.15), 0 0 20px rgba(0,0,0,0.08);
+        }
+        .printer-lamp-large.lamp-ok { background: #28a745; box-shadow: 0 0 24px rgba(40,167,69,0.45); }
+        .printer-lamp-large.lamp-warn { background: #ffc107; box-shadow: 0 0 24px rgba(255,193,7,0.45); }
+        .printer-lamp-large.lamp-bad { background: #dc3545; box-shadow: 0 0 24px rgba(220,53,69,0.45); }
+        .draft-section {
+            margin-top: 12px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .draft-section h3 { margin: 0 0 8px 0; font-size: 16px; }
         .app-header {
             position: sticky;
             top: 0;
@@ -260,7 +381,7 @@
         }
         .customer-grid-header {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: var(--customer-grid-gap, 8px);
             margin-bottom: 6px;
         }
@@ -294,10 +415,12 @@
             border-radius: 4px;
             padding: 8px;
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: var(--customer-grid-gap);
             align-items: start;
-            max-height: calc(16px + var(--customer-cell-height) * 15 + var(--customer-grid-gap) * 14);
+            flex: 1;
+            min-height: 120px;
+            max-height: calc(16px + var(--customer-cell-height) * 14 + var(--customer-grid-gap) * 13);
             overflow-y: auto;
             background: #fafafa;
         }
@@ -533,22 +656,32 @@
             margin: 0;
         }
 
-        /* 品項選擇區塊 */
-        .product-panel { display: flex; gap: 8px; align-items: flex-start; }
+        /* 品項選擇區塊（左側直向滑動） */
+        .product-panel { display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
         .product-list-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px; flex: 1;
-            padding: 8px; background: #fafafa; border: 1px solid #ccc; border-radius: 4px;
-            min-height: 56px; box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-height: 160px;
+            max-height: min(52vh, 420px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 6px;
+            background: #fafafa;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
         .product-item {
             width: 100%; box-sizing: border-box;
-            padding: 14px 4px; min-height: 52px;
-            border: 2px solid #e0e0e0; border-radius: 4px;
-            background: #ffffff; cursor: pointer; font-size: 25px; font-weight: bold;
+            padding: 10px 6px; min-height: 42px;
+            border: 2px solid #e0e0e0; border-radius: 8px;
+            background: #ffffff; cursor: pointer; font-size: 17px; font-weight: bold;
             color: #222; line-height: 1.2; font-family: inherit; text-align: center;
             display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
         .product-item:hover { border-color: #adb5bd; background: #f8f9fa; }
         .product-item.selected {
@@ -564,7 +697,14 @@
             background: #d4edda;
             color: #155724;
         }
-        .product-btn-row { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .product-btn-row { display: flex; flex-direction: row; gap: 4px; flex-shrink: 0; }
+        .product-btn-row .btn-add,
+        .product-btn-row .btn-remove { flex: 1; padding: 6px 4px; font-size: 16px; }
+        .product-sidebar-tools { display: flex; flex-direction: column; gap: 4px; }
+        .product-sidebar-tools .btn-mini,
+        .product-sidebar-tools .btn-clear-qty {
+            width: 100%; margin: 0; box-sizing: border-box; font-size: 12px; padding: 8px 4px;
+        }
         
         .btn-clear-qty {
             width: 100%;
@@ -741,7 +881,8 @@
         .history-empty { text-align: center; color: #888; padding: 30px 10px; }
         .history-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; gap: 10px; flex-wrap: wrap; }
 
-        body.app-locked .page-layout,
+        body.app-locked .app-main,
+        body.app-locked .app-bottom-nav,
         body.app-locked #preview-area {
             display: none !important;
         }
@@ -883,11 +1024,11 @@
                 print-color-adjust: exact;
             }
             #app-login-gate,
-            .page-layout,
+            .app-header,
+            .app-main,
+            .app-bottom-nav,
             #preview-area,
-            .control-panel,
             .modal,
-            .draft-panel,
             script {
                 display: none !important;
             }
@@ -1005,57 +1146,60 @@
         }
 
         @media (max-width: 900px) {
-            body { padding: 10px; }
-            .page-layout {
+            body {
+                padding: calc(10px + var(--safe-top)) calc(10px + var(--safe-right)) calc(72px + var(--safe-bottom)) calc(10px + var(--safe-left));
+            }
+            .print-workspace-body {
                 flex-direction: column;
-                gap: 12px;
-                max-width: none;
-                margin-bottom: 16px;
             }
-            .control-panel {
-                padding: 14px;
-                padding-bottom: 24px;
-            }
-            .draft-panel {
+            .product-sidebar {
+                flex: none;
                 width: 100%;
-                max-width: none;
-                position: static;
-                max-height: none;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .product-sidebar-label {
+                writing-mode: vertical-rl;
+                text-orientation: upright;
+                flex: 0 0 auto;
+                padding: 8px 4px;
+            }
+            .product-panel {
+                flex: 1;
+                min-width: 0;
             }
             .product-list-container {
-                grid-template-columns: repeat(3, 1fr);
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                max-height: none;
+                min-height: auto;
             }
             .product-item {
-                font-size: 18px;
+                flex: 0 0 auto;
+                min-width: 76px;
+                font-size: 16px;
                 min-height: 44px;
-                padding: 10px 4px;
             }
-            .customer-grid-total-bar {
+            .product-sidebar-tools {
+                flex: 0 0 88px;
+            }
+            .selected-product-bar {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 6px;
             }
             .customer-grid-current-product {
-                font-size: 24px;
+                font-size: 26px;
                 text-align: center;
             }
             .customer-grid-total-text {
                 text-align: center;
             }
-            .customer-grid-header,
             .customer-list-container {
-                grid-template-columns: repeat(5, minmax(92px, 1fr));
-            }
-            .customer-grid-scroll {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .customer-grid-header,
-            .customer-list-container {
-                min-width: 520px;
-            }
-            .customer-list-container {
-                max-height: calc(16px + var(--customer-cell-height) * 12 + var(--customer-grid-gap) * 11);
+                max-height: calc(16px + var(--customer-cell-height) * 10 + var(--customer-grid-gap) * 9);
             }
             .print-action-row {
                 flex-direction: column;
@@ -1064,28 +1208,22 @@
                 min-height: 120px;
                 max-height: 160px;
             }
-            .github-sync-bar-head {
-                flex-direction: column;
-                align-items: stretch;
+            .app-bottom-nav button {
+                font-size: 10px;
+                min-height: 48px;
             }
-            .github-sync-actions {
-                width: 100%;
-            }
-            .github-sync-actions .btn-mini {
-                flex: 1;
+            .app-bottom-nav .nav-icon {
+                font-size: 16px;
             }
         }
 
         @media (max-width: 520px) {
-            .product-list-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
             .customer-name {
                 font-size: 16px;
             }
-            .customer-grid-header,
-            .customer-list-container {
-                grid-template-columns: repeat(5, minmax(84px, 1fr));
+            .product-item {
+                min-width: 68px;
+                font-size: 15px;
             }
         }
     </style>
@@ -1115,147 +1253,157 @@
         </div>
     </div>
 
-    <div class="page-layout">
-    <div class="control-panel">
-        
-        <div class="form-group">
-            <label>1. 選擇蔬菜品項：<span style="font-size:13px; color:#888; font-weight:normal;">（點選框框，一行 5 個）</span></label>
-            <div class="product-panel">
-                <div class="product-list-container" id="product-list"></div>
-                <div class="product-btn-row">
-                    <button type="button" class="btn-add" onclick="addProduct()" title="新增品項">＋</button>
-                    <button type="button" class="btn-remove" onclick="deleteProduct()" title="刪除目前品項">－</button>
-                </div>
-            </div>
-            <div style="margin-top: 8px;">
-                <button type="button" class="btn-mini" style="background-color: #6f42c1;" onclick="openProductModal()">⚙️ 管理品項順序</button>
-            </div>
-            <div style="margin-top: 10px;">
-                <button type="button" class="btn-clear-qty" onclick="clearAllQtys()">🔄 件數歸零</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>2. 輸入各客戶出貨件數：<span style="font-size:13px; color:#888; font-weight:normal;">（5 列並排，可在管理名單中指定列）</span></label>
-            <div class="customer-grid-total-bar">
+    <main class="app-main">
+        <div id="print-workspace" class="print-workspace">
+            <div class="selected-product-bar">
                 <span class="customer-grid-current-product" id="current-product-display">—</span>
-                <span class="customer-grid-total-text">1-5 列總件數：<strong id="column-total-all">0</strong> 件</span>
+                <span class="customer-grid-total-text">1-3 列總件數：<strong id="column-total-all">0</strong> 件</span>
             </div>
-            <div class="customer-grid-scroll">
-            <div class="customer-grid-header">
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 1 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-1">0</strong> 件</span>
-                </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 2 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-2">0</strong> 件</span>
-                </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 3 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-3">0</strong> 件</span>
-                </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 4 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-4">0</strong> 件</span>
-                </div>
-                <div class="column-header-cell">
-                    <span class="column-header-title">第 5 列</span>
-                    <span class="column-header-total">合計 <strong id="column-total-5">0</strong> 件</span>
+            <div class="print-workspace-body">
+                <aside class="product-sidebar">
+                    <div class="product-sidebar-label">品項</div>
+                    <div class="product-panel">
+                        <div class="product-list-container" id="product-list"></div>
+                        <div class="product-btn-row">
+                            <button type="button" class="btn-add" onclick="addProduct()" title="新增品項">＋</button>
+                            <button type="button" class="btn-remove" onclick="deleteProduct()" title="刪除目前品項">－</button>
+                        </div>
+                    </div>
+                    <div class="product-sidebar-tools">
+                        <button type="button" class="btn-mini" style="background-color:#6f42c1;" onclick="openProductModal()">⚙️ 品項</button>
+                        <button type="button" class="btn-clear-qty" onclick="clearAllQtys()">🔄 歸零</button>
+                    </div>
+                </aside>
+                <div class="customer-area">
+                    <div class="customer-grid-header">
+                        <div class="column-header-cell">
+                            <span class="column-header-title">第 1 列</span>
+                            <span class="column-header-total">合計 <strong id="column-total-1">0</strong> 件</span>
+                        </div>
+                        <div class="column-header-cell">
+                            <span class="column-header-title">第 2 列</span>
+                            <span class="column-header-total">合計 <strong id="column-total-2">0</strong> 件</span>
+                        </div>
+                        <div class="column-header-cell">
+                            <span class="column-header-title">第 3 列</span>
+                            <span class="column-header-total">合計 <strong id="column-total-3">0</strong> 件</span>
+                        </div>
+                    </div>
+                    <div class="customer-list-container" id="customer-list"></div>
+                    <div class="print-action-row">
+                        <div class="print-detail-panel" id="print-detail-panel">
+                            <div class="print-detail-head">
+                                <span>標籤明細</span>
+                                <span id="print-detail-total">共 0 張</span>
+                            </div>
+                            <div class="print-detail-list" id="print-detail-list">
+                                <div class="print-detail-empty">尚無待列印標籤（請輸入件數）</div>
+                            </div>
+                        </div>
+                        <div class="print-action-col">
+                            <button type="button" class="btn-print" onclick="generateAndPrint()">🖨️ 確認列印</button>
+                            <button type="button" class="btn-add-draft" onclick="addCurrentToDraft()">➕ 加入草稿</button>
+                            <div class="counter-display">目前總計：<span id="count-num">0</span> 張</div>
+                            <button type="button" class="btn-reset" onclick="resetCounter()">總次數歸零</button>
+                            <div class="mini-btn-row">
+                                <button type="button" class="btn-mini" style="background-color:#6f42c1;" onclick="openManageModal()">⚙️ 客戶管理</button>
+                                <button type="button" class="btn-mini" style="background-color:#17a2b8;" onclick="addCustomer()">＋ 新增</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="customer-list-container" id="customer-list">
-                <!-- 自動產生輸入區 -->
-            </div>
-            </div>
-            <div class="print-action-row">
-                <div class="print-detail-panel" id="print-detail-panel">
-                    <div class="print-detail-head">
-                        <span>標籤明細</span>
-                        <span id="print-detail-total">共 0 張</span>
-                    </div>
-                    <div class="print-detail-list" id="print-detail-list">
-                        <div class="print-detail-empty">尚無待列印標籤（請輸入件數）</div>
-                    </div>
+            <div class="draft-section">
+                <h3>📝 出貨草稿</h3>
+                <p class="draft-hint">勾選要列印的品項，列印後僅移除已列印品項。草稿會自動儲存到 GitHub。</p>
+                <div class="draft-summary" id="draft-summary">共 0 品項，合計 0 張標籤</div>
+                <div class="draft-select-actions" id="draft-select-actions" style="display:none;">
+                    <button type="button" onclick="selectAllDraftProducts(true)">全選</button>
+                    <button type="button" onclick="selectAllDraftProducts(false)">全不選</button>
                 </div>
-                <div class="print-action-col">
-                    <button type="button" class="btn-print" onclick="generateAndPrint()">🖨️ 確認列印</button>
-                    <button type="button" class="btn-add-draft" onclick="addCurrentToDraft()">➕ 加入草稿</button>
-                    <div class="counter-display">
-                        目前總計：<span id="count-num">0</span> 張
-                    </div>
-                    <button type="button" class="btn-reset" onclick="resetCounter()">總次數歸零</button>
-                    <button type="button" class="btn-mini btn-history" style="background-color: #fd7e14;" onclick="openHistoryModal()">📋 查看紀錄</button>
-                    <div class="mini-btn-row">
-                        <button type="button" class="btn-mini" style="background-color: #6f42c1;" onclick="openManageModal()">⚙️ 客戶管理</button>
-                        <button type="button" class="btn-mini" style="background-color: #17a2b8;" onclick="addCustomer()">＋ 新增</button>
-                    </div>
+                <div class="draft-list" id="draft-list">
+                    <div class="draft-empty">尚無草稿</div>
+                </div>
+                <div class="draft-actions">
+                    <button type="button" class="btn-print" id="btn-print-draft" onclick="printDraftAndClear()">🖨️ 列印已選草稿</button>
+                    <button type="button" class="btn-mini" style="background-color:#dc3545;" onclick="clearDraft()">🗑️ 清空草稿</button>
                 </div>
             </div>
         </div>
 
-        <div class="github-sync-bar">
-            <div class="github-sync-bar-head">
-                <label>3. GitHub 雲端同步</label>
-                <div class="github-sync-actions">
-                    <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="openGitHubSettingsModal()">⚙️ 設定</button>
-                    <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
+        <div id="tab-history" class="tab-panel history-tab-panel">
+            <div class="history-body" style="display:block;">
+                <div class="history-filters" style="margin-bottom:12px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div><label for="filter-date-from">日期（起）</label><input type="date" id="filter-date-from" onchange="renderHistory()"></div>
+                        <div><label for="filter-date-to">日期（迄）</label><input type="date" id="filter-date-to" onchange="renderHistory()"></div>
+                        <div><label for="filter-customer">客戶</label><select id="filter-customer" onchange="renderHistory()"><option value="">全部客戶</option></select></div>
+                        <div><label for="filter-location">地點</label><select id="filter-location" onchange="renderHistory()"><option value="">全部地點</option></select></div>
+                        <div><label for="filter-product">品項</label><select id="filter-product" onchange="renderHistory()"><option value="">全部品項</option></select></div>
+                        <div><label for="filter-keyword">關鍵字</label><input type="text" id="filter-keyword" placeholder="搜尋..." oninput="renderHistory()"></div>
+                    </div>
+                    <button type="button" class="btn-mini" style="margin-top:8px;" onclick="resetHistoryFilters()">🔄 重設篩選</button>
+                </div>
+                <div class="history-summary" id="history-summary">共 0 筆紀錄，合計 0 張標籤</div>
+                <div class="history-table-wrap">
+                    <table class="history-table">
+                        <thead id="history-table-head"></thead>
+                        <tbody id="history-table-body"><tr><td colspan="5" class="history-empty">尚無列印紀錄</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="history-footer">
+                    <button type="button" class="btn-mini" style="background-color:#dc3545;" onclick="clearPrintHistory()">🗑️ 清除全部紀錄</button>
                 </div>
             </div>
-            <div id="github-sync-status" style="font-size:12px;color:#888;font-weight:normal;"></div>
         </div>
-    </div>
 
-    <aside class="draft-panel">
-        <h3>📝 出貨草稿</h3>
-        <p class="draft-hint">勾選要列印的品項，下拉可更改品項，點 ▶ 可展開客戶明細。列印後僅移除已列印品項。草稿會自動儲存到 GitHub。</p>
-        <div class="draft-summary" id="draft-summary">共 0 品項，合計 0 張標籤</div>
-        <div class="draft-select-actions" id="draft-select-actions" style="display:none;">
-            <button type="button" onclick="selectAllDraftProducts(true)">全選</button>
-            <button type="button" onclick="selectAllDraftProducts(false)">全不選</button>
-        </div>
-        <div class="draft-list" id="draft-list">
-            <div class="draft-empty">尚無草稿</div>
-        </div>
-        <div class="draft-actions">
-            <button type="button" class="btn-print" id="btn-print-draft" onclick="printDraftAndClear()">🖨️ 列印已選草稿</button>
-            <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="clearDraft()">🗑️ 清空草稿</button>
-        </div>
-    </aside>
-    </div>
-
-    <!-- GitHub 設定彈出視窗 -->
-    <div id="githubSettingsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>⚙️ GitHub 雲端同步設定</h3>
-                <div class="modal-header-actions" style="display:flex;gap:8px;align-items:center;">
-                    <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
-                    <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
-                    <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="closeGitHubSettingsModal()">✖ 關閉</button>
-                </div>
-            </div>
-            <div class="github-settings-note">
-                資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完約 1 秒<strong>自動存</strong>。<br>
-                <strong>首次設定：</strong>GitHub → Settings → Developer settings → Tokens (classic) → 新建 Token（勾 <strong>repo</strong>）→ 貼到下方 → <strong>💾 儲存設定</strong> → 🔌 測試連線。<br>
-                客戶、品項改完約 1 秒<strong>自動同步</strong>；也可按旁邊 <strong>⬆️ 立即同步</strong>（需 Token）。<br>
-                Token 只存在<strong>這台瀏覽器</strong>，請勿寫進程式碼或上傳到 GitHub。若出現 <strong>Bad credentials</strong>，請撤銷舊 Token 後重新申請。
+        <div id="tab-settings" class="tab-panel settings-panel-card">
+            <h3 style="margin:0 0 12px 0;">⚙️ 設定</h3>
+            <div id="github-sync-status" style="font-size:13px;color:#555;line-height:1.6;margin-bottom:12px;"></div>
+            <div class="github-settings-note" style="margin-bottom:12px;">
+                資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完約 1 秒自動同步（需 Token）。<br>
+                Token 只存在本機瀏覽器，請勿寫進程式碼或上傳到 GitHub。
             </div>
             <div class="github-settings-grid">
-                <input type="text" id="github-owner" placeholder="GitHub 帳號（留空則自動帶入）">
-                <input type="text" id="github-repo" placeholder="repo 名稱（留空則自動帶入）">
-                <input type="text" id="github-branch" placeholder="分支（預設 main）">
-                <input type="text" id="github-data-path" placeholder="資料檔（預設 label-data.json）">
+                <input type="text" id="github-owner" placeholder="GitHub 帳號">
+                <input type="text" id="github-repo" placeholder="repo 名稱">
+                <input type="text" id="github-branch" placeholder="分支（main）">
+                <input type="text" id="github-data-path" placeholder="label-data.json">
             </div>
-            <input type="password" id="github-token" placeholder="Personal Access Token（ghp_ 開頭，classic、勾 repo）" style="margin-bottom:12px;">
-            <div class="btn-group" style="margin-top:0;">
+            <input type="password" id="github-token" placeholder="Personal Access Token（ghp_）" style="margin:8px 0 12px;width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;">
+            <div class="btn-group" style="margin-top:0;flex-wrap:wrap;">
+                <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGitHubConfig()">💾 儲存設定</button>
                 <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="testGitHubConnection()">🔌 測試連線</button>
-            </div>
-            <div class="btn-group" style="margin-top:8px;">
+                <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
                 <button type="button" class="btn-mini" style="background-color:#2da44e;" onclick="loadFromGitHubNow()">⬇️ 從 GitHub 載入</button>
             </div>
         </div>
-    </div>
+
+        <div id="tab-printer" class="tab-panel printer-panel-card" style="text-align:center;">
+            <h3 style="margin:0 0 8px 0;">🖨️ 印表機連線</h3>
+            <div class="printer-lamp-large" id="printer-lamp-large"></div>
+            <p id="printer-status-text" style="font-size:15px;color:#333;line-height:1.6;margin:0 0 12px;">檢查中…</p>
+            <ul id="printer-status-tips" style="text-align:left;font-size:13px;color:#666;line-height:1.7;padding-left:20px;margin:0;"></ul>
+        </div>
+    </main>
+
+    <nav class="app-bottom-nav" id="app-bottom-nav">
+        <button type="button" class="active" data-tab="label" onclick="switchAppTab('label')">
+            <span class="nav-icon">🏷️</span><span>標籤列印</span>
+        </button>
+        <button type="button" data-tab="auction" onclick="switchAppTab('auction')">
+            <span class="nav-icon">🔨</span><span>拍賣列印</span>
+        </button>
+        <button type="button" data-tab="history" onclick="switchAppTab('history')">
+            <span class="nav-icon">📋</span><span>列印紀錄</span>
+        </button>
+        <button type="button" data-tab="settings" onclick="switchAppTab('settings')">
+            <span class="nav-icon">⚙️</span><span>設定</span>
+        </button>
+        <button type="button" data-tab="printer" onclick="switchAppTab('printer')">
+            <span class="nav-lamp" id="nav-printer-lamp"></span><span>印表機</span>
+        </button>
+    </nav>
 
     <!-- 管理客戶的彈出視窗 -->
     <div id="manageModal" class="modal">
@@ -1281,82 +1429,6 @@
             <p style="color:#666; font-size:14px; margin-top:0;">(點擊上下箭頭調整下拉選單順序，點擊叉叉刪除)</p>
             <div class="modal-list" id="modal-product-list">
                 <!-- 這裡自動產生品項列表 -->
-            </div>
-        </div>
-    </div>
-
-    <!-- 列印紀錄彈出視窗 -->
-    <div id="historyModal" class="modal">
-        <div class="modal-content modal-content-wide">
-            <div class="modal-header">
-                <h3>📋 列印紀錄</h3>
-                <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="closeHistoryModal()">✖ 關閉</button>
-            </div>
-
-            <div class="history-body">
-                <div class="history-sidebar">
-                    <div class="history-filters">
-                        <div>
-                            <label for="filter-date-from">日期（起）</label>
-                            <input type="date" id="filter-date-from" onchange="renderHistory()">
-                        </div>
-                        <div>
-                            <label for="filter-date-to">日期（迄）</label>
-                            <input type="date" id="filter-date-to" onchange="renderHistory()">
-                        </div>
-                        <div>
-                            <label for="filter-customer">客戶</label>
-                            <select id="filter-customer" onchange="renderHistory()">
-                                <option value="">全部客戶</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="filter-location">地點</label>
-                            <select id="filter-location" onchange="renderHistory()">
-                                <option value="">全部地點</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="filter-product">品項</label>
-                            <select id="filter-product" onchange="renderHistory()">
-                                <option value="">全部品項</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="filter-keyword">關鍵字搜尋</label>
-                            <input type="text" id="filter-keyword" placeholder="客戶、地點、品項..." oninput="renderHistory()">
-                        </div>
-                        <div class="history-filter-actions">
-                            <button type="button" class="btn-mini" onclick="resetHistoryFilters()">🔄 重設篩選</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="history-results">
-                    <div class="history-summary" id="history-summary">共 0 筆紀錄，合計 0 張標籤</div>
-
-                    <div class="history-table-wrap">
-                        <table class="history-table">
-                            <thead id="history-table-head">
-                                <tr>
-                                    <th>列印時間</th>
-                                    <th>客戶</th>
-                                    <th>地點</th>
-                                    <th>品項</th>
-                                    <th>件數</th>
-                                </tr>
-                            </thead>
-                            <tbody id="history-table-body">
-                                <tr><td colspan="5" class="history-empty">尚無列印紀錄</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="history-footer">
-                <span style="font-size:13px; color:#666;">列印紀錄保存在 GitHub（有密碼即可編輯同步）</span>
-                <button type="button" class="btn-mini" style="background-color: #dc3545;" onclick="clearPrintHistory()">🗑️ 清除全部紀錄</button>
             </div>
         </div>
     </div>
@@ -1401,7 +1473,9 @@
 </script>
 
     <script>
-        const CUSTOMER_COLUMN_COUNT = 5;
+        const CUSTOMER_COLUMN_COUNT = 3;
+        let currentAppTab = 'label';
+        let printMode = 'label';
         const BLANK_PRODUCT = '空白';
         const EMBEDDED_DATA_ID = 'label-system-data';
 
@@ -2071,13 +2145,84 @@
         }
 
         function openHistoryModal() {
-            populateHistoryFilterOptions();
-            renderHistory();
-            document.getElementById('historyModal').style.display = 'block';
+            switchAppTab('history');
         }
 
         function closeHistoryModal() {
-            document.getElementById('historyModal').style.display = 'none';
+            switchAppTab('label');
+        }
+
+        function switchAppTab(tab) {
+            currentAppTab = tab;
+            const printTabs = ['label', 'auction'];
+            const isPrintTab = printTabs.includes(tab);
+            const workspace = document.getElementById('print-workspace');
+            if (workspace) {
+                if (isPrintTab) {
+                    workspace.removeAttribute('hidden');
+                    printMode = tab;
+                    updatePrintTabTitle();
+                } else {
+                    workspace.setAttribute('hidden', '');
+                }
+            }
+            ['history', 'settings', 'printer'].forEach(name => {
+                const panel = document.getElementById('tab-' + name);
+                if (panel) panel.classList.toggle('active', tab === name);
+            });
+            document.querySelectorAll('.app-bottom-nav button[data-tab]').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+            });
+            if (tab === 'history') {
+                populateHistoryFilterOptions();
+                renderHistory();
+            } else if (tab === 'settings') {
+                fillGitHubConfigForm();
+                updateGitHubStatusDisplay();
+            } else if (tab === 'printer') {
+                updatePrinterStatus();
+            }
+        }
+
+        function updatePrintTabTitle() {
+            const sub = document.querySelector('.app-header-sub');
+            if (!sub) return;
+            sub.textContent = printMode === 'auction' ? '拍賣列印 · 雲端同步' : '出貨標籤 · 雲端同步';
+        }
+
+        function setPrinterLampClass(el, status) {
+            if (!el) return;
+            const cls = status === 'ok' ? 'lamp-ok' : status === 'warn' ? 'lamp-warn' : 'lamp-bad';
+            if (el.classList.contains('nav-lamp')) {
+                el.className = 'nav-lamp ' + cls;
+            } else {
+                el.className = 'printer-lamp-large ' + cls;
+            }
+        }
+
+        function updatePrinterStatus() {
+            const navLamp = document.getElementById('nav-printer-lamp');
+            const largeLamp = document.getElementById('printer-lamp-large');
+            const textEl = document.getElementById('printer-status-text');
+            const tipsEl = document.getElementById('printer-status-tips');
+            let status = 'ok';
+            let message = '瀏覽器列印功能就緒';
+            const tips = [
+                '按「確認列印」會開啟系統列印視窗',
+                '請確認標籤印表機已開機並連線',
+                '標籤尺寸：100mm × 60mm'
+            ];
+            if (typeof window.print !== 'function') {
+                status = 'bad';
+                message = '此瀏覽器不支援列印功能';
+            } else if (!navigator.onLine) {
+                status = 'warn';
+                message = '目前離線（本機列印仍可使用）';
+            }
+            setPrinterLampClass(navLamp, status);
+            setPrinterLampClass(largeLamp, status);
+            if (textEl) textEl.textContent = message;
+            if (tipsEl) tipsEl.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
         }
 
         function resetHistoryFilters() {
@@ -3628,12 +3773,11 @@
         }
 
         function openGitHubSettingsModal() {
-            fillGitHubConfigForm();
-            document.getElementById('githubSettingsModal').style.display = 'block';
+            switchAppTab('settings');
         }
 
         function closeGitHubSettingsModal() {
-            document.getElementById('githubSettingsModal').style.display = 'none';
+            switchAppTab('label');
         }
 
         function saveGitHubConfig() {
@@ -3869,6 +4013,10 @@
             syncPreview();
             updateSyncStatusDisplay();
             renderDraftPanel();
+            fillGitHubConfigForm();
+            updateGitHubStatusDisplay();
+            updatePrinterStatus();
+            switchAppTab('label');
         }
 
         function isStandaloneApp() {
