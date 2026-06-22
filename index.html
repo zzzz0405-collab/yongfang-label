@@ -240,6 +240,14 @@
             opacity: 0.88;
             font-weight: normal;
         }
+        .app-header-version {
+            margin: 4px 0 0 0;
+            font-size: 11px;
+            opacity: 0.78;
+            font-weight: normal;
+            letter-spacing: 0.2px;
+            line-height: 1.3;
+        }
         .app-header-badge {
             flex-shrink: 0;
             font-size: 11px;
@@ -1297,6 +1305,10 @@
             .app-header-sub {
                 font-size: 11px;
             }
+            .app-header-version {
+                font-size: 10px;
+                margin-top: 2px;
+            }
             .customer-list-container {
                 max-height: calc(16px + var(--customer-cell-height) * 10 + var(--customer-grid-gap) * 9);
             }
@@ -1333,6 +1345,7 @@
         <div class="app-header-main">
             <h1 class="app-header-title">永芳標籤列印</h1>
             <p class="app-header-sub">出貨標籤 · 雲端同步</p>
+            <p class="app-header-version" id="app-release-note">版本 — · 上傳 —</p>
         </div>
         <div class="app-header-center">
             <span class="app-header-current-product" id="current-product-display">—</span>
@@ -1635,6 +1648,10 @@
 </script>
 
     <script>
+        // ★ 每次上傳 GitHub 前請修改下面兩行 ★
+        const APP_RELEASE_VERSION = '2026.06.20';
+        const APP_RELEASE_UPLOADED_AT = '2026-06-20 18:30';
+
         const PRINTER_CONFIG_KEY = 'printerConfigV2';
         const PRINTER_STATUS_POLL_MS = 20000;
         let printerStatusPollTimer = null;
@@ -4520,9 +4537,17 @@
             }, { once: true });
         }
 
+        function initReleaseNote() {
+            const el = document.getElementById('app-release-note');
+            if (el) {
+                el.textContent = `版本 ${APP_RELEASE_VERSION} · 上傳 ${APP_RELEASE_UPLOADED_AT}`;
+            }
+        }
+
         function initWebAppShell() {
             if (initWebAppShell.done) return;
             initWebAppShell.done = true;
+            initReleaseNote();
             const badge = document.getElementById('app-mode-badge');
             if (badge) badge.textContent = isStandaloneApp() ? '已安裝' : 'Web App';
             initInstallTip();

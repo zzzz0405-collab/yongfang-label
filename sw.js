@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yongfang-label-v2';
+const CACHE_NAME = 'yongfang-label-v4';
 const BASE_PATH = new URL('.', self.location.href).pathname;
 
 function assetPath(file) {
@@ -36,17 +36,29 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     if (url.origin !== self.location.origin) return;
 
+    const isIndex = url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+
     event.respondWith(
-        caches.match(event.request).then((cached) => {
-            if (cached) return cached;
-            return fetch(event.request).then((response) => {
-                if (!response || response.status !== 200 || response.type !== 'basic') {
+        isIndex
+            ? fetch(event.request)
+                .then((response) => {
+                    if (response && response.status === 200) {
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
+                    }
                     return response;
-                }
-                const copy = response.clone();
-                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
-                return response;
-            });
-        })
+                })
+                .catch(() => caches.match(event.request))
+            : caches.match(event.request).then((cached) => {
+                if (cached) return cached;
+                return fetch(event.request).then((response) => {
+                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                        return response;
+                    }
+                    const copy = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
+                    return response;
+                });
+            })
     );
 });
