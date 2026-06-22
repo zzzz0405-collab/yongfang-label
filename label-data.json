@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-22T04:56:29.230Z",
+  "exportedAt": "2026-06-22T04:59:13.359Z",
   "myProducts": [
     "空心菜",
     "菠菜",
@@ -193,5 +193,13 @@
   ],
   "labelPrintCount": 12,
   "printHistory": [],
-  "printDraft": []
+  "printDraft": [
+    {
+      "id": "1782104352197-xkxp9z",
+      "product": "空心菜",
+      "customer": "永成",
+      "location": "基隆",
+      "qty": 1
+    }
+  ]
 }
