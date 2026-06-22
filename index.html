@@ -544,6 +544,7 @@
             font-size: 15px;
             color: #007bff;
         }
+        /* 客戶格：左 3 格客戶名 | 右 2 格件數 + 右下 − */
         .customer-list-container {
             --customer-cell-height: 72px;
             --customer-grid-gap: 2px;
@@ -566,111 +567,80 @@
             gap: var(--customer-grid-gap);
             min-width: 0;
         }
-        .customer-item {
-            display: block;
-            background: #ffffff;
-            padding: 0;
-            border: 1px solid #bdbdbd;
-            border-radius: 2px;
-            min-height: var(--customer-cell-height);
-            height: var(--customer-cell-height);
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        .customer-item.has-qty { background: #f8fbff; }
-        .customer-cell-grid {
+        .cust-cell {
             position: relative;
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(3, 1fr);
             width: 100%;
-            height: 100%;
+            height: var(--customer-cell-height);
             min-height: var(--customer-cell-height);
+            border: 1px solid #888;
+            border-radius: 2px;
+            background: #fff;
+            overflow: hidden;
             box-sizing: border-box;
         }
-        .customer-name-slot {
-            grid-column: 1;
+        .cust-cell.has-qty { background: #f8fbff; }
+        .cust-cell-n1, .cust-cell-n2, .cust-cell-n3,
+        .cust-cell-q1, .cust-cell-q2, .cust-cell-minus {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-right: 1px solid #bdbdbd;
-            border-bottom: 1px solid #e8e8e8;
-            font-size: clamp(13px, 1.8vw, 17px);
             font-weight: bold;
-            color: #222;
-            line-height: 1;
-            cursor: pointer;
-            user-select: none;
             box-sizing: border-box;
             min-height: 0;
+            line-height: 1;
         }
-        .customer-name-slot-1 { grid-row: 1; }
-        .customer-name-slot-2 { grid-row: 2; }
-        .customer-name-slot-3 { grid-row: 3; border-bottom: none; }
-        .customer-name-slot:hover { background: #eef6ff; }
-        .customer-qty-panel {
+        .cust-cell-n1, .cust-cell-n2, .cust-cell-n3 {
+            grid-column: 1;
+            font-size: clamp(14px, 2vw, 18px);
+            color: #111;
+            border-right: 1px solid #bdbdbd;
+            border-bottom: 1px solid #e5e5e5;
+            cursor: pointer;
+            user-select: none;
+        }
+        .cust-cell-n1 { grid-row: 1; }
+        .cust-cell-n2 { grid-row: 2; }
+        .cust-cell-n3 { grid-row: 3; border-bottom: none; }
+        .cust-cell-n1:hover, .cust-cell-n2:hover, .cust-cell-n3:hover { background: #eef6ff; }
+        .cust-cell-q1, .cust-cell-q2 {
             grid-column: 2;
-            grid-row: 1 / 3;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #bdbdbd;
+            font-size: 16px;
+            color: #222;
+            border-bottom: 1px solid #e5e5e5;
             cursor: pointer;
             user-select: none;
             background: #fff;
-            box-sizing: border-box;
-            min-height: 0;
         }
-        .customer-qty-panel:hover { background: #f5f9ff; }
-        .customer-qty-panel.has-qty { background: #cfe2ff; }
-        .customer-qty-char-row {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            font-weight: bold;
-            color: #222;
-            border-bottom: 1px solid #e0e0e0;
-            line-height: 1;
-            min-height: 0;
-        }
-        .customer-qty-char-row:last-child { border-bottom: none; }
-        .customer-qty-minus {
-            grid-column: 2;
+        .cust-cell-q1 { grid-row: 1; }
+        .cust-cell-q2 { grid-row: 2; }
+        .cust-cell-q1.has-qty, .cust-cell-q2.has-qty { background: #cfe2ff; }
+        .cust-cell-q1:hover, .cust-cell-q2:hover { background: #f5f9ff; }
+        .cust-cell-minus {
             grid-row: 3;
+            grid-column: 2;
             border: none;
             background: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            line-height: 1;
+            font-size: 18px;
+            color: #333;
             cursor: pointer;
             font-family: inherit;
             padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            box-sizing: border-box;
         }
-        .customer-qty-minus:hover { background: #f8d7da; }
-        .customer-qty-minus:disabled { opacity: 0.35; cursor: not-allowed; }
-        .customer-qty-input {
+        .cust-cell-minus:hover { background: #f8d7da; }
+        .cust-cell-minus:disabled { opacity: 0.35; cursor: not-allowed; }
+        .cust-cell-input {
             position: absolute;
-            right: 0;
-            top: 0;
-            width: 50%;
-            height: 66.666%;
             opacity: 0;
+            width: 1px;
+            height: 1px;
+            pointer-events: none;
             border: none;
             margin: 0;
             padding: 0;
-            font-size: 16px;
-            box-sizing: border-box;
-            -moz-appearance: textfield;
         }
-        .customer-qty-input::-webkit-outer-spin-button,
-        .customer-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .customer-qty-label { display: none; }
 
         .print-detail-panel {
             margin-top: 10px;
@@ -1440,7 +1410,7 @@
         }
 
         @media (max-width: 520px) {
-            .customer-name-slot {
+            .cust-cell-n1, .cust-cell-n2, .cust-cell-n3 {
                 font-size: 13px;
             }
             .product-item {
@@ -1754,6 +1724,7 @@
 
     <script>
         // 頂部版本時間：開啟頁面時自動顯示本機現在時間（例：6/22-12:12）
+        const APP_UI_REV = '11';
 
         const PRINTER_CONFIG_KEY = 'printerConfigV3';
         const PRINTER_STATUS_POLL_MS = 20000;
@@ -2942,15 +2913,13 @@
             persistEmbeddedDataIfLinked();
         }
 
-        function formatCustomerNameSlotsHtml(name) {
+        function splitCustomerName3(name) {
             const chars = Array.from(name || '').slice(0, 3);
-            while (chars.length < 3) chars.push('\u00a0');
-            return [1, 2, 3].map((n, i) =>
-                `<div class="customer-name-slot customer-name-slot-${n}" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${chars[i]}</div>`
-            ).join('');
+            while (chars.length < 3) chars.push('');
+            return chars;
         }
 
-        function getQtyTwoRowDisplay(qty) {
+        function splitQty2Rows(qty) {
             const q = Math.max(0, parseInt(qty, 10) || 0);
             if (q === 0) return { top: '', bottom: '0' };
             if (q < 10) return { top: '', bottom: String(q) };
@@ -2959,39 +2928,45 @@
             return { top: s.slice(-2, -1), bottom: s.slice(-1) };
         }
 
-        function formatQtyPanelHtml(qty) {
-            const d = getQtyTwoRowDisplay(qty);
-            return `<div class="customer-qty-char-row">${d.top || '\u00a0'}</div><div class="customer-qty-char-row">${d.bottom}</div>`;
-        }
-
-        function updateQtyStepperDisplays() {
-            document.querySelectorAll('.customer-item').forEach(item => {
-                const input = item.querySelector('.customer-qty-input');
+        function updateCustomerCellDisplays() {
+            document.querySelectorAll('.cust-cell').forEach(cell => {
+                const input = cell.querySelector('.cust-cell-input');
                 if (!input) return;
                 const qty = parseInt(input.value, 10) || 0;
-                const panel = item.querySelector('.customer-qty-panel');
-                const minusBtn = item.querySelector('.customer-qty-minus');
-                if (panel) {
-                    panel.innerHTML = formatQtyPanelHtml(qty);
-                    panel.classList.toggle('has-qty', qty > 0);
-                    panel.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
+                const digits = splitQty2Rows(qty);
+                const q1 = cell.querySelector('.cust-cell-q1');
+                const q2 = cell.querySelector('.cust-cell-q2');
+                const minus = cell.querySelector('.cust-cell-minus');
+                if (q1) {
+                    q1.textContent = digits.top || '\u00a0';
+                    q1.classList.toggle('has-qty', qty > 0);
+                    q1.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
                 }
-                item.classList.toggle('has-qty', qty > 0);
-                if (minusBtn) minusBtn.disabled = qty <= 0;
+                if (q2) {
+                    q2.textContent = digits.bottom;
+                    q2.classList.toggle('has-qty', qty > 0);
+                    q2.title = qty > 0 ? `件數 ${qty}` : '點一下輸入件數';
+                }
+                cell.classList.toggle('has-qty', qty > 0);
+                if (minus) minus.disabled = qty <= 0;
             });
         }
 
         function buildCustomerItemHtml(cust, savedQty, rowIndex) {
-            const qtyNum = parseInt(savedQty) || 0;
+            const qtyNum = parseInt(savedQty, 10) || 0;
             const hasQty = qtyNum > 0;
+            const nameChars = splitCustomerName3(cust.name);
+            const digits = splitQty2Rows(qtyNum);
+            const nbsp = '\u00a0';
             return `
-                <div class="customer-item${hasQty ? ' has-qty' : ''}">
-                    <div class="customer-cell-grid">
-                        ${formatCustomerNameSlotsHtml(cust.name)}
-                        <div class="customer-qty-panel${hasQty ? ' has-qty' : ''}" onclick="focusCustomerQtyFromCell(this)" title="點一下輸入件數">${formatQtyPanelHtml(qtyNum)}</div>
-                        <button type="button" class="customer-qty-minus" onclick="event.stopPropagation(); decrementCustomerQty(this)" title="減 1 件"${hasQty ? '' : ' disabled'}>−</button>
-                        <input type="number" data-cust="${cust.name}" data-loc="${cust.location}" data-col="${cust.col}" data-row="${rowIndex}" class="customer-qty-input${hasQty ? ' has-qty' : ''}" value="${savedQty}" min="0" oninput="syncPreview()" onchange="syncPreview()" onkeydown="handleCustomerQtyKeydown(event)">
-                    </div>
+                <div class="cust-cell${hasQty ? ' has-qty' : ''}">
+                    <div class="cust-cell-n1" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${nameChars[0] || nbsp}</div>
+                    <div class="cust-cell-q1${hasQty ? ' has-qty' : ''}" onclick="focusCustomerQtyFromCell(this)" title="點一下輸入件數">${digits.top || nbsp}</div>
+                    <div class="cust-cell-n2" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${nameChars[1] || nbsp}</div>
+                    <div class="cust-cell-q2${hasQty ? ' has-qty' : ''}" onclick="focusCustomerQtyFromCell(this)" title="點一下輸入件數">${digits.bottom}</div>
+                    <div class="cust-cell-n3" onclick="incrementCustomerQty(this)" title="點一下加 1 件">${nameChars[2] || nbsp}</div>
+                    <button type="button" class="cust-cell-minus" onclick="event.stopPropagation(); decrementCustomerQty(this)" title="減 1 件"${hasQty ? '' : ' disabled'}>−</button>
+                    <input type="number" data-cust="${cust.name}" data-loc="${cust.location}" data-col="${cust.col}" data-row="${rowIndex}" class="cust-cell-input customer-qty-input${hasQty ? ' has-qty' : ''}" value="${savedQty}" min="0" oninput="syncPreview()" onchange="syncPreview()" onkeydown="handleCustomerQtyKeydown(event)">
                 </div>
             `;
         }
@@ -3039,25 +3014,25 @@
         }
 
         function focusCustomerQtyFromCell(el) {
-            const input = el.closest('.customer-item')?.querySelector('.customer-qty-input');
+            const input = el.closest('.cust-cell')?.querySelector('.cust-cell-input');
             focusCustomerQtyInput(input);
         }
 
         function incrementCustomerQty(el) {
-            const row = el.closest('.customer-item');
+            const row = el.closest('.cust-cell');
             if (!row) return;
-            const input = row.querySelector('.customer-qty-input');
+            const input = row.querySelector('.cust-cell-input');
             if (!input) return;
-            input.value = (parseInt(input.value) || 0) + 1;
+            input.value = (parseInt(input.value, 10) || 0) + 1;
             syncPreview();
         }
 
         function decrementCustomerQty(btn) {
-            const row = btn.closest('.customer-item');
+            const row = btn.closest('.cust-cell');
             if (!row) return;
-            const input = row.querySelector('.customer-qty-input');
+            const input = row.querySelector('.cust-cell-input');
             if (!input) return;
-            const next = Math.max(0, (parseInt(input.value) || 0) - 1);
+            const next = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
             input.value = next;
             syncPreview();
         }
@@ -3378,7 +3353,7 @@
             document.querySelectorAll('.customer-qty-input, .draft-item-qty').forEach(input => {
                 input.classList.toggle('has-qty', (parseInt(input.value) || 0) > 0);
             });
-            updateQtyStepperDisplays();
+            updateCustomerCellDisplays();
         }
 
         function updateColumnTotals() {
@@ -4767,7 +4742,7 @@
 
         function initReleaseNote() {
             const el = document.getElementById('app-release-note');
-            if (el) el.textContent = '版本 ' + formatReleaseTimestamp();
+            if (el) el.textContent = '版本 ' + formatReleaseTimestamp() + ' · UI' + APP_UI_REV;
         }
 
         function initWebAppShell() {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yongfang-label-v10';
+const CACHE_NAME = 'yongfang-label-v11';
 const BASE_PATH = new URL('.', self.location.href).pathname;
 
 function assetPath(file) {
