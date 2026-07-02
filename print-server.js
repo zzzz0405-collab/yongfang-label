@@ -2,7 +2,7 @@
  * 印表機連線狀態 API
  * - 印表機 1：區網 TCP 9100
  * - 印表機 2：芯烨雲 open.xpyun.net（可從外網檢測）
- * 列印仍用瀏覽器 window.print()
+ * 列印：瀏覽器 window.print()；芯烨雲標籤 API 經 /api/xpyun-print-label 代理
  */
 const express = require('express');
 const net = require('net');
@@ -12,6 +12,7 @@ const os = require('os');
 
 const PORT = parseInt(process.env.PRINTER_API_PORT || '3847', 10);
 const XPYUN_STATUS_URL = 'https://open.xpyun.net/api/openapi/xprinter/queryPrinterStatus';
+const XPYUN_PRINT_LABEL_URL = 'https://open.xpyun.net/api/openapi/xprinter/printLabel';
 
 function getLocalIPv4List() {
     const ips = [];
@@ -45,6 +46,52 @@ function testPrinterTcp(ip, port, timeoutMs = 2500) {
 
 function buildXpyunSign(user, userKey, timestamp) {
     return crypto.createHash('sha1').update(String(user) + String(userKey) + String(timestamp)).digest('hex');
+}
+
+async function sendXpyunPrintLabel(user, userKey, sn, content, options = {}) {
+    if (!user || !userKey || !sn) {
+        return { ok: false, code: -1, message: '芯烨雲 API 未填完整（開發者ID / UserKEY / SN）' };
+    }
+    if (!content || !String(content).trim()) {
+        return { ok: false, code: -1, message: '列印內容為空' };
+    }
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const sign = buildXpyunSign(user, userKey, timestamp);
+    const payload = {
+        user,
+        timestamp,
+        sign,
+        sn,
+        content: String(content),
+        copies: options.copies || 1,
+        mode: options.mode != null ? options.mode : 1,
+        voice: options.voice != null ? options.voice : 1
+    };
+    if (options.idempotent) payload.idempotent = String(options.idempotent);
+    try {
+        const resp = await fetch(XPYUN_PRINT_LABEL_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+            body: JSON.stringify(payload)
+        });
+        const json = await resp.json().catch(() => ({}));
+        if (json.code !== 0) {
+            return {
+                ok: false,
+                code: json.code,
+                message: json.msg || `芯烨雲錯誤 (${json.code})`,
+                orderId: null
+            };
+        }
+        return {
+            ok: true,
+            code: 0,
+            message: json.msg || 'ok',
+            orderId: json.data || null
+        };
+    } catch (err) {
+        return { ok: false, code: -1, message: '芯烨雲列印失敗：' + (err.message || String(err)) };
+    }
 }
 
 async function testXpyunPrinter(user, userKey, sn) {
@@ -147,6 +194,22 @@ app.post('/api/xpyun-status', async (req, res) => {
     }
 });
 
+app.post('/api/xpyun-print-label', async (req, res) => {
+    try {
+        const { user, userKey, sn, content, copies, mode, voice, idempotent } = req.body || {};
+        const result = await sendXpyunPrintLabel(user, userKey, sn, content, { copies, mode, voice, idempotent });
+        res.json({
+            ok: result.ok,
+            code: result.code,
+            message: result.message,
+            orderId: result.orderId,
+            sn
+        });
+    } catch (err) {
+        res.status(500).json({ ok: false, code: -1, message: err.message || String(err), orderId: null });
+    }
+});
+
 app.get('/api/status', async (req, res) => {
     const ip = req.query.ip;
     const port = parseInt(req.query.port || '9100', 10);
@@ -176,7 +239,7 @@ app.listen(PORT, '0.0.0.0', () => {
         ips.forEach(ip => console.log(`  狀態 API：http://${ip}:${PORT}`));
     }
     console.log('  印表機 1：區網 TCP 9100 → 綠燈');
-    console.log('  印表機 2：芯烨雲 API → 藍燈');
+    console.log('  印表機 2：芯烨雲 API → 藍燈（含 /api/xpyun-print-label）');
     console.log('========================================');
     console.log('');
 });
