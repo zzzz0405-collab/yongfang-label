@@ -5,6 +5,7 @@
   "description": "永芳標籤列印 — 印表機連線狀態 API",
   "scripts": {
     "start": "node print-server.js",
+    "start:cloud-proxy": "node start-cloud.js",
     "printer-api": "node print-server.js"
   },
   "dependencies": {

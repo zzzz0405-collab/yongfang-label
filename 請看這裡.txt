@@ -1,40 +1,68 @@
-永芳標籤 — 上傳 GitHub 用資料夾
-================================
+永芳標籤 — 上傳 GitHub + Render 用資料夾
+==========================================
+（2026/07/02 已同步最新版 UI107）
 
-這個資料夾裡的檔案，就是要上傳到 GitHub 的內容。
-（上傳時請選「這些檔案」，上傳到 repo 根目錄，不要只上傳資料夾本身。）
+網址：
+  GitHub：https://github.com/zzzz0405-collab/yongfang-label
+  Render：https://yongfang-label.onrender.com
+  條碼雲：https://platform-barcode.xpyun.net
 
-網址：https://github.com/zzzz0405-collab/yongfang-label
+==========================================
+【這就是在改 GitHub 嗎？】
+==========================================
+對。把本資料夾「裡面的檔案」上傳到 GitHub 的 yongfang-label 專案，
+就等於更新程式。Render 已連 GitHub，上傳後會自動重新部署（約 3～8 分鐘）。
 
-【每次上傳前】
-1. 用記事本打開 index.html，搜尋「上傳 GitHub 前」
-2. 只改一行 APP_RELEASE_LINE，例如：
-   2026.06.20-3 · 06/20 22:00
-   （日期-第幾次上傳 · 月/日 時:分）
-3. 雙擊「更新上傳資料夾.bat」
-4. 上傳 index.html 和 sw.js 到 GitHub
-5. 手機看頂部版本字樣是否變了
+日常用手機請開 Render 網址，不必用 github.io。
 
+==========================================
 【上傳步驟】
-1. 開啟 GitHub 上面的 yongfang-label 專案
+==========================================
+1. 開啟 https://github.com/zzzz0405-collab/yongfang-label
 2. 按 Add file → Upload files
-3. 把「本資料夾」裡除了本說明檔以外的所有檔案拖進去
-   （請看這裡.txt 可不上傳）
-4. 下方 Commit 寫「更新網頁」→ Commit changes
-5. 等 1～2 分鐘，用手機 Ctrl+Shift+R 強制刷新 GitHub Pages
+3. 把下面「必傳檔案」全部拖進去（一次全選）
+   ※ 不要上傳「資料夾本身」，是資料夾「裡面的檔案」
+   ※ 請看這裡.txt 可不上傳
+4. 若 GitHub 問是否覆蓋同名檔案 → 選覆蓋（Replace）
+5. Commit 訊息寫：更新 UI107
+6. 等 Render 自動 Deploy 完成（到 render.com 看 Live）
 
-【檔案說明】
-index.html          主程式（必傳）
-label-data.json     客戶／品項資料（必傳）
-manifest.webmanifest  PWA 設定
-sw.js               離線快取
-icon.svg            圖示
-print-server.js     Windows 印表機狀態 API（選用，本機用）
-start-print-server.bat  雙擊啟動狀態 API（選用，本機用）
-package.json        Node 相依（選用，本機用）
-printer-config.json 印表機預設（選用，本機用）
+==========================================
+【必傳檔案（全部拖進 GitHub）】
+==========================================
+index.html              主程式（必傳，目前 UI107）
+label-data.json         客戶／品項備份（必傳）
+sw.js                   快取版本（必傳）
+manifest.webmanifest    PWA
+icon.svg                圖示
+print-server.js         Render／本機 API 伺服器（必傳，Render 要用）
+package.json            Node 相依（必傳，Render 要用）
+start-cloud.js          雲端代理啟動（選用）
+render-full.yaml        Render 整站部署參考（選用）
+zbpack.json             Zeabur 用（選用）
+start-print-server.bat  本機 Windows 用（選用）
+printer-config.json     印表機預設（選用）
+cloud-proxy-部署說明.txt  說明（選用）
+render.yaml             僅代理版（選用，一般用 render-full）
 
-【注意】
-- 不用上傳 node_modules 資料夾
-- print-server 只在 Windows 本機跑，GitHub Pages 只放網頁檔即可
-- 改完程式後，記得再從專案根目錄複製最新檔案到本資料夾再上傳
+【不要上傳】
+node_modules、GITHUB999 資料夾本身、請看這裡.txt（可不上傳）
+
+==========================================
+【上傳成功後怎麼確認】
+==========================================
+1. 開 https://yongfang-label.onrender.com
+2. 左上角版本應顯示 UI107（不是 UI89）
+3. 印表機分頁：
+   - 平台：條碼雲
+   - API 代理：留空（用 Render 開時）
+   - 開發者 ID / UserKEY：從 platform-barcode.xpyun.net「我的資料」複製
+     （不是 Gmail 信箱！）
+   - SN：00003GPUEX9D684
+4. 儲存 → 手動檢測 → 藍燈亮
+5. 試 API 標籤列印
+
+==========================================
+【本機以後要再更新此資料夾】
+==========================================
+在專案根目錄執行「更新上傳資料夾.bat」，或請 Cursor 再同步一次 GITHUB999。

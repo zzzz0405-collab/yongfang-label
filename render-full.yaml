@@ -1,0 +1,12 @@
+# Render 整站部署（網頁 + API 同一網址，不用 GitHub）
+# 部署後手機書籤：https://你的服務.onrender.com
+services:
+  - type: web
+    name: yongfang-label
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"

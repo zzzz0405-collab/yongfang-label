@@ -376,6 +376,31 @@
             line-height: 1.55;
         }
         .app-install-tip.show { display: flex; }
+        #data-recovery-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 0 12px 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #664d03;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        #data-recovery-banner[hidden] { display: none !important; }
+        #data-recovery-banner button {
+            flex: 0 0 auto;
+            border: 0;
+            border-radius: 8px;
+            background: #d97706;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
         .app-install-tip button {
             flex-shrink: 0;
             border: none;
@@ -1735,6 +1760,113 @@
             overflow: hidden;
         }
 
+        /* API 圖片列印擷取（與 @media print 出貨標籤同比例，800×480 = 100×60mm @203dpi） */
+        .api-label-capture-host {
+            position: fixed;
+            left: -12000px;
+            top: 0;
+            width: 800px;
+            height: 480px;
+            overflow: hidden;
+            background: #fff;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .api-label-capture-host .label-container {
+            width: 800px !important;
+            height: 480px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            background: #fff !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            --cust-font: 203px;
+            --info-font: 55px;
+            --date-font: 30px;
+            --info-border: 6px;
+        }
+        .api-label-capture-host .half-label {
+            width: 50% !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: row !important;
+            box-sizing: border-box !important;
+            padding: 4px 8px 4px 0 !important;
+            overflow: hidden !important;
+        }
+        .api-label-capture-host .customer-col {
+            width: 68% !important;
+            height: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            writing-mode: vertical-rl !important;
+            text-orientation: upright !important;
+            font-size: var(--cust-font) !important;
+            font-weight: 900 !important;
+            letter-spacing: 1px;
+            line-height: 1 !important;
+            color: #000 !important;
+            overflow: hidden !important;
+            word-break: keep-all !important;
+        }
+        .api-label-capture-host .customer-col.cust-len-2 { --cust-font: 203px; }
+        .api-label-capture-host .customer-col.cust-len-3 { --cust-font: 135px; letter-spacing: 1px; }
+        .api-label-capture-host .customer-col.cust-len-4 { --cust-font: 106px; }
+        .api-label-capture-host .customer-col.cust-len-long { --cust-font: 85px; }
+        .api-label-capture-host .info-col {
+            width: 32% !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            border: var(--info-border) solid #000 !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        .api-label-capture-host .loc-box {
+            flex: 1 1 50% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            border-bottom: var(--info-border) solid #000 !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        .api-label-capture-host .loc-name {
+            writing-mode: vertical-rl !important;
+            text-orientation: upright !important;
+            font-size: var(--info-font) !important;
+            font-weight: 900 !important;
+            letter-spacing: 2px;
+            color: #000 !important;
+            line-height: 1 !important;
+        }
+        .api-label-capture-host .loc-date {
+            font-size: var(--date-font) !important;
+            font-weight: 700 !important;
+            color: #000 !important;
+            line-height: 1.1 !important;
+            margin-top: 8px !important;
+            white-space: nowrap !important;
+        }
+        .api-label-capture-host .prod-box {
+            flex: 1 1 50% !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            writing-mode: vertical-rl !important;
+            text-orientation: upright !important;
+            font-size: var(--info-font) !important;
+            font-weight: 900 !important;
+            letter-spacing: 2px;
+            color: #000 !important;
+            overflow: hidden !important;
+        }
+
         /* 列印專屬設定（@page 尺寸由 runPrintJob 動態注入，避免拍賣/出貨互相覆蓋） */
         @media print {
             html, body {
@@ -2183,6 +2315,10 @@
         <div id="app-install-tip-text">加到主畫面後，可像 App 一樣全螢幕開啟。</div>
         <button type="button" id="app-install-tip-close">知道了</button>
     </div>
+    <div id="data-recovery-banner" hidden>
+        <div>客戶資料是空的（目前 <span id="data-recovery-customer-count">0</span> 筆）。可按右邊一鍵從本機備份還原。</div>
+        <button type="button" onclick="recoverDataNow()">🔄 一鍵還原資料</button>
+    </div>
 
     <div id="app-login-gate" class="app-login-gate">
         <div class="app-login-box">
@@ -2441,7 +2577,8 @@
             <h3 style="margin:0 0 12px 0;">⚙️ 設定</h3>
             <div id="github-sync-status" style="font-size:13px;color:#555;line-height:1.6;margin-bottom:12px;"></div>
             <div class="github-settings-note" style="margin-bottom:12px;">
-                資料存成 repo 裡的 <code style="background:#eee;padding:1px 4px;">label-data.json</code>，改完約 1 秒自動同步（需 Token）。<br>
+                <strong>本機調整流程：</strong>先用 <code style="background:#eee;padding:1px 4px;">localhost:3847</code> 改程式與資料，確認沒問題後再按「⬆️ 立即同步」上傳 GitHub。<br>
+                本機預設<strong>不會</strong>啟動時從 GitHub 覆蓋資料（可勾選下方選項改為自動載入）。<br>
                 Token 只存在本機瀏覽器，請勿寫進程式碼或上傳到 GitHub。
             </div>
             <div class="github-settings-grid">
@@ -2456,6 +2593,12 @@
                 <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="testGitHubConnection()">🔌 測試連線</button>
                 <button type="button" class="btn-mini" style="background-color:#0969da;" onclick="saveToGitHubNow()">⬆️ 立即同步</button>
                 <button type="button" class="btn-mini" style="background-color:#2da44e;" onclick="loadFromGitHubNow()">⬇️ 從 GitHub 載入</button>
+                <button type="button" class="btn-mini" style="background-color:#6f42c1;" onclick="loadFromLocalLabelDataJsonNow()">📂 本機 label-data.json</button>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:10px;cursor:pointer;">
+                    <input type="checkbox" id="github-auto-pull-on-start" onchange="saveGitHubAutoPullPreference()"> 啟動時自動從 GitHub 載入（本機開發建議關閉）
+                </label>
+                <input type="file" id="legacy-data-import" accept=".json,application/json" hidden onchange="importLegacyDataFile(this)">
+                <button type="button" class="btn-mini" style="background-color:#fd7e14;margin-top:8px;" onclick="document.getElementById('legacy-data-import').click()">📥 匯入 JSON 檔</button>
             </div>
 
             <div class="settings-subsection">
@@ -2478,15 +2621,27 @@
                 </div>
             </div>
             <div class="settings-subsection" style="margin-top:10px;">
-                <h4>API 標籤機設定（芯烨雲）</h4>
-                <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:4px;">API 代理網址（選填，例：Windows start-print-server.bat）</label>
-                <input type="text" id="printer-status-api-url" placeholder="http://Windows電腦IP:3847" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;">
+                <h4>API 標籤機設定（雲端列印）</h4>
+                <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:4px;">雲端平台</label>
+                <select id="printer-api-platform" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;">
+                    <option value="barcode">條碼雲（XP-420B 等）· platform-barcode.xpyun.net</option>
+                    <option value="open">芯烨雲開放平台 · open.xpyun.net</option>
+                </select>
+                <p id="printer-direct-file-hint" hidden style="font-size:12px;color:#b45309;background:#fff8e6;border:1px solid #f0d78c;border-radius:6px;padding:10px;margin:0 0 10px;line-height:1.6;"></p>
+                <p id="printer-github-mobile-hint" hidden style="font-size:12px;color:#0c4a6e;background:#e0f2fe;border:1px solid #7dd3fc;border-radius:6px;padding:10px;margin:0 0 10px;line-height:1.6;"></p>
+                <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:4px;">API 代理網址（GitHub / 手機必填；本機 3847 可留空）</label>
+                <input type="text" id="printer-status-api-url" placeholder="https://你的雲端代理.onrender.com" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;">
+                <p style="font-size:12px;color:#666;margin:0 0 8px;line-height:1.55;">列印路徑：<strong>手機 → 雲端代理(HTTPS) → 芯烨雲 → WiFi 標籤機</strong>。代理架一次即可（中文介面推薦 <a href="https://zeabur.com" target="_blank" rel="noopener">Zeabur</a>，見 <code>cloud-proxy-部署說明.txt</code>）。</p>
+                <div class="github-settings-grid">
+                    <input type="number" id="printer-api-left-offset" placeholder="左偏移 dot（預設0）" min="-200" max="200" step="1">
+                    <input type="number" id="printer-api-top-offset" placeholder="上偏移 dot（預設0）" min="-200" max="200" step="1">
+                </div>
                 <div class="github-settings-grid">
                     <input type="text" id="printer-api-user" placeholder="開發者 ID（user）">
                     <input type="password" id="printer-api-key" placeholder="UserKEY">
-                    <input type="text" id="printer-api-sn" placeholder="印表機 SN" style="grid-column:1/-1;">
+                    <input type="text" id="printer-api-sn" placeholder="印表機 SN（條碼雲須 15 碼）" style="grid-column:1/-1;">
                 </div>
-                <p style="font-size:12px;color:#888;margin:8px 0 0;line-height:1.5;">至 <a href="https://www.xpyun.net/open/index.html" target="_blank" rel="noopener">芯烨雲開放平台</a> 註冊並加入 SN。UserKEY 只存本機。</p>
+                <p style="font-size:12px;color:#888;margin:8px 0 0;line-height:1.5;">條碼雲 API：<code style="font-size:11px;">open-barcode.xpyun.net/api/openapi/sprinter/</code>（驗證 verifyPrinter、列印 printLabel）。至 <a href="https://platform-barcode.xpyun.net/#/login" target="_blank" rel="noopener">條碼雲管理後台</a> →「我的資料」取得 ID / KEY。</p>
                 <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
                     <input type="checkbox" id="printer-api-enabled"> 啟用 API 連線檢測
                 </label>
@@ -2611,19 +2766,319 @@
 <script type="application/json" id="label-system-data">
 {
   "version": 1,
-  "exportedAt": "1970-01-01T00:00:00.000Z",
-  "myProducts": ["空心菜", "菠菜", "青蔥", "高麗菜", "空白"],
+  "exportedAt": "2026-06-21T15:41:47.613Z",
+  "myProducts": [
+    "空心菜",
+    "菠菜",
+    "青蔥",
+    "高麗菜",
+    "空白"
+  ],
   "selectedProduct": "空心菜",
-  "myCustomersList": [],
-  "labelPrintCount": 0,
-  "printHistory": [],
+  "myCustomersList": [
+    {
+      "name": "新莊",
+      "location": "新莊",
+      "col": 1
+    },
+    {
+      "name": "鑫",
+      "location": "宜蘭",
+      "col": 1
+    },
+    {
+      "name": "153",
+      "location": "力行",
+      "col": 1
+    },
+    {
+      "name": "P",
+      "location": "力行",
+      "col": 1
+    },
+    {
+      "name": "42",
+      "location": "力行",
+      "col": 1
+    },
+    {
+      "name": "傳真",
+      "location": "板橋",
+      "col": 1
+    },
+    {
+      "name": "得意",
+      "location": "板橋",
+      "col": 1
+    },
+    {
+      "name": "原",
+      "location": "板橋",
+      "col": 1
+    },
+    {
+      "name": "雙隆",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "鴻順",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "福山",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "裕成",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "5號",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "進發",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "貴",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "善吉",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "家慶",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "建隆",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "信隆",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "玉英",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "永成",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "20",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "12",
+      "location": "基隆",
+      "col": 2
+    },
+    {
+      "name": "宏昌",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "木山",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "649",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "648",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "630",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "623",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "577",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "509",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "399",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "338",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "A",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "阿賢",
+      "location": "台北",
+      "col": 3
+    },
+    {
+      "name": "大象",
+      "location": "板橋",
+      "col": 1
+    }
+  ],
+  "labelPrintCount": 10,
+  "printHistory": [
+    {
+      "id": "2026-06-21T15:41:01.944Z-新莊-2v97jj",
+      "timestamp": "2026-06-21T15:41:01.944Z",
+      "customer": "新莊",
+      "location": "新莊",
+      "product": "空白",
+      "qty": 1
+    },
+    {
+      "id": "2026-06-21T15:31:40.196Z-12-9um0u0",
+      "timestamp": "2026-06-21T15:31:40.196Z",
+      "customer": "12",
+      "location": "基隆",
+      "product": "空白",
+      "qty": 2
+    },
+    {
+      "id": "2026-06-21T15:31:40.196Z-永成-jjmqho",
+      "timestamp": "2026-06-21T15:31:40.196Z",
+      "customer": "永成",
+      "location": "基隆",
+      "product": "空白",
+      "qty": 1
+    },
+    {
+      "id": "2026-06-21T15:30:49.733Z-12-u4x1vi",
+      "timestamp": "2026-06-21T15:30:49.733Z",
+      "customer": "12",
+      "location": "基隆",
+      "product": "空白",
+      "qty": 2
+    }
+  ],
   "printDraft": []
 }
 </script>
 
     <script>
         // 頂部版本時間：開啟頁面時自動顯示本機現在時間（例：6/22-12:12）
-        const APP_UI_REV = '89';
+        const APP_UI_REV = '107';
+        const LOCAL_LABEL_DATA_URL = './label-data.json';
+        // 手機 / GitHub Pages 用：部署雲端代理後填入 HTTPS 網址（見 cloud-proxy-部署說明.txt）
+        const EMBEDDED_CLOUD_PROXY_URL = '';
+        const PLACEHOLDER_BOOTSTRAP_CUSTOMERS = [
+            { name: '家慶', location: '基隆', col: 1 },
+            { name: '全聯', location: '台中', col: 2 },
+            { name: '永芳', location: '西螺', col: 3 }
+        ];
+
+        const XPYUN_PLATFORMS = {
+            barcode: {
+                label: '條碼雲',
+                verifyUrl: 'https://open-barcode.xpyun.net/api/openapi/sprinter/verifyPrinter',
+                statusUrl: 'https://open-barcode.xpyun.net/api/openapi/sprinter/queryPrinterStatus',
+                printLabelUrl: 'https://open-barcode.xpyun.net/api/openapi/sprinter/printLabel',
+                printDocumentUrl: 'https://open-barcode.xpyun.net/api/openapi/sprinter/printDocument',
+                printImageUrl: 'https://open-barcode.xpyun.net/api/openapi/sprinter/printImage',
+                consoleUrl: 'https://platform-barcode.xpyun.net/#/login'
+            },
+            open: {
+                label: '芯烨雲',
+                statusUrl: 'https://open.xpyun.net/api/openapi/xprinter/queryPrinterStatus',
+                printLabelUrl: 'https://open.xpyun.net/api/openapi/xprinter/printLabel',
+                consoleUrl: 'https://www.xpyun.net/open/index.html'
+            }
+        };
+
+        function resolveXpyunPlatform(platform) {
+            return XPYUN_PLATFORMS[platform === 'open' ? 'open' : 'barcode'];
+        }
+
+        function getXpyunPlatformFromCfg(cfg) {
+            return cfg?.api?.platform === 'open' ? 'open' : 'barcode';
+        }
+
+        function buildXpyunAuth(user, userKey) {
+            const cleanUser = String(user || '').trim();
+            const cleanKey = String(userKey || '').trim();
+            const timestamp = String(Math.floor(Date.now() / 1000));
+            return {
+                user: cleanUser,
+                timestamp,
+                signPromise: sha1Hex(cleanUser + cleanKey + timestamp)
+            };
+        }
+
+        async function buildXpyunAuthReady(user, userKey) {
+            const auth = buildXpyunAuth(user, userKey);
+            return {
+                user: auth.user,
+                timestamp: auth.timestamp,
+                sign: await auth.signPromise
+            };
+        }
+
+        function isBarcodeSnValid(sn) {
+            return String(sn || '').trim().length === 15;
+        }
+
+        function formatXpyunApiError(json, platform) {
+            const label = resolveXpyunPlatform(platform).label;
+            const code = json?.code;
+            const msg = json?.msg || json?.message || '';
+            if (code === -2 || /REQUEST_PARAM_INVALID/i.test(msg)) {
+                return `${label}參數或 XML 格式不符：請確認平台選「條碼雲」、重啟 print-server，或聯繫技術支援`;
+            }
+            if (code === -3 || /SIGN_FAILED/i.test(msg)) {
+                return `${label}簽名驗證失敗：請確認開發者 ID、UserKEY 無前後空格，且來自正確平台後台`;
+            }
+            if (code === 1002 || /NOT_REGISTER/i.test(msg)) {
+                return '印表機 SN 未在雲端註冊，請在後台加入設備';
+            }
+            if (code === 1003 || /OFFLINE/i.test(msg)) {
+                return '印表機離線，請確認電源與網路';
+            }
+            if (json?.status === 40301 || /40301|Token Forbidden/i.test(msg)) {
+                return '平台或帳號不符：條碼雲請選「條碼雲」，並使用 platform-barcode.xpyun.net 的 ID/KEY';
+            }
+            return msg || `${label}錯誤 (${code != null ? code : 'unknown'})`;
+        }
 
         const PRINTER_CONFIG_KEY = 'printerConfigV3';
         const AUCTION_LAYOUT_CONFIG_KEY = 'auctionPrintLayoutV2';
@@ -2656,9 +3111,11 @@
 
         // 初始化品項紀錄
         const defaultProducts = ['空心菜', '菠菜', '青蔥', '高麗菜'];
-        let productList = JSON.parse(localStorage.getItem('myProducts')) || defaultProducts;
-        if (embeddedBootstrap && embeddedBootstrap.myProducts.length > 0) {
-            productList = embeddedBootstrap.myProducts.slice();
+        let productList = JSON.parse(localStorage.getItem('myProducts'));
+        if (!Array.isArray(productList) || productList.length === 0) {
+            productList = (embeddedBootstrap && embeddedBootstrap.myProducts.length > 0)
+                ? embeddedBootstrap.myProducts.slice()
+                : defaultProducts.slice();
         }
         productList = ensureBlankProductInList(productList);
         let selectedProduct = localStorage.getItem('selectedProduct') || productList[0] || '';
@@ -2677,19 +3134,18 @@
             if (oldMap && !Array.isArray(oldMap)) {
                 customers = Object.keys(oldMap).map(k => ({ name: k, location: oldMap[k] }));
             } else {
-                customers = [
-                    { name: '家慶', location: '基隆', col: 1 },
-                    { name: '全聯', location: '台中', col: 2 },
-                    { name: '永芳', location: '西螺', col: 3 }
-                ];
+                customers = [];
             }
-            localStorage.setItem('myCustomersList', JSON.stringify(customers));
         } else if (customers.length === 0) {
-            customers = [
-                { name: '家慶', location: '基隆', col: 1 },
-                { name: '全聯', location: '台中', col: 2 },
-                { name: '永芳', location: '西螺', col: 3 }
-            ];
+            customers = [];
+        }
+
+        function isPlaceholderBootstrapCustomers(list) {
+            if (!Array.isArray(list) || list.length !== PLACEHOLDER_BOOTSTRAP_CUSTOMERS.length) return false;
+            return PLACEHOLDER_BOOTSTRAP_CUSTOMERS.every((ref, i) => {
+                const c = list[i];
+                return c && c.name === ref.name && c.location === ref.location;
+            });
         }
 
         function normalizeCustomerColumns() {
@@ -4328,6 +4784,8 @@ html, body {
                 fillPrinterSettingsForm();
                 updateGitHubStatusDisplay();
             } else if (tab === 'printer') {
+                fillPrinterSettingsForm();
+                updateDirectHtmlOpenHint();
                 updatePrinterStatus();
             }
         }
@@ -4371,7 +4829,7 @@ html, body {
             return {
                 statusApiUrl: legacyApi.replace(/\/$/, ''),
                 local: { ip: '', port: legacyPort, enabled: false },
-                api: { cloudUser: '', cloudUserKey: '', cloudSn: '', enabled: false }
+                api: { cloudUser: '', cloudUserKey: '', cloudSn: '', enabled: false, platform: 'barcode', leftOffset: 0, topOffset: 0 }
             };
         }
 
@@ -4385,7 +4843,10 @@ html, body {
                         cloudUser: data.api.cloudUser || '',
                         cloudUserKey: data.api.cloudUserKey || '',
                         cloudSn: data.api.cloudSn || '',
-                        enabled: data.api.enabled === true
+                        enabled: data.api.enabled === true,
+                        platform: data.api.platform === 'open' ? 'open' : 'barcode',
+                        leftOffset: parseInt(data.api.leftOffset, 10) || 0,
+                        topOffset: parseInt(data.api.topOffset, 10) || 0
                     }
                 };
             }
@@ -4398,7 +4859,8 @@ html, body {
                         cloudUser: p2?.cloudUser || '',
                         cloudUserKey: p2?.cloudUserKey || '',
                         cloudSn: p2?.cloudSn || '',
-                        enabled: p2?.enabled === true
+                        enabled: p2?.enabled === true,
+                        platform: 'barcode'
                     }
                 };
             }
@@ -4431,7 +4893,8 @@ html, body {
                     enabled: c.api?.enabled === true,
                     cloudUser: c.api?.cloudUser || '',
                     cloudUserKey: c.api?.cloudUserKey || '',
-                    cloudSn: c.api?.cloudSn || ''
+                    cloudSn: c.api?.cloudSn || '',
+                    platform: getXpyunPlatformFromCfg(c)
                 }
             ];
         }
@@ -4444,10 +4907,18 @@ html, body {
             const cfg = loadPrinterSettings();
             const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
             const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
-            setVal('printer-status-api-url', cfg.statusApiUrl || '');
+            const proxyDefault = cfg.statusApiUrl
+                || (isGitHubPagesHost() ? getDefaultCloudProxyUrl() : '')
+                || (isDirectHtmlFileOpen() ? 'http://127.0.0.1:3847' : '')
+                || ((location.protocol === 'http:' || location.protocol === 'https:') && !isGitHubPagesHost()
+                    ? location.origin : '');
+            setVal('printer-status-api-url', proxyDefault);
             setVal('printer-api-user', cfg.api?.cloudUser || '');
             setVal('printer-api-key', cfg.api?.cloudUserKey || '');
             setVal('printer-api-sn', cfg.api?.cloudSn || '');
+            setVal('printer-api-platform', getXpyunPlatformFromCfg(cfg));
+            setVal('printer-api-left-offset', cfg.api?.leftOffset != null ? cfg.api.leftOffset : 0);
+            setVal('printer-api-top-offset', cfg.api?.topOffset != null ? cfg.api.topOffset : 0);
             setCheck('printer-api-enabled', cfg.api?.enabled === true);
         }
 
@@ -4459,7 +4930,10 @@ html, body {
                     cloudUser: (document.getElementById('printer-api-user')?.value || '').trim(),
                     cloudUserKey: (document.getElementById('printer-api-key')?.value || '').trim(),
                     cloudSn: (document.getElementById('printer-api-sn')?.value || '').trim(),
-                    enabled: !!document.getElementById('printer-api-enabled')?.checked
+                    enabled: !!document.getElementById('printer-api-enabled')?.checked,
+                    platform: (document.getElementById('printer-api-platform')?.value === 'open') ? 'open' : 'barcode',
+                    leftOffset: parseInt(document.getElementById('printer-api-left-offset')?.value, 10) || 0,
+                    topOffset: parseInt(document.getElementById('printer-api-top-offset')?.value, 10) || 0
                 }
             };
         }
@@ -4480,12 +4954,50 @@ html, body {
             throw new Error('瀏覽器不支援 SHA-1');
         }
 
+        function parseXpyunStatusCode(json, platform) {
+            if (!json || json.code !== 0) return null;
+            if (platform === 'barcode' && json.data && typeof json.data === 'object') {
+                return parseInt(json.data.status, 10);
+            }
+            return parseInt(json.data, 10);
+        }
+
+        async function postXpyunApi(url, payload) {
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+                cache: 'no-store',
+                body: JSON.stringify(payload)
+            });
+            return resp.json().catch(() => ({}));
+        }
+
+        async function verifyBarcodePrinter(user, userKey, sn) {
+            const cleanSn = String(sn || '').trim();
+            if (!isBarcodeSnValid(cleanSn)) {
+                return { ok: false, message: `條碼雲 SN 須為 15 碼（目前 ${cleanSn.length} 碼）` };
+            }
+            const auth = await buildXpyunAuthReady(user, userKey);
+            const json = await postXpyunApi(resolveXpyunPlatform('barcode').verifyUrl, {
+                ...auth,
+                sn: cleanSn,
+                name: '永芳標籤機'
+            });
+            if (json.code !== 0) {
+                return { ok: false, message: formatXpyunApiError(json, 'barcode') };
+            }
+            if (json.data === true) return { ok: true, message: '條碼雲 SN 已驗證' };
+            return { ok: false, message: '條碼雲 SN 未註冊，請在 platform-barcode.xpyun.net 加入印表機' };
+        }
+
         async function checkXpyunPrinterStatus(printer, apiBase) {
             const user = String(printer.cloudUser || '').trim();
             const userKey = String(printer.cloudUserKey || '').trim();
             const sn = String(printer.cloudSn || '').trim();
+            const platform = printer.platform === 'open' ? 'open' : 'barcode';
+            const platformInfo = resolveXpyunPlatform(platform);
             if (!user || !userKey || !sn) {
-                return { id: printer.id, ok: false, message: '芯烨雲 API 未填完整' };
+                return { id: printer.id, ok: false, message: '雲端 API 未填完整' };
             }
             if (apiBase) {
                 try {
@@ -4493,44 +5005,49 @@ html, body {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         cache: 'no-store',
-                        body: JSON.stringify({ user, userKey, sn })
+                        body: JSON.stringify({ user, userKey, sn, platform })
                     });
                     const data = await resp.json().catch(() => ({}));
                     return {
                         id: printer.id,
                         ok: data.online === true,
-                        message: data.message || (data.error || '芯烨雲檢測失敗')
+                        message: data.message || (data.error || `${platformInfo.label}檢測失敗`)
                     };
                 } catch (err) {
-                    return { id: printer.id, ok: false, message: '芯烨雲 API 代理失敗' };
+                    return { id: printer.id, ok: false, message: '雲端 API 代理失敗：請確認已執行 start-print-server.bat，且代理網址正確' };
                 }
             }
             try {
-                const timestamp = String(Math.floor(Date.now() / 1000));
-                const sign = await sha1Hex(user + userKey + timestamp);
-                const resp = await fetch('https://open.xpyun.net/api/openapi/xprinter/queryPrinterStatus', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-                    cache: 'no-store',
-                    body: JSON.stringify({ user, timestamp, sign, sn })
-                });
-                const json = await resp.json().catch(() => ({}));
-                if (json.code !== 0) {
-                    return { id: printer.id, ok: false, message: json.msg || `芯烨雲錯誤 (${json.code})` };
+                if (platform === 'barcode' && !isBarcodeSnValid(sn)) {
+                    return { id: printer.id, ok: false, message: `條碼雲 SN 須為 15 碼（目前 ${sn.length} 碼）` };
                 }
-                const status = parseInt(json.data, 10);
-                if (status === 1) return { id: printer.id, ok: true, message: `芯烨雲在線 · ${sn}` };
-                if (status === 2) return { id: printer.id, ok: false, message: `芯烨雲異常（可能缺紙）· ${sn}` };
-                return { id: printer.id, ok: false, message: `芯烨雲離線 · ${sn}` };
+                if (platform === 'barcode') {
+                    const verified = await verifyBarcodePrinter(user, userKey, sn);
+                    if (!verified.ok) {
+                        return { id: printer.id, ok: false, message: verified.message };
+                    }
+                }
+                const auth = await buildXpyunAuthReady(user, userKey);
+                const json = await postXpyunApi(platformInfo.statusUrl, { ...auth, sn });
+                if (json.code !== 0) {
+                    return {
+                        id: printer.id,
+                        ok: false,
+                        message: formatXpyunApiError(json, platform)
+                    };
+                }
+                const status = parseXpyunStatusCode(json, platform);
+                if (status === 1) return { id: printer.id, ok: true, message: `${platformInfo.label}在線 · ${sn}` };
+                if (status === 2) return { id: printer.id, ok: false, message: `${platformInfo.label}異常（可能缺紙）· ${sn}` };
+                return { id: printer.id, ok: false, message: `${platformInfo.label}離線 · ${sn}` };
             } catch (err) {
-                return { id: printer.id, ok: false, message: '無法直連芯烨雲，請填區網狀態 API' };
+                return { id: printer.id, ok: false, message: '瀏覽器無法直連雲端 API（跨網域限制），請填 API 代理網址' };
             }
         }
 
         const XPYUN_SHIPPING_LABEL_W_MM = 100;
         const XPYUN_SHIPPING_LABEL_H_MM = 60;
         const XPYUN_SHIPPING_HALF_W_MM = 50;
-        const XPYUN_PRINT_LABEL_URL = 'https://open.xpyun.net/api/openapi/xprinter/printLabel';
         const XPYUN_LABEL_CONTENT_LIMIT = 11000;
 
         function mmToXpyunDot(mm) {
@@ -4540,8 +5057,12 @@ html, body {
         function escapeXpyunLabelText(text) {
             return String(text || '')
                 .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt')
-                .replace(/>/g, '&gt');
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function barcodeMm(value) {
+            return String(Math.round(Number(value) || 0));
         }
 
         function getXpyunCustomerFontWH(name) {
@@ -4552,7 +5073,109 @@ html, body {
             return { w: 2, h: 2 };
         }
 
-        function buildXpyunShippingHalf(offsetMm, customer, location, product) {
+        function barcodeChars(text, keepSpaces) {
+            const chars = Array.from(text || '');
+            return keepSpaces ? chars : chars.filter(ch => ch !== ' ');
+        }
+
+        function barcodeCharStepMm(yh, gapMm) {
+            return 3 * yh + (gapMm || 0.4);
+        }
+
+        function buildBarcodeUprightVerticalText(centerX, centerY, text, opts = {}) {
+            const chars = barcodeChars(text, opts.keepSpaces);
+            if (!chars.length) return '';
+            const xw = opts.xw || 2;
+            const yh = opts.yh || 2;
+            const f = opts.f || 7;
+            const step = barcodeCharStepMm(yh, opts.gapMm);
+            const charW = 3 * xw;
+            const x = centerX - charW / 2;
+            const totalH = (chars.length - 1) * step + 3 * yh;
+            let y = centerY - totalH / 2;
+            const parts = [];
+            chars.forEach(ch => {
+                parts.push(`<TEXT x="${barcodeMm(x)}" y="${barcodeMm(y)}" xw="${xw}" yh="${yh}" f="${f}">${escapeXpyunLabelText(ch)}</TEXT>`);
+                y += step;
+            });
+            return parts.join('');
+        }
+
+        function getBarcodeCloudCustomerScale(name) {
+            const len = barcodeChars(name).length;
+            if (len <= 2) return { xw: 5, yh: 5 };
+            if (len === 3) return { xw: 4, yh: 4 };
+            if (len === 4) return { xw: 3, yh: 3 };
+            if (len <= 6) return { xw: 2, yh: 3 };
+            return { xw: 2, yh: 2 };
+        }
+
+        function getBarcodeCloudInfoScale(text) {
+            const len = barcodeChars(text).length;
+            if (len <= 2) return { xw: 3, yh: 3 };
+            if (len <= 4) return { xw: 2, yh: 3 };
+            return { xw: 2, yh: 2 };
+        }
+
+        function buildBarcodeCloudShippingHalf(offsetMm, customer, location, product) {
+            const ox = offsetMm;
+            const halfW = XPYUN_SHIPPING_HALF_W_MM;
+            const labelH = XPYUN_SHIPPING_LABEL_H_MM;
+            const custW = halfW * 0.68;
+            const infoX = ox + custW;
+            const infoW = halfW - custW;
+            const midY = labelH / 2;
+            const loc = location;
+            const prod = getProductPrintText(product);
+            const dateText = getYearDayText();
+            const cf = getBarcodeCloudCustomerScale(customer);
+            const lf = getBarcodeCloudInfoScale(loc);
+            const pf = getBarcodeCloudInfoScale(prod);
+            const custCenterX = ox + custW / 2;
+            const infoCenterX = infoX + infoW / 2;
+            const locCenterY = midY * 0.36;
+            const prodCenterY = midY + (labelH - midY) / 2;
+            const parts = [];
+
+            parts.push(`<SQ x="${barcodeMm(infoX)}" y="2" xe="${barcodeMm(infoX + infoW)}" ye="${barcodeMm(labelH - 2)}" lt="4"/>`);
+            parts.push(`<BL x="${barcodeMm(infoX)}" y="${barcodeMm(midY)}" w="${barcodeMm(infoW)}" h="1"/>`);
+
+            parts.push(buildBarcodeUprightVerticalText(custCenterX, labelH / 2, customer, {
+                xw: cf.xw, yh: cf.yh, f: 7, gapMm: 0.6
+            }));
+            parts.push(buildBarcodeUprightVerticalText(infoCenterX, locCenterY, loc, {
+                xw: lf.xw, yh: lf.yh, f: 7, gapMm: 0.5
+            }));
+            if (dateText) {
+                const dateLen = dateText.length;
+                const dateW = dateLen * 2.2;
+                const dateX = infoCenterX - dateW / 2;
+                parts.push(`<TEXT x="${barcodeMm(dateX)}" y="${barcodeMm(midY - 2)}" xw="1" yh="1" f="8">${escapeXpyunLabelText(dateText)}</TEXT>`);
+            }
+            parts.push(buildBarcodeUprightVerticalText(infoCenterX, prodCenterY, prod, {
+                xw: pf.xw, yh: pf.yh, f: 7, gapMm: 0.5
+            }));
+            return parts.join('');
+        }
+
+        function buildBarcodeCloudShippingLabelInner(customer, location, product) {
+            const left = buildBarcodeCloudShippingHalf(0, customer, location, product);
+            const right = buildBarcodeCloudShippingHalf(XPYUN_SHIPPING_HALF_W_MM, customer, location, product);
+            return left + right;
+        }
+
+        function buildBarcodeCloudShippingBatchPage(items) {
+            const labels = items.map((item, idx) =>
+                `<LABEL id="${idx + 1}">${buildBarcodeCloudShippingLabelInner(item.customer, item.location, item.product)}</LABEL>`
+            ).join('');
+            return `<PAGE w="100.0" l="60.0" ld="2">${labels}</PAGE>`;
+        }
+
+        function buildBarcodeCloudShippingLabelPage(customer, location, product) {
+            return buildBarcodeCloudShippingBatchPage([{ customer, location, product }]);
+        }
+
+        function buildOpenPlatformShippingHalf(offsetMm, customer, location, product) {
             const ox = mmToXpyunDot(offsetMm);
             const halfW = mmToXpyunDot(XPYUN_SHIPPING_HALF_W_MM);
             const labelH = mmToXpyunDot(XPYUN_SHIPPING_LABEL_H_MM);
@@ -4589,52 +5212,313 @@ html, body {
             return lines.join('');
         }
 
-        function buildXpyunShippingLabelPage(customer, location, product) {
-            const left = buildXpyunShippingHalf(0, customer, location, product);
-            const right = buildXpyunShippingHalf(XPYUN_SHIPPING_HALF_W_MM, customer, location, product);
+        function buildOpenPlatformShippingLabelPage(customer, location, product) {
+            const left = buildOpenPlatformShippingHalf(0, customer, location, product);
+            const right = buildOpenPlatformShippingHalf(XPYUN_SHIPPING_HALF_W_MM, customer, location, product);
             return `<PAGE><SIZE>${XPYUN_SHIPPING_LABEL_W_MM},${XPYUN_SHIPPING_LABEL_H_MM}</SIZE>${left}${right}</PAGE>`;
         }
 
-        function buildXpyunShippingLabelsContent(printItems) {
-            const chunks = [];
-            let current = '';
+        function buildXpyunShippingLabelPage(customer, location, product, platform) {
+            if (platform === 'open') {
+                return buildOpenPlatformShippingLabelPage(customer, location, product);
+            }
+            return buildBarcodeCloudShippingLabelPage(customer, location, product);
+        }
+
+        function buildXpyunShippingLabelsContent(printItems, platform) {
+            const resolved = platform === 'open' ? 'open' : 'barcode';
+            const items = [];
             printItems.forEach(item => {
                 for (let i = 0; i < item.qty; i++) {
-                    const page = buildXpyunShippingLabelPage(item.customer, item.location, item.product);
-                    if (current && (current.length + page.length) > XPYUN_LABEL_CONTENT_LIMIT) {
-                        chunks.push(current);
-                        current = page;
-                    } else {
-                        current += page;
+                    items.push({
+                        customer: item.customer,
+                        location: item.location,
+                        product: item.product
+                    });
+                }
+            });
+            if (!items.length) return [];
+
+            if (resolved === 'barcode') {
+                const chunks = [];
+                let batch = [];
+                let estLen = 80;
+                items.forEach(item => {
+                    const inner = buildBarcodeCloudShippingLabelInner(item.customer, item.location, item.product);
+                    const labelLen = inner.length + 24;
+                    if (batch.length && (estLen + labelLen > XPYUN_LABEL_CONTENT_LIMIT || batch.length >= 20)) {
+                        chunks.push(buildBarcodeCloudShippingBatchPage(batch));
+                        batch = [];
+                        estLen = 80;
                     }
+                    batch.push(item);
+                    estLen += labelLen;
+                });
+                if (batch.length) chunks.push(buildBarcodeCloudShippingBatchPage(batch));
+                return chunks;
+            }
+
+            const chunks = [];
+            let current = '';
+            items.forEach(item => {
+                const page = buildOpenPlatformShippingLabelPage(item.customer, item.location, item.product);
+                if (current && (current.length + page.length) > XPYUN_LABEL_CONTENT_LIMIT) {
+                    chunks.push(current);
+                    current = page;
+                } else {
+                    current += page;
                 }
             });
             if (current) chunks.push(current);
             return chunks;
         }
 
+        const XPYUN_LABEL_IMAGE_W_DOT = 800;
+        const XPYUN_LABEL_IMAGE_H_DOT = 480;
+
+        const XPYUN_DIRECT_CONTENT_LIMIT = 60000;
+
+        function downscaleCanvas(source, width, height) {
+            const out = document.createElement('canvas');
+            out.width = width;
+            out.height = height;
+            const ctx = out.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(source, 0, 0, width, height);
+            return out;
+        }
+
+        function canvasToImageBase64(canvas, maxChars) {
+            const limit = maxChars || XPYUN_DIRECT_CONTENT_LIMIT;
+            const tryEncode = (c, mime, quality) => {
+                const dataUrl = quality != null ? c.toDataURL(mime, quality) : c.toDataURL(mime);
+                const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+                return { base64, len: base64.length };
+            };
+            const png = tryEncode(canvas, 'image/png');
+            if (png.len <= limit) {
+                return { base64: png.base64, paperWidth: XPYUN_LABEL_IMAGE_W_DOT, paperHeight: XPYUN_LABEL_IMAGE_H_DOT };
+            }
+            let quality = 0.94;
+            let last = '';
+            while (quality >= 0.5) {
+                const jpg = tryEncode(canvas, 'image/jpeg', quality);
+                last = jpg.base64;
+                if (jpg.len <= limit) {
+                    return { base64: last, paperWidth: XPYUN_LABEL_IMAGE_W_DOT, paperHeight: XPYUN_LABEL_IMAGE_H_DOT };
+                }
+                quality -= 0.06;
+            }
+            const shrink = downscaleCanvas(canvas, 640, 384);
+            quality = 0.9;
+            while (quality >= 0.5) {
+                const jpg = tryEncode(shrink, 'image/jpeg', quality);
+                last = jpg.base64;
+                if (jpg.len <= limit) {
+                    return { base64: last, paperWidth: 640, paperHeight: 384 };
+                }
+                quality -= 0.06;
+            }
+            throw new Error(`標籤圖片過大（${last.length} 字元）`);
+        }
+
+        function ensureHtml2Canvas() {
+            if (window.html2canvas) return Promise.resolve();
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('無法載入 html2canvas，請確認網路連線'));
+                document.head.appendChild(script);
+            });
+        }
+
+        async function captureShippingLabelImageBase64(customer, location, product) {
+            const host = document.createElement('div');
+            host.className = 'api-label-capture-host';
+            host.innerHTML = buildLabelHtml(customer, location, product);
+            document.body.appendChild(host);
+            const label = host.querySelector('.label-container');
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            await document.fonts?.ready;
+            try {
+                const rawCanvas = await window.html2canvas(label, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    width: XPYUN_LABEL_IMAGE_W_DOT,
+                    height: XPYUN_LABEL_IMAGE_H_DOT,
+                    useCORS: true,
+                    logging: false
+                });
+                const canvas = downscaleCanvas(rawCanvas, XPYUN_LABEL_IMAGE_W_DOT, XPYUN_LABEL_IMAGE_H_DOT);
+                return canvasToImageBase64(canvas);
+            } finally {
+                host.remove();
+            }
+        }
+
+        async function probePrintServerFeatures(apiBase) {
+            if (!apiBase) return { ok: true };
+            try {
+                const resp = await fetch(`${apiBase}/api/health`, { cache: 'no-store' });
+                if (!resp.ok) {
+                    return { ok: false, message: `代理 HTTP ${resp.status}，請執行 start-print-server.bat` };
+                }
+                const data = await resp.json().catch(() => ({}));
+                const features = Array.isArray(data.features) ? data.features : [];
+                if (!features.includes('xpyun-print-document')) {
+                    return {
+                        ok: false,
+                        message: 'print-server 版本過舊。請關閉所有黑視窗後，再雙擊 start-print-server.bat（會自動關閉舊程序）'
+                    };
+                }
+                return { ok: true };
+            } catch (err) {
+                return { ok: false, message: '無法連線本機代理，請執行 start-print-server.bat：' + (err.message || String(err)) };
+            }
+        }
+
+        async function sendXpyunDocumentPrint(imagePayload, cfg, options = {}) {
+            const imageBase64 = typeof imagePayload === 'string' ? imagePayload : imagePayload.base64;
+            const paperWidth = (typeof imagePayload === 'object' && imagePayload.paperWidth) || XPYUN_LABEL_IMAGE_W_DOT;
+            const paperHeight = (typeof imagePayload === 'object' && imagePayload.paperHeight) || XPYUN_LABEL_IMAGE_H_DOT;
+            const user = String(cfg.api?.cloudUser || '').trim();
+            const userKey = String(cfg.api?.cloudUserKey || '').trim();
+            const sn = String(cfg.api?.cloudSn || '').trim();
+            const platform = getXpyunPlatformFromCfg(cfg);
+            const platformInfo = resolveXpyunPlatform(platform);
+            const apiBase = getPrinterStatusApiBaseUrl();
+            const leftOffset = parseInt(cfg.api?.leftOffset, 10);
+            const topOffset = parseInt(cfg.api?.topOffset, 10);
+            const body = {
+                user,
+                userKey,
+                sn,
+                content: imageBase64,
+                platform,
+                paperWidth,
+                paperHeight,
+                leftOffset: Number.isFinite(leftOffset) ? leftOffset : 0,
+                topOffset: Number.isFinite(topOffset) ? topOffset : 0,
+                idempotent: options.idempotent || `yf-img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+            };
+
+            if (apiBase) {
+                const resp = await fetch(`${apiBase}/api/xpyun-print-document`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    cache: 'no-store',
+                    body: JSON.stringify(body)
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (resp.status === 404) {
+                    return {
+                        ok: false,
+                        code: 404,
+                        message: 'print-server 太舊（無圖片列印 API）。請關閉所有黑視窗，再雙擊 start-print-server.bat',
+                        orderId: null
+                    };
+                }
+                if (!resp.ok) {
+                    return {
+                        ok: false,
+                        code: resp.status,
+                        message: data.message || data.error || `代理 HTTP ${resp.status}（請重啟 start-print-server.bat）`,
+                        orderId: null
+                    };
+                }
+                return {
+                    ok: !!data.ok,
+                    code: data.code,
+                    message: formatXpyunPrintErrorMessage(data),
+                    orderId: data.orderId || null
+                };
+            }
+
+            const timestamp = String(Math.floor(Date.now() / 1000));
+            const sign = await sha1Hex(String(user).trim() + String(userKey).trim() + timestamp);
+            const payload = {
+                user: String(user).trim(),
+                timestamp,
+                sign,
+                sn,
+                content: imageBase64,
+                printFormat: 0,
+                paperWidth,
+                paperHeight,
+                paperType: 'W',
+                blackOffsetLength: 0,
+                direct: true,
+                idempotent: body.idempotent
+            };
+            if (Number.isFinite(leftOffset) && leftOffset >= 0) payload.leftOffset = leftOffset;
+            if (Number.isFinite(topOffset) && topOffset >= 0) payload.topOffset = topOffset;
+            try {
+                const json = await postXpyunApi(platformInfo.printDocumentUrl, payload);
+                if (json.code !== 0) {
+                    return {
+                        ok: false,
+                        code: json.code,
+                        message: formatXpyunPrintErrorMessage(json),
+                        orderId: null
+                    };
+                }
+                return { ok: true, code: 0, message: json.msg || 'ok', orderId: json.data || null };
+            } catch (err) {
+                if (isLikelyBrowserCorsError(err)) {
+                    return {
+                        ok: false,
+                        code: -1,
+                        message: '瀏覽器無法直連芯烨雲（跨網域限制）。請填 API 代理網址，或改由同一網域提供 print-server',
+                        orderId: null
+                    };
+                }
+                throw err;
+            }
+        }
+
         function formatXpyunPrintErrorMessage(result) {
             if (!result) return '未知錯誤';
-            const msg = result.message || result.error || '';
-            if (result.code === 1002 || /NOT_REGISTER/i.test(msg)) return '印表機未在芯烨雲註冊，請確認 SN 已加入開發者帳號';
-            if (result.code === 1003 || /OFFLINE/i.test(msg)) return '印表機離線，請確認電源與網路';
-            return msg || '芯烨雲列印失敗';
+            const msg = result.message || result.error || result.msg || '';
+            if (msg) {
+                if (result.code != null) return formatXpyunApiError(result, result.platform || 'barcode');
+                if (result.ok === false) return msg;
+            }
+            if (result.code != null) {
+                return formatXpyunApiError(result, result.platform || 'barcode');
+            }
+            return '雲端列印失敗（無詳細訊息，請重啟 print-server）';
+        }
+
+        function isLikelyBrowserCorsError(err) {
+            const msg = String(err && err.message || err || '');
+            return /failed to fetch|networkerror|load failed|cors/i.test(msg);
         }
 
         async function sendXpyunLabelPrint(content, cfg, options = {}) {
             const user = String(cfg.api?.cloudUser || '').trim();
             const userKey = String(cfg.api?.cloudUserKey || '').trim();
             const sn = String(cfg.api?.cloudSn || '').trim();
+            const platform = getXpyunPlatformFromCfg(cfg);
+            const platformInfo = resolveXpyunPlatform(platform);
             const apiBase = getPrinterStatusApiBaseUrl();
             const body = {
                 user,
                 userKey,
                 sn,
                 content,
-                mode: 1,
-                voice: 1,
+                platform,
                 idempotent: options.idempotent || `yf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
             };
+            if (platform === 'open') {
+                body.voice = 1;
+                body.mode = 1;
+            } else {
+                body.direct = true;
+            }
 
             if (apiBase) {
                 const resp = await fetch(`${apiBase}/api/xpyun-print-label`, {
@@ -4653,33 +5537,44 @@ html, body {
             }
 
             const timestamp = String(Math.floor(Date.now() / 1000));
-            const sign = await sha1Hex(user + userKey + timestamp);
-            const resp = await fetch(XPYUN_PRINT_LABEL_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-                cache: 'no-store',
-                body: JSON.stringify({
-                    user,
-                    timestamp,
-                    sign,
-                    sn,
-                    content,
-                    copies: 1,
-                    mode: 1,
-                    voice: 1,
-                    idempotent: body.idempotent
-                })
-            });
-            const json = await resp.json().catch(() => ({}));
-            if (json.code !== 0) {
-                return {
-                    ok: false,
-                    code: json.code,
-                    message: formatXpyunPrintErrorMessage(json),
-                    orderId: null
-                };
+            const sign = await sha1Hex(String(user).trim() + String(userKey).trim() + timestamp);
+            const payload = {
+                user: String(user).trim(),
+                timestamp,
+                sign,
+                sn,
+                content,
+                idempotent: body.idempotent
+            };
+            if (platform === 'open') {
+                payload.voice = 1;
+                payload.copies = 1;
+                payload.mode = 1;
+            } else {
+                payload.direct = true;
             }
-            return { ok: true, code: 0, message: json.msg || 'ok', orderId: json.data || null };
+            try {
+                const json = await postXpyunApi(platformInfo.printLabelUrl, payload);
+                if (json.code !== 0) {
+                    return {
+                        ok: false,
+                        code: json.code,
+                        message: formatXpyunPrintErrorMessage(json),
+                        orderId: null
+                    };
+                }
+                return { ok: true, code: 0, message: json.msg || 'ok', orderId: json.data || null };
+            } catch (err) {
+                if (isLikelyBrowserCorsError(err)) {
+                    return {
+                        ok: false,
+                        code: -1,
+                        message: '瀏覽器無法直連芯烨雲（跨網域限制）。請填 API 代理網址，或改由同一網域提供 print-server',
+                        orderId: null
+                    };
+                }
+                throw err;
+            }
         }
 
         async function checkTcpPrinterStatus(printer, apiBase) {
@@ -4725,11 +5620,62 @@ html, body {
             refreshPrinterStatus(true);
         }
 
+        function isDirectHtmlFileOpen() {
+            return location.protocol === 'file:';
+        }
+
+        function isGitHubPagesHost() {
+            return location.hostname.endsWith('github.io');
+        }
+
+        function getDefaultCloudProxyUrl() {
+            const embedded = String(EMBEDDED_CLOUD_PROXY_URL || '').trim().replace(/\/$/, '');
+            if (embedded) return embedded;
+            return '';
+        }
+
         function getPrinterStatusApiBaseUrl() {
             const cfg = loadPrinterSettings();
             if (cfg.statusApiUrl) return cfg.statusApiUrl;
-            if (location.protocol.startsWith('http') && location.port === '3847') return location.origin;
+            if (isGitHubPagesHost()) return getDefaultCloudProxyUrl();
+            if (isDirectHtmlFileOpen()) return 'http://127.0.0.1:3847';
+            // 本機 3847、Render、Zeabur 整站部署：網頁與 /api 同一網址，不必另填代理
+            if (location.protocol === 'http:' || location.protocol === 'https:') {
+                return location.origin;
+            }
             return '';
+        }
+
+        function updateGitHubMobilePrinterHint() {
+            const el = document.getElementById('printer-github-mobile-hint');
+            if (!el) return;
+            if (!isGitHubPagesHost()) {
+                el.hidden = true;
+                return;
+            }
+            el.hidden = false;
+            const proxy = getDefaultCloudProxyUrl() || cfgSavedProxyHint();
+            if (proxy) {
+                el.innerHTML = '你正在用 <strong>GitHub Pages</strong>。已設定雲端代理：<code>' + proxy + '</code>。列印會經芯烨雲送到 WiFi 標籤機，<strong>不需家裡電腦開著</strong>。';
+            } else {
+                el.innerHTML = '你正在用 <strong>GitHub Pages</strong>。請先依 <code>cloud-proxy-部署說明.txt</code> 部署雲端代理（推薦中文介面 <a href="https://zeabur.com" target="_blank" rel="noopener">Zeabur</a> 或 Render），再把 HTTPS 網址填到下方或寫進 <code>EMBEDDED_CLOUD_PROXY_URL</code>。';
+            }
+        }
+
+        function cfgSavedProxyHint() {
+            const cfg = loadPrinterSettings();
+            return (cfg.statusApiUrl || '').replace(/\/$/, '');
+        }
+
+        function updateDirectHtmlOpenHint() {
+            const el = document.getElementById('printer-direct-file-hint');
+            if (!el) return;
+            if (isDirectHtmlFileOpen()) {
+                el.hidden = false;
+                el.innerHTML = '你目前是<strong>直接打開 HTML 檔</strong>。API 無法從瀏覽器直連雲端，請先執行同資料夾的 <code>start-print-server.bat</code>，再用瀏覽器開 <a href="http://127.0.0.1:3847" target="_blank" rel="noopener">http://127.0.0.1:3847</a>（建議）。若堅持用檔案開啟，代理已自動設為 <code>http://127.0.0.1:3847</code>，但 bat 仍須在跑。';
+            } else {
+                el.hidden = true;
+            }
         }
 
         function setPrinterLamp(el, ok, printerId) {
@@ -4784,13 +5730,23 @@ html, body {
             }
             const tipsEl = document.getElementById('printer-status-tips');
             if (tipsEl) {
-                tipsEl.innerHTML = [
-                    '系統列印固定使用瀏覽器列印（不提供手動設定）',
-                    'API 標籤機：拍賣列印頁按「🖨️ API 標籤」（目前建置中）',
-                    '藍燈＝芯烨雲 API 在線',
-                    '紅燈＝離線、異常或未設定',
-                    '若無法直連芯烨雲，可填寫 API 代理網址（start-print-server.bat）'
-                ].map(t => `<li>${t}</li>`).join('');
+                const tips = [
+                    '條碼雲 API：open-barcode.xpyun.net/api/openapi/sprinter/',
+                    'SN 須為 15 碼；ID/KEY 來自 platform-barcode.xpyun.net「我的資料」',
+                    '藍燈＝在線；紅燈＝離線、簽名錯誤或未設定'
+                ];
+                if (isGitHubPagesHost()) {
+                    tips.push(
+                        '手機 / GitHub：列印走 芯烨雲 → WiFi 標籤機，不需家裡電腦',
+                        '請填 HTTPS 雲端代理（Render 等，見 cloud-proxy-部署說明.txt）'
+                    );
+                } else {
+                    tips.push(
+                        '本機開發：http://localhost:3847 可留空代理網址',
+                        '區網手機可填 http://電腦IP:3847'
+                    );
+                }
+                tipsEl.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
             }
         }
 
@@ -4826,9 +5782,12 @@ html, body {
             if (showAlert) {
                 const enabledConfigured = channels.filter(isPrinterConfigured);
                 const okCount = results.filter(r => r.ok).length;
-                alert(okCount > 0
-                    ? `檢測完成：${okCount} 個通道連線成功`
-                    : `檢測完成：${enabledConfigured.length} 個已設定，目前皆無法連線（紅燈）`);
+                if (okCount > 0) {
+                    alert(`檢測完成：${okCount} 個通道連線成功`);
+                } else {
+                    const failMsg = results.map(r => r.message).filter(Boolean).join('\n');
+                    alert(`檢測失敗：${enabledConfigured.length} 個已設定，目前皆無法連線\n\n${failMsg || '請確認平台、ID/KEY/SN，或填 API 代理網址並執行 start-print-server.bat'}`);
+                }
             }
         }
 
@@ -5630,23 +6589,44 @@ html, body {
             }
 
             const totalPrinted = printItems.reduce((sum, item) => sum + item.qty, 0);
-            const contentChunks = buildXpyunShippingLabelsContent(printItems);
-            if (!contentChunks.length) {
-                alert('無法產生 API 列印內容');
-                return;
-            }
+            const platform = getXpyunPlatformFromCfg(cfg);
 
             try {
                 const orderIds = [];
-                for (let i = 0; i < contentChunks.length; i++) {
-                    const result = await sendXpyunLabelPrint(contentChunks[i], cfg, {
-                        idempotent: `yf-label-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`
+                if (platform === 'barcode') {
+                    await ensureHtml2Canvas();
+                    const jobs = [];
+                    printItems.forEach(item => {
+                        for (let i = 0; i < item.qty; i++) jobs.push(item);
                     });
-                    if (!result.ok) {
-                        alert('API 列印失敗：' + result.message);
+                    for (let i = 0; i < jobs.length; i++) {
+                        const item = jobs[i];
+                        const imagePayload = await captureShippingLabelImageBase64(item.customer, item.location, item.product);
+                        const result = await sendXpyunDocumentPrint(imagePayload, cfg, {
+                            idempotent: `yf-img-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`
+                        });
+                        if (!result.ok) {
+                            alert('API 列印失敗：' + result.message);
+                            return;
+                        }
+                        if (result.orderId) orderIds.push(result.orderId);
+                    }
+                } else {
+                    const contentChunks = buildXpyunShippingLabelsContent(printItems, platform);
+                    if (!contentChunks.length) {
+                        alert('無法產生 API 列印內容');
                         return;
                     }
-                    if (result.orderId) orderIds.push(result.orderId);
+                    for (let i = 0; i < contentChunks.length; i++) {
+                        const result = await sendXpyunLabelPrint(contentChunks[i], cfg, {
+                            idempotent: `yf-label-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`
+                        });
+                        if (!result.ok) {
+                            alert('API 列印失敗：' + result.message);
+                            return;
+                        }
+                        if (result.orderId) orderIds.push(result.orderId);
+                    }
                 }
 
                 recordPrintHistory(subProd, printItems);
@@ -5660,7 +6640,10 @@ html, body {
                     : '';
                 alert(`已送出 API 列印 ${totalPrinted} 張${orderNote}\n請稍候確認印表機出紙。`);
             } catch (err) {
-                alert('API 列印失敗：' + (err.message || String(err)) + '\n若從 GitHub 開啟，請填「API 代理網址」並在本機執行 start-print-server.bat');
+                const hint = isLikelyBrowserCorsError(err)
+                    ? '瀏覽器無法直連芯烨雲，請填「API 代理網址」（可為雲端主機，不必是本機）'
+                    : (err.message || String(err));
+                alert('API 列印失敗：' + hint);
             }
         }
 
@@ -5935,14 +6918,20 @@ html, body {
         }
 
         function shouldApplyRemoteData(data) {
-            if (!canSaveToGitHub()) {
-                return true;
-            }
             const remoteTime = getRemoteDataTimestamp(data);
             const localTime = getLocalDataTimestamp();
             try {
                 const localCustomers = JSON.parse(localStorage.getItem('myCustomersList') || '[]');
                 const remoteCustomers = Array.isArray(data.myCustomersList) ? data.myCustomersList : [];
+                if (remoteCustomers.length === 0 && localCustomers.length > 0) {
+                    return false;
+                }
+                if (isPlaceholderBootstrapCustomers(localCustomers) && remoteCustomers.length > 0) {
+                    return true;
+                }
+                if (Array.isArray(localCustomers) && localCustomers.length === 0 && remoteCustomers.length > 0) {
+                    return true;
+                }
                 if (Array.isArray(localCustomers) && localCustomers.length > remoteCustomers.length) {
                     return false;
                 }
@@ -6097,9 +7086,102 @@ html, body {
             localStorage.removeItem('printHistory');
         }
 
+        async function fetchLocalLabelDataJson() {
+            if (location.protocol === 'file:') return null;
+            try {
+                const res = await fetch(LOCAL_LABEL_DATA_URL, { cache: 'no-store' });
+                if (!res.ok) return null;
+                const data = await res.json();
+                if (!data || !Array.isArray(data.myProducts) || !Array.isArray(data.myCustomersList)) return null;
+                return data;
+            } catch (err) {
+                console.warn('讀取 label-data.json 失敗', err);
+                return null;
+            }
+        }
+
+        async function tryBootstrapFromLocalLabelDataJson() {
+            const localCount = Array.isArray(customers) ? customers.length : 0;
+            const productCount = Array.isArray(productList) ? productList.length : 0;
+            const looksEmpty = localCount === 0 || productCount === 0 || isPlaceholderBootstrapCustomers(customers);
+            if (!looksEmpty && localCount > 5) return false;
+
+            const data = await fetchLocalLabelDataJson();
+            if (!data || data.myCustomersList.length === 0) return false;
+            if (!looksEmpty && data.myCustomersList.length <= localCount) return false;
+            if (!looksEmpty && localCount > 0 && !shouldApplyRemoteData(data)) return false;
+
+            applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
+            if (!Array.isArray(productList) || productList.length === 0) {
+                productList = (data.myProducts && data.myProducts.length > 0)
+                    ? data.myProducts.slice()
+                    : defaultProducts.slice();
+                productList = ensureBlankProductInList(productList);
+                localStorage.setItem('myProducts', JSON.stringify(productList));
+            }
+            sessionStorage.setItem('restoredFromLocalLabelDataJson', '1');
+            return true;
+        }
+
+        async function forceRecoverDataIfEmpty() {
+            if (customers.length > 0 && productList.length > 0) return false;
+            if (await tryBootstrapFromLocalLabelDataJson()) {
+                normalizeCustomerColumns();
+                return true;
+            }
+            if (embeddedBootstrap
+                && Array.isArray(embeddedBootstrap.myCustomersList)
+                && embeddedBootstrap.myCustomersList.length > 0) {
+                applyEmbeddedFileData(embeddedBootstrap, { preferLocalIfJsonMissing: false });
+                normalizeCustomerColumns();
+                return true;
+            }
+            return false;
+        }
+
+        function updateDataRecoveryBanner() {
+            const el = document.getElementById('data-recovery-banner');
+            if (!el) return;
+            const missing = customers.length === 0 || productList.length === 0;
+            el.hidden = !missing;
+            if (missing) {
+                const custEl = document.getElementById('data-recovery-customer-count');
+                if (custEl) custEl.textContent = String(customers.length);
+            }
+        }
+
+        async function recoverDataNow() {
+            const ok = await forceRecoverDataIfEmpty();
+            if (!ok) {
+                const data = await fetchLocalLabelDataJson();
+                if (data) {
+                    applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
+                    normalizeCustomerColumns();
+                    renderUI();
+                    syncPreview();
+                    renderDraftPanel();
+                    updateSyncStatusDisplay();
+                    updateDataRecoveryBanner();
+                    alert(`已還原客戶 ${customers.length} 筆、品項 ${productList.length} 個。`);
+                    return;
+                }
+                alert('還原失敗。\n\n請確認 start-print-server.bat 有執行，或到「設定」匯入 label-data.json。');
+                return;
+            }
+            renderUI();
+            syncPreview();
+            renderDraftPanel();
+            updateSyncStatusDisplay();
+            updateDataRecoveryBanner();
+            alert(`已還原客戶 ${customers.length} 筆、品項 ${productList.length} 個。`);
+        }
+
         async function initEmbeddedStorage() {
             migrateLegacyPrintHistory();
             const memoryHistory = printHistory.slice();
+            if (await tryBootstrapFromLocalLabelDataJson()) {
+                normalizeCustomerColumns();
+            }
             const embeddedDom = readEmbeddedDataFromDom();
             if (embeddedDom && shouldApplyRemoteData(embeddedDom)) {
                 applyEmbeddedFileData(embeddedDom, { preferLocalIfJsonMissing: false });
@@ -6130,7 +7212,7 @@ html, body {
                 offerRestoreFromPrintHistoryIfNeeded();
                 sessionStorage.setItem('offeredPrintHistoryRestore', '1');
             }
-            if (getGitHubConfig()) {
+            if (getGitHubConfig() && shouldAutoPullFromGitHubOnStart()) {
                 storeGitHubDataSha(loadStoredGitHubDataSha());
                 try {
                     await loadDataFromGitHub();
@@ -6140,6 +7222,13 @@ html, body {
             }
             fillGitHubConfigForm();
             updateGitHubStatusDisplay();
+            if (sessionStorage.getItem('restoredFromLocalLabelDataJson') === '1') {
+                sessionStorage.removeItem('restoredFromLocalLabelDataJson');
+                const n = customers.length;
+                setTimeout(() => {
+                    alert(`已從同資料夾的 label-data.json 還原客戶資料（${n} 筆）。\n\n若仍不完整，可到「同步」分頁從 GitHub 載入，或匯入「出貨標籤資料.json」。`);
+                }, 300);
+            }
         }
 
         async function linkHtmlDataFile() {
@@ -6239,7 +7328,8 @@ html, body {
             repo: 'githubSyncRepo',
             branch: 'githubSyncBranch',
             dataPath: 'githubSyncDataPath',
-            token: 'githubSyncToken'
+            token: 'githubSyncToken',
+            autoPullOnStart: 'githubAutoPullOnStart'
         };
         const DEFAULT_GITHUB_DATA_PATH = 'label-data.json';
         const DEFAULT_GITHUB_BRANCH = 'main';
@@ -6339,6 +7429,40 @@ html, body {
                 dataPath: (localStorage.getItem(GITHUB_KEYS.dataPath) || EMBEDDED_GITHUB.dataPath || detected?.dataPath || DEFAULT_GITHUB_DATA_PATH).trim(),
                 token: (localStorage.getItem(GITHUB_KEYS.token) || getEmbeddedGitHubToken() || '').trim()
             };
+        }
+
+        function isLocalDevHost() {
+            const host = (location.hostname || '').toLowerCase();
+            return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+        }
+
+        function shouldAutoPullFromGitHubOnStart() {
+            if (location.hostname.endsWith('github.io')) return true;
+            return localStorage.getItem(GITHUB_KEYS.autoPullOnStart) === '1';
+        }
+
+        function saveGitHubAutoPullPreference() {
+            const el = document.getElementById('github-auto-pull-on-start');
+            if (!el) return;
+            if (el.checked) localStorage.setItem(GITHUB_KEYS.autoPullOnStart, '1');
+            else localStorage.removeItem(GITHUB_KEYS.autoPullOnStart);
+        }
+
+        async function loadFromLocalLabelDataJsonNow() {
+            const data = await fetchLocalLabelDataJson();
+            if (!data) {
+                alert('無法讀取 label-data.json。\n\n請確認：\n1. 已用 start-print-server.bat 開啟 http://localhost:3847\n2. 專案資料夾裡有 label-data.json');
+                return;
+            }
+            const summary = getDataImportSummary(data);
+            if (!confirm(`從本機 label-data.json 載入？\n\n• 客戶：${summary.customerCount} 筆\n• 品項：${summary.productCount} 個\n• 列印紀錄：${summary.historyCount} 筆\n${summary.draftLine}\n\n會覆蓋目前的客戶、品項、草稿、列印次數、列印紀錄。`)) return;
+            applyEmbeddedFileData(data, { preferLocalIfJsonMissing: false });
+            normalizeCustomerColumns();
+            renderUI();
+            syncPreview();
+            renderDraftPanel();
+            updateSyncStatusDisplay();
+            alert(`已從本機 label-data.json 載入（客戶 ${customers.length} 筆）。`);
         }
 
         function canSaveToGitHub() {
@@ -6540,6 +7664,16 @@ html, body {
             branchEl.value = localStorage.getItem(GITHUB_KEYS.branch) || EMBEDDED_GITHUB.branch || DEFAULT_GITHUB_BRANCH;
             pathEl.value = localStorage.getItem(GITHUB_KEYS.dataPath) || EMBEDDED_GITHUB.dataPath || DEFAULT_GITHUB_DATA_PATH;
             if (tokenEl) tokenEl.value = localStorage.getItem(GITHUB_KEYS.token) || '';
+            const autoPullEl = document.getElementById('github-auto-pull-on-start');
+            if (autoPullEl) {
+                if (location.hostname.endsWith('github.io')) {
+                    autoPullEl.checked = true;
+                    autoPullEl.disabled = true;
+                } else {
+                    autoPullEl.disabled = false;
+                    autoPullEl.checked = localStorage.getItem(GITHUB_KEYS.autoPullOnStart) === '1';
+                }
+            }
         }
 
         function updateGitHubStatusDisplay() {
@@ -6810,6 +7944,7 @@ html, body {
         async function startApp() {
             initWebAppShell();
             await initEmbeddedStorage();
+            await forceRecoverDataIfEmpty();
             normalizeCustomerColumns();
             renderUI();
             syncPreview();
@@ -6818,7 +7953,10 @@ html, body {
             renderAuctionUi();
             fillGitHubConfigForm();
             fillPrinterSettingsForm();
+            updateDirectHtmlOpenHint();
+            updateGitHubMobilePrinterHint();
             updateGitHubStatusDisplay();
+            updateDataRecoveryBanner();
             startPrinterStatusPolling();
             switchAppTab('label');
         }

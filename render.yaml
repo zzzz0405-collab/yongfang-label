@@ -1,0 +1,15 @@
+# Render 一鍵部署「雲端列印代理」（免費方案即可）
+# 部署後會得到 https://xxx.onrender.com
+# 把網址填進 index.html 的 EMBEDDED_CLOUD_PROXY_URL，再上傳 GitHub
+services:
+  - type: web
+    name: yongfang-print-proxy
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start:cloud-proxy
+    envVars:
+      - key: CLOUD_PROXY_ONLY
+        value: "1"
+      - key: NODE_VERSION
+        value: "20"

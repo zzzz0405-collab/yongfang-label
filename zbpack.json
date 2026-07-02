@@ -1,0 +1,4 @@
+{
+  "$schema": "https://schema.zeabur.app/zbpack.json",
+  "start_command": "npm run start:cloud-proxy"
+}
