@@ -1,3 +1,13 @@
 {
-  "description": "選用：Windows 執行 start-print-server.bat 提供 /api/printers-status。印表機 IP 主要在網頁「印表機」分頁設定。"
+  "description": "選用預設：網頁啟動時讀取（localStorage 空白欄位會帶入）。ID/KEY 請填 platform-barcode.xpyun.net「我的資料」，勿提交假帳號到 GitHub。",
+  "statusApiUrl": "",
+  "api": {
+    "cloudUser": "zzzz0405@gmail.com",
+    "cloudUserKey": "63b701a7605449a3b322024e0382826f",
+    "cloudSn": "00003GPUEX9D684",
+    "platform": "barcode",
+    "enabled": true,
+    "leftOffset": 0,
+    "topOffset": 0
+  }
 }

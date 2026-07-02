@@ -1763,7 +1763,7 @@
         /* API 圖片列印擷取（與 @media print 出貨標籤同比例，800×480 = 100×60mm @203dpi） */
         .api-label-capture-host {
             position: fixed;
-            left: -12000px;
+            left: 0;
             top: 0;
             width: 800px;
             height: 480px;
@@ -1771,6 +1771,7 @@
             background: #fff;
             z-index: -1;
             pointer-events: none;
+            opacity: 0;
         }
         .api-label-capture-host .label-container {
             width: 800px !important;
@@ -2637,13 +2638,13 @@
                     <input type="number" id="printer-api-top-offset" placeholder="上偏移 dot（預設0）" min="-200" max="200" step="1">
                 </div>
                 <div class="github-settings-grid">
-                    <input type="text" id="printer-api-user" placeholder="開發者 ID（user）">
-                    <input type="password" id="printer-api-key" placeholder="UserKEY">
-                    <input type="text" id="printer-api-sn" placeholder="印表機 SN（條碼雲須 15 碼）" style="grid-column:1/-1;">
+                    <input type="text" id="printer-api-user" value="zzzz0405@gmail.com" placeholder="開發者 ID（user）">
+                    <input type="password" id="printer-api-key" value="63b701a7605449a3b322024e0382826f" placeholder="UserKEY">
+                    <input type="text" id="printer-api-sn" value="00003GPUEX9D684" placeholder="印表機 SN（條碼雲須 15 碼）" style="grid-column:1/-1;">
                 </div>
                 <p style="font-size:12px;color:#888;margin:8px 0 0;line-height:1.5;">條碼雲 API：<code style="font-size:11px;">open-barcode.xpyun.net/api/openapi/sprinter/</code>（驗證 verifyPrinter、列印 printLabel）。至 <a href="https://platform-barcode.xpyun.net/#/login" target="_blank" rel="noopener">條碼雲管理後台</a> →「我的資料」取得 ID / KEY。</p>
                 <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
-                    <input type="checkbox" id="printer-api-enabled"> 啟用 API 連線檢測
+                    <input type="checkbox" id="printer-api-enabled" checked> 啟用 API 連線檢測
                 </label>
                 <div class="btn-group" style="margin-top:10px;flex-wrap:wrap;">
                     <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="savePrinterSettings()">💾 儲存 API 設定</button>
@@ -2998,7 +2999,7 @@
 
     <script>
         // 頂部版本時間：開啟頁面時自動顯示本機現在時間（例：6/22-12:12）
-        const APP_UI_REV = '107';
+        const APP_UI_REV = '109';
         const LOCAL_LABEL_DATA_URL = './label-data.json';
         // 手機 / GitHub Pages 用：部署雲端代理後填入 HTTPS 網址（見 cloud-proxy-部署說明.txt）
         const EMBEDDED_CLOUD_PROXY_URL = '';
@@ -3081,6 +3082,20 @@
         }
 
         const PRINTER_CONFIG_KEY = 'printerConfigV3';
+        // 內建印表機帳號（你同意可寫進程式；上傳 GitHub 後他人可見，僅自用可接受）
+        const EMBEDDED_PRINTER_DEFAULTS = {
+            statusApiUrl: '',
+            api: {
+                cloudUser: 'zzzz0405@gmail.com',
+                cloudUserKey: '63b701a7605449a3b322024e0382826f',
+                cloudSn: '00003GPUEX9D684',
+                platform: 'barcode',
+                enabled: true,
+                leftOffset: 0,
+                topOffset: 0
+            }
+        };
+        let filePrinterDefaults = null;
         const AUCTION_LAYOUT_CONFIG_KEY = 'auctionPrintLayoutV2';
         const PRINTER_STATUS_POLL_MS = 20000;
         let printerStatusPollTimer = null;
@@ -4823,14 +4838,59 @@ html, body {
             toggle.textContent = (open ? '▼' : '▶') + ' 印表機設定';
         }
 
+        function getPrinterConfigDefaults() {
+            const file = filePrinterDefaults;
+            const emb = EMBEDDED_PRINTER_DEFAULTS;
+            return {
+                statusApiUrl: (file?.statusApiUrl || emb.statusApiUrl || '').replace(/\/$/, ''),
+                api: {
+                    cloudUser: String(file?.api?.cloudUser || emb.api.cloudUser || '').trim(),
+                    cloudUserKey: String(file?.api?.cloudUserKey || emb.api.cloudUserKey || '').trim(),
+                    cloudSn: String(file?.api?.cloudSn || emb.api.cloudSn || '').trim(),
+                    platform: (file?.api?.platform || emb.api.platform) === 'open' ? 'open' : 'barcode',
+                    enabled: file?.api?.enabled === true || emb.api.enabled === true,
+                    leftOffset: parseInt(file?.api?.leftOffset ?? emb.api.leftOffset, 10) || 0,
+                    topOffset: parseInt(file?.api?.topOffset ?? emb.api.topOffset, 10) || 0
+                }
+            };
+        }
+
+        function applyPrinterDefaults(cfg) {
+            const d = getPrinterConfigDefaults();
+            const api = cfg?.api || {};
+            return {
+                statusApiUrl: (cfg?.statusApiUrl || d.statusApiUrl || '').replace(/\/$/, ''),
+                local: cfg?.local || { ip: '', port: '9100', enabled: false },
+                api: {
+                    cloudUser: String(api.cloudUser || '').trim() || d.api.cloudUser,
+                    cloudUserKey: String(api.cloudUserKey || '').trim() || d.api.cloudUserKey,
+                    cloudSn: String(api.cloudSn || '').trim() || d.api.cloudSn,
+                    platform: api.platform === 'open' ? 'open' : (api.platform === 'barcode' ? 'barcode' : d.api.platform),
+                    enabled: 'enabled' in api ? api.enabled === true : d.api.enabled === true,
+                    leftOffset: api.leftOffset != null ? (parseInt(api.leftOffset, 10) || 0) : d.api.leftOffset,
+                    topOffset: api.topOffset != null ? (parseInt(api.topOffset, 10) || 0) : d.api.topOffset
+                }
+            };
+        }
+
+        async function initPrinterConfigDefaults() {
+            try {
+                const resp = await fetch('./printer-config.json', { cache: 'no-store' });
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const parsed = migratePrinterConfig(data);
+                if (parsed) filePrinterDefaults = parsed;
+            } catch (err) {}
+        }
+
         function getDefaultPrinterSettings() {
             const legacyPort = localStorage.getItem('printerPort') || '9100';
             const legacyApi = localStorage.getItem('printServerUrl') || '';
-            return {
+            return applyPrinterDefaults({
                 statusApiUrl: legacyApi.replace(/\/$/, ''),
                 local: { ip: '', port: legacyPort, enabled: false },
-                api: { cloudUser: '', cloudUserKey: '', cloudSn: '', enabled: false, platform: 'barcode', leftOffset: 0, topOffset: 0 }
-            };
+                api: { cloudUser: '', cloudUserKey: '', cloudSn: '', platform: 'barcode', leftOffset: 0, topOffset: 0 }
+            });
         }
 
         function migratePrinterConfig(data) {
@@ -4868,19 +4928,22 @@ html, body {
         }
 
         function loadPrinterSettings() {
+            let cfg = null;
             try {
                 const raw = localStorage.getItem(PRINTER_CONFIG_KEY);
                 if (raw) {
                     const migrated = migratePrinterConfig(JSON.parse(raw));
-                    if (migrated) return migrated;
+                    if (migrated) cfg = migrated;
                 }
-                const legacyRaw = localStorage.getItem('printerConfigV2');
-                if (legacyRaw) {
-                    const migrated = migratePrinterConfig(JSON.parse(legacyRaw));
-                    if (migrated) return migrated;
+                if (!cfg) {
+                    const legacyRaw = localStorage.getItem('printerConfigV2');
+                    if (legacyRaw) {
+                        const migrated = migratePrinterConfig(JSON.parse(legacyRaw));
+                        if (migrated) cfg = migrated;
+                    }
                 }
             } catch (err) {}
-            return getDefaultPrinterSettings();
+            return applyPrinterDefaults(cfg || getDefaultPrinterSettings());
         }
 
         function getPrinterChannels(cfg) {
@@ -5285,9 +5348,10 @@ html, body {
             const ctx = out.getContext('2d');
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, width, height);
+            if (!source.width || !source.height) return out;
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(source, 0, 0, width, height);
+            ctx.drawImage(source, 0, 0, source.width, source.height, 0, 0, width, height);
             return out;
         }
 
@@ -5341,17 +5405,28 @@ html, body {
             host.className = 'api-label-capture-host';
             host.innerHTML = buildLabelHtml(customer, location, product);
             document.body.appendChild(host);
-            const label = host.querySelector('.label-container');
             await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
             await document.fonts?.ready;
             try {
-                const rawCanvas = await window.html2canvas(label, {
+                const rawCanvas = await window.html2canvas(host, {
                     backgroundColor: '#ffffff',
-                    scale: 2,
+                    scale: 1,
                     width: XPYUN_LABEL_IMAGE_W_DOT,
                     height: XPYUN_LABEL_IMAGE_H_DOT,
                     useCORS: true,
-                    logging: false
+                    logging: false,
+                    scrollX: 0,
+                    scrollY: 0,
+                    x: 0,
+                    y: 0,
+                    onclone: (doc) => {
+                        const el = doc.querySelector('.api-label-capture-host');
+                        if (el) {
+                            el.style.opacity = '1';
+                            el.style.left = '0';
+                            el.style.top = '0';
+                        }
+                    }
                 });
                 const canvas = downscaleCanvas(rawCanvas, XPYUN_LABEL_IMAGE_W_DOT, XPYUN_LABEL_IMAGE_H_DOT);
                 return canvasToImageBase64(canvas);
@@ -7943,6 +8018,7 @@ html, body {
 
         async function startApp() {
             initWebAppShell();
+            await initPrinterConfigDefaults();
             await initEmbeddedStorage();
             await forceRecoverDataIfEmpty();
             normalizeCustomerColumns();

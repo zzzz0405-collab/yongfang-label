@@ -192,14 +192,14 @@ async function sendXpyunPrintDocument(user, userKey, sn, imageBase64, options = 
 
     const attempts = [
         {
-            label: 'printImage',
-            url: urls.printImageUrl,
-            payload: { ...basePayload, compress: false }
-        },
-        {
             label: 'printDocument',
             url: urls.printDocumentUrl,
             payload: { ...basePayload, printFormat: 0 }
+        },
+        {
+            label: 'printImage',
+            url: urls.printImageUrl,
+            payload: { ...basePayload, compress: false }
         }
     ];
 
