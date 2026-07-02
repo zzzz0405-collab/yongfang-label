@@ -1,10 +1,11 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-21T15:41:47.613Z",
+  "exportedAt": "2026-07-02T13:24:17.972Z",
   "myProducts": [
+    "青蔥",
     "空白"
   ],
-  "selectedProduct": "空白",
+  "selectedProduct": "青蔥",
   "myCustomersList": [
     {
       "name": "新莊",
@@ -222,5 +223,19 @@
       "qty": 2
     }
   ],
-  "printDraft": []
+  "printDraft": [],
+  "auctionMarkets": [
+    "台北",
+    "基隆",
+    "台中",
+    "高雄",
+    "板橋"
+  ],
+  "auctionSubcodes": [],
+  "auctionQueue": [],
+  "auctionPrintCount": 0,
+  "auctionPrintHistory": [],
+  "auctionProductWeights": {
+    "青蔥": 20
+  }
 }
