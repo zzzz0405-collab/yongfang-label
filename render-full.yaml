@@ -10,3 +10,6 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "20"
+      # 在 Render Dashboard 手動新增（勿寫進 GitHub）：
+      # GITHUB_TOKEN = ghp_xxx（repo 權限）→ 所有人共用讀寫 label-data.json
+      # 選填：GITHUB_OWNER、GITHUB_REPO、GITHUB_BRANCH、GITHUB_DATA_PATH

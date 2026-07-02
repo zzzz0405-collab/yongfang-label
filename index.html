@@ -2550,6 +2550,10 @@
 
         <div id="tab-history" class="tab-panel history-tab-panel">
             <div class="history-body" style="display:block;">
+                <div class="history-sheet-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                    <button type="button" class="btn-mini" style="background-color:#0f9d58;flex:1;min-width:120px;padding:10px 12px;font-size:14px;" onclick="openGoogleSheetLog('today')">📊 今日紀錄</button>
+                    <button type="button" class="btn-mini" style="background-color:#57606a;flex:1;min-width:120px;padding:10px 12px;font-size:14px;" onclick="openGoogleSheetLog('yesterday')">📊 昨日紀錄</button>
+                </div>
                 <div class="history-filters" style="margin-bottom:12px;">
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                         <div><label for="filter-date-from">日期（起）</label><input type="date" id="filter-date-from" onchange="renderHistory()"></div>
@@ -2565,7 +2569,7 @@
                 <div class="history-table-wrap">
                     <table class="history-table">
                         <thead id="history-table-head"></thead>
-                        <tbody id="history-table-body"><tr><td colspan="5" class="history-empty">尚無列印紀錄</td></tr></tbody>
+                        <tbody id="history-table-body"><tr><td colspan="6" class="history-empty">尚無列印紀錄</td></tr></tbody>
                     </table>
                 </div>
                 <div class="history-footer">
@@ -2579,8 +2583,9 @@
             <div id="github-sync-status" style="font-size:13px;color:#555;line-height:1.6;margin-bottom:12px;"></div>
             <div class="github-settings-note" style="margin-bottom:12px;">
                 <strong>本機調整流程：</strong>先用 <code style="background:#eee;padding:1px 4px;">localhost:3847</code> 改程式與資料，確認沒問題後再按「⬆️ 立即同步」上傳 GitHub。<br>
+                <strong>Render 共用資料：</strong>在 Render 後台設定環境變數 <code>GITHUB_TOKEN</code>，所有人開 <code>yongfang-label.onrender.com</code> 會自動載入同一份客戶／品項，改完自動存 GitHub（不必每人填 Token）。<br>
                 本機預設<strong>不會</strong>啟動時從 GitHub 覆蓋資料（可勾選下方選項改為自動載入）。<br>
-                Token 只存在本機瀏覽器，請勿寫進程式碼或上傳到 GitHub。
+                Token 只存在本機瀏覽器或 Render 伺服器，請勿寫進 index.html 上傳 GitHub。
             </div>
             <div class="github-settings-grid">
                 <input type="text" id="github-owner" placeholder="GitHub 帳號">
@@ -2608,6 +2613,25 @@
                     系統列印固定使用瀏覽器列印，不提供手動設定。<br>
                     API 標籤機設定已移到下方「🖨️ 印表機」分頁。
                 </p>
+            </div>
+
+            <div class="settings-subsection">
+                <h4>Google 試算表列印紀錄（與 iOS 共用）</h4>
+                <p style="font-size:12px;color:#666;line-height:1.55;margin:0 0 8px;">
+                    列印成功後自動寫入「永芳列印紀錄-日期」試算表。請貼上 Apps Script <strong>網路應用程式部署網址</strong>（結尾 <code>/exec</code>）。
+                </p>
+                <input type="text" id="google-sheet-log-url" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;">
+                <div class="github-settings-grid">
+                    <input type="text" id="google-sheet-log-operator" placeholder="列印者名稱">
+                </div>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:8px 0;cursor:pointer;">
+                    <input type="checkbox" id="google-sheet-log-enabled" checked> 列印後同步到 Google 試算表
+                </label>
+                <div class="btn-group" style="margin-top:0;flex-wrap:wrap;">
+                    <button type="button" class="btn-mini" style="background-color:#24292f;" onclick="saveGoogleSheetLogConfig()">💾 儲存紀錄設定</button>
+                    <button type="button" class="btn-mini" style="background-color:#0f9d58;" onclick="openGoogleSheetLog('today')">📊 開啟今日試算表</button>
+                    <button type="button" class="btn-mini" style="background-color:#57606a;" onclick="openGoogleSheetLog('yesterday')">📊 開啟昨日試算表</button>
+                </div>
             </div>
         </div>
 
@@ -2999,10 +3023,20 @@
 
     <script>
         // 頂部版本時間：開啟頁面時自動顯示本機現在時間（例：6/22-12:12）
-        const APP_UI_REV = '109';
+        const APP_UI_REV = '114';
         const LOCAL_LABEL_DATA_URL = './label-data.json';
         // 手機 / GitHub Pages 用：部署雲端代理後填入 HTTPS 網址（見 cloud-proxy-部署說明.txt）
         const EMBEDDED_CLOUD_PROXY_URL = '';
+        const EMBEDDED_GOOGLE_SHEET_LOG = {
+            url: 'https://script.google.com/macros/s/AKfycbyJwIEVhdTaJtx5r9IdYZjYrT7lZOAmi2TRJ5Bjf8NHAfNIrxT1jh1rMNPvgjwtmDS07w/exec',
+            operatorName: '永芳',
+            enabled: true
+        };
+        const GOOGLE_SHEET_LOG_KEYS = {
+            url: 'googleSheetLogUrl',
+            operator: 'googleSheetLogOperator',
+            enabled: 'googleSheetLogEnabled'
+        };
         const PLACEHOLDER_BOOTSTRAP_CUSTOMERS = [
             { name: '家慶', location: '基隆', col: 1 },
             { name: '全聯', location: '台中', col: 2 },
@@ -3186,7 +3220,8 @@
             { key: 'customer', label: '客戶' },
             { key: 'location', label: '地點' },
             { key: 'product', label: '品項' },
-            { key: 'qty', label: '件數' }
+            { key: 'qty', label: '件數' },
+            { key: 'status', label: '狀態' }
         ];
         let historySortKey = 'timestamp';
         let historySortDir = 'desc';
@@ -4371,8 +4406,11 @@ html, body {
             closeAuctionMarketModal();
         }
 
-        function recordAuctionPrintHistory(items) {
+        function recordAuctionPrintHistory(items, options = {}) {
             const timestamp = new Date().toISOString();
+            const source = options.source || '網頁-拍賣';
+            const status = options.status || '成功';
+            const sheetRows = [];
             items.forEach(item => {
                 auctionPrintHistory.unshift({
                     id: `${timestamp}-${item.market}-${Math.random().toString(36).slice(2, 8)}`,
@@ -4385,8 +4423,18 @@ html, body {
                     subCode: item.subCode || '',
                     batchNo: item.subCode || item.batchNo || ''
                 });
+                sheetRows.push({
+                    timestamp: formatSheetLogTime(timestamp),
+                    location: item.market || '',
+                    customer: item.subCode || item.batchNo || '',
+                    product: item.product || '',
+                    quantity: Math.max(1, parseInt(item.printQty, 10) || 1),
+                    status,
+                    source
+                });
             });
             saveAuctionPrintHistory();
+            syncPrintRecordsToGoogleSheet(sheetRows);
         }
 
         function renderAuctionMarketModalList() {
@@ -4522,7 +4570,7 @@ html, body {
             renderAuctionMarketUi();
         }
 
-        function recordPrintHistoryFromDraftItems(items) {
+        function recordPrintHistoryFromDraftItems(items, options = {}) {
             const byProduct = {};
             items.forEach(item => {
                 if (!byProduct[item.product]) byProduct[item.product] = [];
@@ -4533,7 +4581,7 @@ html, body {
                 });
             });
             Object.keys(byProduct).forEach(product => {
-                recordPrintHistory(product, byProduct[product]);
+                recordPrintHistory(product, byProduct[product], options);
             });
         }
 
@@ -4554,7 +4602,7 @@ html, body {
             printArea.innerHTML = '';
             const totalPrinted = appendLabelsFromItems(printArea, draftSnapshot);
 
-            recordPrintHistoryFromDraftItems(draftSnapshot);
+            recordPrintHistoryFromDraftItems(draftSnapshot, { source: '網頁-草稿系統' });
             printCount += totalPrinted;
             localStorage.setItem('labelPrintCount', printCount);
             document.getElementById('count-num').innerText = printCount;
@@ -4614,8 +4662,164 @@ html, body {
             return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
         }
 
-        function recordPrintHistory(product, printItems) {
+        function formatSheetLogTime(isoOrDate) {
+            const d = isoOrDate instanceof Date ? isoOrDate : new Date(isoOrDate || Date.now());
+            const parts = new Intl.DateTimeFormat('zh-TW', {
+                timeZone: 'Asia/Taipei',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).formatToParts(d);
+            const get = (type) => parts.find(p => p.type === type)?.value || '';
+            return `${get('year')}/${get('month')}/${get('day')} ${get('hour')}:${get('minute')}:${get('second')}`;
+        }
+
+        function getGoogleSheetLogConfig() {
+            const emb = EMBEDDED_GOOGLE_SHEET_LOG;
+            const enabledRaw = localStorage.getItem(GOOGLE_SHEET_LOG_KEYS.enabled);
+            return {
+                url: (localStorage.getItem(GOOGLE_SHEET_LOG_KEYS.url) || emb.url || '').trim(),
+                operatorName: (localStorage.getItem(GOOGLE_SHEET_LOG_KEYS.operator) || emb.operatorName || '永芳').trim(),
+                enabled: enabledRaw == null ? emb.enabled !== false : enabledRaw === '1'
+            };
+        }
+
+        function saveGoogleSheetLogConfig() {
+            const url = (document.getElementById('google-sheet-log-url')?.value || '').trim();
+            const operatorName = (document.getElementById('google-sheet-log-operator')?.value || '').trim();
+            const enabled = !!document.getElementById('google-sheet-log-enabled')?.checked;
+            localStorage.setItem(GOOGLE_SHEET_LOG_KEYS.url, url);
+            localStorage.setItem(GOOGLE_SHEET_LOG_KEYS.operator, operatorName || '永芳');
+            localStorage.setItem(GOOGLE_SHEET_LOG_KEYS.enabled, enabled ? '1' : '0');
+            alert('Google 試算表紀錄設定已儲存');
+        }
+
+        function fillGoogleSheetLogForm() {
+            const cfg = getGoogleSheetLogConfig();
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+            const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+            setVal('google-sheet-log-url', cfg.url);
+            setVal('google-sheet-log-operator', cfg.operatorName);
+            setCheck('google-sheet-log-enabled', cfg.enabled);
+        }
+
+        function buildGoogleSheetLogRecords(rows) {
+            const operatorName = getGoogleSheetLogConfig().operatorName || '永芳';
+            return rows.map(row => ({
+                timestamp: row.timestamp,
+                location: row.location || '',
+                customer: row.customer || '',
+                product: row.product || '',
+                quantity: row.quantity != null ? row.quantity : 0,
+                status: row.status || '成功',
+                operatorName,
+                source: row.source || '網頁'
+            }));
+        }
+
+        async function syncPrintRecordsToGoogleSheet(sheetRows) {
+            const cfg = getGoogleSheetLogConfig();
+            if (!cfg.enabled || !cfg.url || !sheetRows?.length) return;
+            const records = buildGoogleSheetLogRecords(sheetRows);
+            const payload = { url: cfg.url, records };
+            try {
+                const apiBase = getPrinterStatusApiBaseUrl();
+                if (apiBase && (location.protocol === 'http:' || location.protocol === 'https:')) {
+                    const resp = await fetch(`${apiBase.replace(/\/$/, '')}/api/sheet-log`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await resp.json().catch(() => ({}));
+                    if (!resp.ok || data.ok === false) {
+                        console.warn('Google Sheet 紀錄同步失敗', data);
+                    }
+                    return;
+                }
+                await fetch(cfg.url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ records })
+                });
+            } catch (err) {
+                console.warn('Google Sheet 紀錄同步失敗', err);
+            }
+        }
+
+        async function openGoogleSheetLog(target) {
+            const cfg = getGoogleSheetLogConfig();
+            if (!cfg.url) {
+                alert('請先在設定貼上 Google Apps Script 部署網址（/exec）');
+                switchAppTab('settings');
+                return;
+            }
+            const which = target === 'yesterday' ? 'yesterday' : 'today';
+            try {
+                const apiBase = getPrinterStatusApiBaseUrl();
+                let data = null;
+                if (apiBase && (location.protocol === 'http:' || location.protocol === 'https:')) {
+                    const resp = await fetch(`${apiBase.replace(/\/$/, '')}/api/sheet-log-url?target=${which}&url=${encodeURIComponent(cfg.url)}`);
+                    data = await resp.json();
+                } else {
+                    const resp = await fetch(`${cfg.url}?url=${which}`);
+                    data = await resp.json();
+                }
+                if (data?.ok && data.url) {
+                    window.open(data.url, '_blank', 'noopener');
+                    return;
+                }
+                alert('無法取得試算表網址：' + (data?.message || '請確認 Apps Script 已部署為網路應用程式'));
+            } catch (err) {
+                alert('開啟試算表失敗：' + (err.message || String(err)));
+            }
+        }
+
+        function formatPrintStatusText(status, errorMessage) {
+            const base = String(status || '成功').trim();
+            if (base.startsWith('失敗') || base === '失败') {
+                const msg = String(errorMessage || '').trim();
+                return msg ? `失敗：${msg.slice(0, 80)}` : '失敗';
+            }
+            return base || '成功';
+        }
+
+        function recordSingleLabelPrint({ product, customer, location, status, source, errorMessage, orderId }) {
             const timestamp = new Date().toISOString();
+            const statusText = formatPrintStatusText(status, errorMessage);
+            const src = source || '網頁-API標籤';
+            printHistory.unshift({
+                id: `${timestamp}-${customer}-${Math.random().toString(36).slice(2, 8)}`,
+                timestamp,
+                customer: customer || '',
+                location: location || '',
+                product: product || '',
+                qty: 1,
+                printType: 'label',
+                status: statusText,
+                source: src,
+                orderId: orderId || ''
+            });
+            syncPrintRecordsToGoogleSheet([{
+                timestamp: formatSheetLogTime(timestamp),
+                location: location || '',
+                customer: customer || '',
+                product: product || '',
+                quantity: 1,
+                status: statusText,
+                source: src
+            }]);
+        }
+
+        function recordPrintHistory(product, printItems, options = {}) {
+            const timestamp = new Date().toISOString();
+            const source = options.source || '網頁-標籤';
+            const status = options.status || '成功';
+            const sheetRows = [];
             printItems.forEach(item => {
                 printHistory.unshift({
                     id: `${timestamp}-${item.customer}-${Math.random().toString(36).slice(2, 8)}`,
@@ -4624,9 +4828,21 @@ html, body {
                     location: item.location,
                     product,
                     qty: item.qty,
-                    printType: 'label'
+                    printType: 'label',
+                    status: status,
+                    source
+                });
+                sheetRows.push({
+                    timestamp: formatSheetLogTime(timestamp),
+                    location: item.location,
+                    customer: item.customer,
+                    product,
+                    quantity: item.qty,
+                    status,
+                    source
                 });
             });
+            syncPrintRecordsToGoogleSheet(sheetRows);
         }
 
         function setHistorySort(key) {
@@ -4731,17 +4947,18 @@ html, body {
                 (printHistory.length !== filtered.length ? `（全部紀錄 ${printHistory.length} 筆）` : '');
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="history-empty">沒有符合條件的列印紀錄</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="history-empty">沒有符合條件的列印紀錄</td></tr>';
                 return;
             }
 
             tbody.innerHTML = filtered.map(record => `
                 <tr>
                     <td>${formatHistoryTime(record.timestamp)}</td>
-                    <td>${record.customer}</td>
-                    <td>${record.location}</td>
-                    <td>${record.product}</td>
+                    <td>${escapeHtml(record.customer)}</td>
+                    <td>${escapeHtml(record.location)}</td>
+                    <td>${escapeHtml(record.product)}</td>
                     <td>${record.qty}</td>
+                    <td style="color:${String(record.status || '').startsWith('失敗') ? '#c92a2a' : '#2b8a3e'};">${escapeHtml(record.status || '成功')}</td>
                 </tr>
             `).join('');
         }
@@ -6640,7 +6857,7 @@ html, body {
 
             const totalPrintedThisTime = appendLabelsFromItems(printArea, printItems);
 
-            recordPrintHistory(subProd, printItems);
+            recordPrintHistory(subProd, printItems, { source: '網頁-系統標籤' });
 
             printCount += totalPrintedThisTime;
             localStorage.setItem('labelPrintCount', printCount);
@@ -6668,6 +6885,7 @@ html, body {
 
             try {
                 const orderIds = [];
+                let successCount = 0;
                 if (platform === 'barcode') {
                     await ensureHtml2Canvas();
                     const jobs = [];
@@ -6676,14 +6894,59 @@ html, body {
                     });
                     for (let i = 0; i < jobs.length; i++) {
                         const item = jobs[i];
-                        const imagePayload = await captureShippingLabelImageBase64(item.customer, item.location, item.product);
+                        const labelProduct = item.product || subProd;
+                        let imagePayload;
+                        try {
+                            imagePayload = await captureShippingLabelImageBase64(item.customer, item.location, labelProduct);
+                        } catch (err) {
+                            const msg = err.message || String(err);
+                            recordSingleLabelPrint({
+                                product: labelProduct,
+                                customer: item.customer,
+                                location: item.location,
+                                status: '失敗',
+                                errorMessage: msg,
+                                source: '網頁-API標籤'
+                            });
+                            alert(`API 列印失敗（第 ${i + 1}/${jobs.length} 張）：${msg}`);
+                            if (successCount > 0) {
+                                printCount += successCount;
+                                localStorage.setItem('labelPrintCount', printCount);
+                                document.getElementById('count-num').innerText = printCount;
+                                persistEmbeddedData();
+                            }
+                            return;
+                        }
                         const result = await sendXpyunDocumentPrint(imagePayload, cfg, {
                             idempotent: `yf-img-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`
                         });
                         if (!result.ok) {
-                            alert('API 列印失敗：' + result.message);
+                            recordSingleLabelPrint({
+                                product: labelProduct,
+                                customer: item.customer,
+                                location: item.location,
+                                status: '失敗',
+                                errorMessage: result.message,
+                                source: '網頁-API標籤'
+                            });
+                            alert(`API 列印失敗（第 ${i + 1}/${jobs.length} 張）：${result.message}`);
+                            if (successCount > 0) {
+                                printCount += successCount;
+                                localStorage.setItem('labelPrintCount', printCount);
+                                document.getElementById('count-num').innerText = printCount;
+                                persistEmbeddedData();
+                            }
                             return;
                         }
+                        recordSingleLabelPrint({
+                            product: labelProduct,
+                            customer: item.customer,
+                            location: item.location,
+                            status: '成功',
+                            source: '網頁-API標籤',
+                            orderId: result.orderId
+                        });
+                        successCount++;
                         if (result.orderId) orderIds.push(result.orderId);
                     }
                 } else {
@@ -6702,10 +6965,11 @@ html, body {
                         }
                         if (result.orderId) orderIds.push(result.orderId);
                     }
+                    recordPrintHistory(subProd, printItems, { source: '網頁-API標籤' });
+                    successCount = totalPrinted;
                 }
 
-                recordPrintHistory(subProd, printItems);
-                printCount += totalPrinted;
+                printCount += successCount;
                 localStorage.setItem('labelPrintCount', printCount);
                 document.getElementById('count-num').innerText = printCount;
                 persistEmbeddedData();
@@ -6713,7 +6977,7 @@ html, body {
                 const orderNote = orderIds.length
                     ? `\n訂單號：${orderIds.join('、')}`
                     : '';
-                alert(`已送出 API 列印 ${totalPrinted} 張${orderNote}\n請稍候確認印表機出紙。`);
+                alert(`已送出 API 列印 ${successCount} 張${orderNote}\n請稍候確認印表機出紙。`);
             } catch (err) {
                 const hint = isLikelyBrowserCorsError(err)
                     ? '瀏覽器無法直連芯烨雲，請填「API 代理網址」（可為雲端主機，不必是本機）'
@@ -7290,7 +7554,7 @@ html, body {
             if (getGitHubConfig() && shouldAutoPullFromGitHubOnStart()) {
                 storeGitHubDataSha(loadStoredGitHubDataSha());
                 try {
-                    await loadDataFromGitHub();
+                    await loadDataFromGitHub({ force: shouldForceSharedDataOnStart() });
                 } catch (err) {
                     console.error('GitHub 載入失敗', err);
                 }
@@ -7412,6 +7676,78 @@ html, body {
         let githubSaveTimer = null;
         let githubSaveChain = Promise.resolve();
         let githubSyncState = 'idle';
+        let serverLabelDataSync = null;
+
+        function isRenderHosted() {
+            return (location.hostname || '').toLowerCase().endsWith('.onrender.com');
+        }
+
+        async function probeServerLabelDataSync() {
+            if (location.protocol !== 'http:' && location.protocol !== 'https:') return null;
+            try {
+                const resp = await fetch(`${location.origin.replace(/\/$/, '')}/api/label-data/status`, { cache: 'no-store' });
+                if (!resp.ok) return null;
+                const data = await resp.json();
+                if (!data?.ok) return null;
+                serverLabelDataSync = data;
+                return data;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function hasServerLabelDataWrite() {
+            return !!(serverLabelDataSync && serverLabelDataSync.canWrite);
+        }
+
+        function shouldForceSharedDataOnStart() {
+            return isRenderHosted() || hasServerLabelDataWrite();
+        }
+
+        async function fetchServerLabelData() {
+            const resp = await fetch(`${location.origin.replace(/\/$/, '')}/api/label-data`, { cache: 'no-store' });
+            const payload = await resp.json().catch(() => ({}));
+            if (!resp.ok || !payload.ok || !payload.data) {
+                throw new Error(payload.message || '無法讀取伺服器共用資料');
+            }
+            if (payload.sha) storeGitHubDataSha(payload.sha);
+            return payload.data;
+        }
+
+        async function saveAllDataViaServer(options = {}) {
+            const maxAttempts = options.maxAttempts || 5;
+            const apiBase = location.origin.replace(/\/$/, '');
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                try {
+                    const refresh = await fetch(`${apiBase}/api/label-data`, { cache: 'no-store' });
+                    const refreshed = await refresh.json().catch(() => ({}));
+                    if (refreshed.sha) storeGitHubDataSha(refreshed.sha);
+                } catch (err) {}
+                const exportedAt = new Date().toISOString();
+                const data = buildExportData(exportedAt);
+                const resp = await fetch(`${apiBase}/api/label-data`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data, sha: githubDataSha })
+                });
+                const result = await resp.json().catch(() => ({}));
+                if (!resp.ok) {
+                    if (resp.status === 409 && attempt < maxAttempts) {
+                        await new Promise(resolve => setTimeout(resolve, 250 * attempt));
+                        continue;
+                    }
+                    throw new Error(result.message || `伺服器寫入失敗 (${resp.status})`);
+                }
+                storeGitHubDataSha(result.sha);
+                localStorage.setItem('lastSyncExportedAt', exportedAt);
+                localStorage.setItem('lastGitHubSyncAt', exportedAt);
+                markLocalDataSynced(exportedAt);
+                updateSyncStatusDisplay();
+                updateGitHubStatusDisplay();
+                return { ok: true };
+            }
+            throw new Error('伺服器同步失敗：多次重試後仍無法寫入');
+        }
 
         function setGitHubSyncState(state, errMsg) {
             githubSyncState = state;
@@ -7445,6 +7781,16 @@ html, body {
         }
 
         async function refreshGitHubDataSha() {
+            if (hasServerLabelDataWrite()) {
+                try {
+                    const resp = await fetch(`${location.origin.replace(/\/$/, '')}/api/label-data`, { cache: 'no-store' });
+                    const payload = await resp.json().catch(() => ({}));
+                    if (payload.sha) {
+                        storeGitHubDataSha(payload.sha);
+                        return payload.sha;
+                    }
+                } catch (err) {}
+            }
             const cfg = getGitHubConfig();
             if (!cfg?.token) return githubDataSha;
             const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
@@ -7513,6 +7859,8 @@ html, body {
 
         function shouldAutoPullFromGitHubOnStart() {
             if (location.hostname.endsWith('github.io')) return true;
+            if (isRenderHosted()) return true;
+            if (hasServerLabelDataWrite()) return true;
             return localStorage.getItem(GITHUB_KEYS.autoPullOnStart) === '1';
         }
 
@@ -7541,6 +7889,7 @@ html, body {
         }
 
         function canSaveToGitHub() {
+            if (hasServerLabelDataWrite()) return true;
             const cfg = getGitHubConfig();
             return !!(cfg && cfg.token);
         }
@@ -7631,14 +7980,24 @@ html, body {
             const readOnly = !canSaveToGitHub();
             let data = null;
 
+            if (location.protocol === 'http:' || location.protocol === 'https:') {
+                try {
+                    data = await fetchServerLabelData();
+                } catch (err) {
+                    console.warn('伺服器共用資料載入失敗，改試其他來源', err);
+                }
+            }
+
             if (readOnly) {
-                data = await fetchGitHubDataFromPages();
+                if (!data) data = await fetchGitHubDataFromPages();
                 if (!data) data = await fetchGitHubDataPublic();
             } else {
-                try {
-                    data = await fetchGitHubDataApi();
-                } catch (err) {
-                    console.warn('GitHub API 載入失敗，改試 GitHub Pages', err);
+                if (!data) {
+                    try {
+                        data = await fetchGitHubDataApi();
+                    } catch (err) {
+                        console.warn('GitHub API 載入失敗，改試 GitHub Pages', err);
+                    }
                 }
                 if (!data) data = await fetchGitHubDataFromPages();
                 if (!data) data = await fetchGitHubDataPublic();
@@ -7673,6 +8032,9 @@ html, body {
         }
 
         async function saveAllDataToGitHub(options = {}) {
+            if (hasServerLabelDataWrite()) {
+                return saveAllDataViaServer(options);
+            }
             if (!canSaveToGitHub()) throw new Error('請先設定 GitHub Token');
             const cfg = getGitHubConfig();
             const maxAttempts = options.maxAttempts || 5;
@@ -7762,7 +8124,9 @@ html, body {
             const last = localStorage.getItem('lastGitHubSyncAt');
             const syncErr = sessionStorage.getItem('lastGitHubSyncError');
             let saveState;
-            if (cfg.token) {
+            if (hasServerLabelDataWrite()) {
+                saveState = '<strong style="color:#28a745;">Render 共用</strong>（伺服器 Token，所有人同一份資料，改完約 1 秒自動存）';
+            } else if (cfg.token) {
                 saveState = '<strong style="color:#28a745;">可讀寫</strong>（本機 Token，改完約 1 秒自動存）';
             } else {
                 const readAt = sessionStorage.getItem('lastGitHubReadOnlyLoadAt');
@@ -8019,6 +8383,7 @@ html, body {
         async function startApp() {
             initWebAppShell();
             await initPrinterConfigDefaults();
+            await probeServerLabelDataSync();
             await initEmbeddedStorage();
             await forceRecoverDataIfEmpty();
             normalizeCustomerColumns();
@@ -8028,6 +8393,7 @@ html, body {
             renderDraftPanel();
             renderAuctionUi();
             fillGitHubConfigForm();
+            fillGoogleSheetLogForm();
             fillPrinterSettingsForm();
             updateDirectHtmlOpenHint();
             updateGitHubMobilePrinterHint();

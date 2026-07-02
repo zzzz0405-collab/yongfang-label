@@ -376,8 +376,9 @@ app.get('/api/health', (req, res) => {
     res.json({
         ok: true,
         service: CLOUD_PROXY_ONLY ? 'yongfang-cloud-print-proxy' : 'yongfang-printer-status',
-        rev: 3,
-        features: ['xpyun-print-label', 'xpyun-print-document'],
+        rev: 4,
+        features: ['xpyun-print-label', 'xpyun-print-document', 'label-data-sync'],
+        labelDataSync: !!String(process.env.GITHUB_TOKEN || '').trim(),
         cloudProxyOnly: CLOUD_PROXY_ONLY
     });
 });
@@ -446,6 +447,217 @@ app.post('/api/xpyun-print-label', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ ok: false, code: -1, message: err.message || String(err), orderId: null });
+    }
+});
+
+function getGitHubEnvConfig() {
+    return {
+        token: String(process.env.GITHUB_TOKEN || '').trim(),
+        owner: String(process.env.GITHUB_OWNER || 'zzzz0405-collab').trim(),
+        repo: String(process.env.GITHUB_REPO || 'yongfang-label').trim(),
+        branch: String(process.env.GITHUB_BRANCH || 'main').trim(),
+        dataPath: String(process.env.GITHUB_DATA_PATH || 'label-data.json').trim()
+    };
+}
+
+function isValidLabelDataPayload(data) {
+    return !!(data && Array.isArray(data.myProducts) && Array.isArray(data.myCustomersList));
+}
+
+async function githubApiRequest(path, options = {}) {
+    const cfg = getGitHubEnvConfig();
+    if (!cfg.token) throw new Error('GITHUB_TOKEN 未設定');
+    const res = await fetch(`https://api.github.com${path}`, {
+        ...options,
+        headers: {
+            Accept: 'application/vnd.github+json',
+            Authorization: `Bearer ${cfg.token}`,
+            'X-GitHub-Api-Version': '2022-11-28',
+            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+            ...(options.headers || {})
+        }
+    });
+    if (!res.ok) {
+        let msg = `GitHub API ${res.status}`;
+        try {
+            const err = await res.json();
+            if (err.message) msg = err.message;
+        } catch (e) {}
+        const error = new Error(msg);
+        error.status = res.status;
+        throw error;
+    }
+    if (res.status === 204) return null;
+    return res.json();
+}
+
+async function fetchPublicLabelDataFromGitHub() {
+    const cfg = getGitHubEnvConfig();
+    const url = `https://raw.githubusercontent.com/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/${encodeURIComponent(cfg.branch)}/${cfg.dataPath.split('/').map(encodeURIComponent).join('/')}?t=${Date.now()}`;
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (!isValidLabelDataPayload(data)) return null;
+    return { data, sha: null, source: 'raw' };
+}
+
+async function fetchLabelDataFromGitHubApi() {
+    const cfg = getGitHubEnvConfig();
+    const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
+    try {
+        const meta = await githubApiRequest(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}?ref=${encodeURIComponent(cfg.branch)}`);
+        const content = Buffer.from(String(meta.content || '').replace(/\s/g, ''), 'base64').toString('utf8');
+        const data = JSON.parse(content);
+        if (!isValidLabelDataPayload(data)) return null;
+        return { data, sha: meta.sha, source: 'api' };
+    } catch (err) {
+        if (err.status === 404) return null;
+        throw err;
+    }
+}
+
+async function readSharedLabelData() {
+    const cfg = getGitHubEnvConfig();
+    if (cfg.token) {
+        const fromApi = await fetchLabelDataFromGitHubApi();
+        if (fromApi) return fromApi;
+    }
+    const fromRaw = await fetchPublicLabelDataFromGitHub();
+    if (fromRaw) return fromRaw;
+    try {
+        const fs = require('fs');
+        const localPath = path.join(__dirname, cfg.dataPath);
+        if (!fs.existsSync(localPath)) return null;
+        const data = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+        if (!isValidLabelDataPayload(data)) return null;
+        return { data, sha: null, source: 'local-file' };
+    } catch (err) {
+        return null;
+    }
+}
+
+async function writeSharedLabelData(data, sha) {
+    const cfg = getGitHubEnvConfig();
+    if (!cfg.token) throw new Error('GITHUB_TOKEN 未設定，無法寫入 GitHub');
+    if (!isValidLabelDataPayload(data)) throw new Error('資料格式不正確');
+    const encodedPath = cfg.dataPath.split('/').map(encodeURIComponent).join('/');
+    const exportedAt = data.exportedAt || new Date().toISOString();
+    const body = {
+        message: `更新標籤資料 ${exportedAt}`,
+        content: Buffer.from(JSON.stringify(data, null, 2), 'utf8').toString('base64'),
+        branch: cfg.branch
+    };
+    if (sha) body.sha = sha;
+    try {
+        const result = await githubApiRequest(`/repos/${cfg.owner}/${cfg.repo}/contents/${encodedPath}`, {
+            method: 'PUT',
+            body: JSON.stringify(body)
+        });
+        return { sha: result.content.sha, exportedAt };
+    } catch (err) {
+        if (err.status === 409) {
+            const err409 = new Error(err.message || 'GitHub SHA 衝突');
+            err409.status = 409;
+            throw err409;
+        }
+        throw err;
+    }
+}
+
+app.get('/api/label-data/status', (req, res) => {
+    const cfg = getGitHubEnvConfig();
+    res.json({
+        ok: true,
+        configured: !!(cfg.owner && cfg.repo),
+        canWrite: !!cfg.token,
+        owner: cfg.owner,
+        repo: cfg.repo,
+        branch: cfg.branch,
+        dataPath: cfg.dataPath
+    });
+});
+
+app.get('/api/label-data', async (req, res) => {
+    try {
+        const result = await readSharedLabelData();
+        if (!result) {
+            return res.status(404).json({ ok: false, message: '找不到 label-data.json' });
+        }
+        res.json({
+            ok: true,
+            data: result.data,
+            sha: result.sha,
+            source: result.source
+        });
+    } catch (err) {
+        res.status(500).json({ ok: false, message: err.message || String(err) });
+    }
+});
+
+app.put('/api/label-data', async (req, res) => {
+    try {
+        const data = req.body && req.body.data;
+        const sha = req.body && req.body.sha;
+        const saved = await writeSharedLabelData(data, sha);
+        res.json({ ok: true, sha: saved.sha, exportedAt: saved.exportedAt });
+    } catch (err) {
+        const status = err.status === 409 ? 409 : 500;
+        res.status(status).json({ ok: false, message: err.message || String(err) });
+    }
+});
+
+async function postGoogleSheetLog(targetUrl, records) {
+    const url = String(targetUrl || process.env.GOOGLE_SHEET_LOG_URL || '').trim();
+    if (!url) {
+        return { ok: false, message: '未設定 Google Sheet 紀錄 URL' };
+    }
+    if (!Array.isArray(records) || !records.length) {
+        return { ok: false, message: 'records 為空' };
+    }
+    const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ records })
+    });
+    const text = await resp.text();
+    try {
+        return JSON.parse(text);
+    } catch (err) {
+        return { ok: resp.ok, raw: text };
+    }
+}
+
+async function fetchGoogleSheetOpenUrl(targetUrl, target) {
+    const url = String(targetUrl || process.env.GOOGLE_SHEET_LOG_URL || '').trim();
+    if (!url) {
+        return { ok: false, message: '未設定 Google Sheet 紀錄 URL' };
+    }
+    const which = target === 'yesterday' ? 'yesterday' : 'today';
+    const resp = await fetch(`${url}?url=${which}`);
+    const text = await resp.text();
+    try {
+        return JSON.parse(text);
+    } catch (err) {
+        return { ok: false, message: text || '無法解析試算表回應' };
+    }
+}
+
+app.post('/api/sheet-log', async (req, res) => {
+    try {
+        const { url, records } = req.body || {};
+        const result = await postGoogleSheetLog(url, records);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ ok: false, message: err.message || String(err) });
+    }
+});
+
+app.get('/api/sheet-log-url', async (req, res) => {
+    try {
+        const result = await fetchGoogleSheetOpenUrl(req.query.url, req.query.target);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ ok: false, message: err.message || String(err) });
     }
 });
 
